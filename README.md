@@ -10,6 +10,12 @@ Designed for integration with LLMs (e.g. Claude Code via MCP) to programmaticall
   <em>Claude Code creating a complete Web Shopping ER diagram through the StarUML Controller API</em>
 </p>
 
+<p align="center">
+  <img src="images/image2.jpg" alt="PostgreSQL DDL generated from an ER diagram by StarUML Controller" width="800">
+  <br>
+  <em>PostgreSQL DDL exported from the ER diagram via the API</em>
+</p>
+
 ## Supported Versions
 
 - StarUML v6 and later (`engines.staruml: ">=6.0.0"`)
@@ -162,7 +168,8 @@ staruml-controller/
 ├── docs/
 │   └── api.html       # API documentation (HTML)
 ├── images/
-│   └── image1.gif     # Demo animation
+│   ├── image1.gif     # Demo animation
+│   └── image2.jpg     # PostgreSQL DDL export screenshot
 ├── package.json       # Extension metadata
 └── README.md
 ```
