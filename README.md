@@ -89,7 +89,7 @@ Restart StarUML to load the extension.
 | `/api/erd/relationships/:id` | GET / PUT / DELETE | Get, update, or delete relationship |
 | `/api/erd/postgresql/ddl` | POST | Generate PostgreSQL DDL to a file |
 
-For full API specifications including request/response formats, validation rules, and error codes, see the [API Documentation](docs/api.html).
+For full API specifications including request/response formats, validation rules, and error codes, see the [API Documentation](https://pontasan.github.io/staruml-controller/api.html).
 
 ## Examples
 
