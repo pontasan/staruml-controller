@@ -1,0 +1,26 @@
+{
+  "menu": [
+    {
+      "id": "tools",
+      "submenu": [
+        {
+          "label": "StarUML Controller",
+          "id": "tools.controller",
+          "submenu": [
+            {
+              "label": "Start Server...",
+              "id": "tools.controller.start",
+              "command": "controller:start-server"
+            },
+            { "type": "separator" },
+            {
+              "label": "Stop Server",
+              "id": "tools.controller.stop",
+              "command": "controller:stop-server"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "staruml-controller",
+  "title": "StarUML Controller",
+  "description": "Remote control StarUML ER diagrams via HTTP server",
+  "homepage": "https://github.com/staruml-controller",
+  "version": "1.0.0",
+  "keywords": ["erd", "http", "server", "remote", "controller"],
+  "author": {
+    "name": "StarUML Controller"
+  },
+  "license": "MIT",
+  "engines": {
+    "staruml": ">=6.0.0"
+  }
+}
