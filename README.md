@@ -11,15 +11,15 @@ Designed for integration with AI tools such as Claude Code (via MCP) to programm
 </p>
 
 <p align="center">
-  <img src="images/image3.gif" alt="AI generating a Login Check sequence diagram from source code in StarUML via REST API" width="800">
-  <br>
-  <em>An AI tool analyzing source code and generating a Login Check sequence diagram through the API</em>
-</p>
-
-<p align="center">
   <img src="images/image2.jpg" alt="PostgreSQL DDL generated from an ER diagram by StarUML Controller" width="800">
   <br>
   <em>PostgreSQL DDL exported from the ER diagram via the API</em>
+</p>
+
+<p align="center">
+  <img src="images/image3.gif" alt="AI generating a Login Check sequence diagram from source code in StarUML via REST API" width="800">
+  <br>
+  <em>An AI tool analyzing source code and generating a Login Check sequence diagram through the API</em>
 </p>
 
 ## Supported Versions
