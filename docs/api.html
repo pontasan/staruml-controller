@@ -1,0 +1,3623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarUML Controller API Documentation</title>
+<style>
+:root {
+  --sidebar-width: 320px;
+  --bg-color: #fff;
+  --text-color: #333;
+  --border-color: #e0e0e0;
+  --code-bg: #f5f5f5;
+  --sidebar-bg: #f8f9fa;
+  --sidebar-hover: #e9ecef;
+  --accent-color: #0066cc;
+  --get-color: #28a745;
+  --post-color: #007bff;
+  --put-color: #fd7e14;
+  --delete-color: #dc3545;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  background: var(--bg-color);
+}
+
+/* --- Sidebar --- */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 16px 0;
+  z-index: 100;
+}
+
+#sidebar h2 {
+  padding: 0 16px 12px;
+  font-size: 16px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+  color: var(--accent-color);
+}
+
+#sidebar ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+#sidebar li a {
+  display: block;
+  padding: 4px 8px;
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+
+#sidebar li a:hover {
+  background: var(--sidebar-hover);
+  border-left-color: var(--accent-color);
+}
+
+#sidebar .nav-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+#sidebar .nav-item a {
+  flex: 1;
+  min-width: 0;
+}
+
+#sidebar .toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  min-width: 16px;
+  height: 20px;
+  font-size: 8px;
+  color: #999;
+  cursor: pointer;
+  transition: transform 0.15s;
+  margin-top: 4px;
+}
+
+#sidebar .toggle.open {
+  transform: rotate(90deg);
+}
+
+#sidebar .sub-items {
+  display: none;
+}
+
+#sidebar .sub-items.open {
+  display: block;
+}
+
+#sidebar .nav-h2 > a,
+#sidebar .nav-h2 > .nav-item > a {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent-color);
+  padding-top: 10px;
+  padding-bottom: 4px;
+}
+
+#sidebar .nav-h2 > .nav-item {
+  padding: 0 8px;
+}
+
+#sidebar .nav-h3 > a,
+#sidebar .nav-h3 > .nav-item > a {
+  padding-left: 4px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+}
+
+#sidebar .nav-h3 > .nav-item {
+  padding-left: 20px;
+}
+
+#sidebar .nav-h3 > a {
+  padding-left: 20px;
+}
+
+#sidebar .nav-h4 a {
+  padding-left: 48px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.nav-action {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  margin-bottom: 1px;
+}
+
+.nav-endpoint {
+  display: block;
+  line-height: 1.3;
+}
+
+.method {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #fff;
+  min-width: 38px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.method-get { background: var(--get-color); }
+.method-post { background: var(--post-color); }
+.method-put { background: var(--put-color); }
+.method-delete { background: var(--delete-color); }
+
+.path {
+  font-family: monospace;
+  font-size: 10px;
+  color: #888;
+  vertical-align: middle;
+}
+
+/* --- Content --- */
+#content {
+  margin-left: var(--sidebar-width);
+  padding: 32px 48px;
+  max-width: 960px;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+h2 {
+  font-size: 22px;
+  margin-top: 40px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+h3 {
+  font-size: 18px;
+  margin-top: 32px;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+h4 {
+  font-size: 16px;
+  margin-top: 28px;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.endpoint-action {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+  padding: 4px 0;
+}
+
+.endpoint-detail {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+p {
+  margin-bottom: 12px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background: var(--sidebar-bg);
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background: #fafafa;
+}
+
+code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  font-size: 13px;
+}
+
+pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 32px 0;
+}
+
+ul, ol {
+  margin-bottom: 12px;
+  padding-left: 24px;
+}
+
+li {
+  margin-bottom: 4px;
+}
+
+strong {
+  color: #222;
+}
+
+@media (max-width: 768px) {
+  #sidebar {
+    display: none;
+  }
+  #content {
+    margin-left: 0;
+    padding: 16px;
+  }
+}
+</style>
+</head>
+<body>
+<nav id="sidebar">
+<h2>StarUML Controller API</h2>
+<ul>
+  <li class="nav-h2 has-children">
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#overview">Overview</a></div>
+    <ul class="sub-items">
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#general">General</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#id-format-and-url-encoding">ID Format and URL Encoding</a></li>
+          <li class="nav-h4"><a href="#common-response-format">Common Response Format</a></li>
+          <li class="nav-h4"><a href="#input-validation">Input Validation</a></li>
+          <li class="nav-h4"><a href="#tag-kind-constraints">Tag Kind Constraints</a></li>
+          <li class="nav-h4"><a href="#http-status-codes">HTTP Status Codes</a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#er-diagram">ER Diagram</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#column-type-constraints">Column Type Constraints</a></li>
+          <li class="nav-h4"><a href="#referential-integrity-checks">Referential Integrity Checks</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li class="nav-h2 has-children">
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#endpoint-summary">Endpoint Summary</a></div>
+    <ul class="sub-items">
+      <li class="nav-h3"><a href="#general-1">General</a></li>
+      <li class="nav-h3"><a href="#er-diagram-1">ER Diagram</a></li>
+    </ul>
+  </li>
+  <li class="nav-h2 has-children">
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#general-2">General</a></div>
+    <ul class="sub-items">
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#status">Status</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-status"><span class="nav-action">Return the server health check and a list of available endpoints.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/status</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#elements">Elements</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-elements-id"><span class="nav-action">Get any element by its ID.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/elements/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#tags">Tags</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-elements-id-tags"><span class="nav-action">List all tags attached to the specified element (entity, column, or any other element).</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/elements/:id/tags</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-elements-id-tags"><span class="nav-action">Create a new tag on the specified element.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/elements/:id/tags</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-tags-id"><span class="nav-action">Get the details of the specified tag.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/tags/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-tags-id"><span class="nav-action">Update the specified tag.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/tags/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-tags-id"><span class="nav-action">Delete the specified tag.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/tags/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#project">Project</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#post-api-project-save"><span class="nav-action">Save the project to the specified absolute path.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/project/save</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-project-open"><span class="nav-action">Open an existing .mdj file from the specified absolute path.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/project/open</span></span></a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li class="nav-h2 has-children">
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#er-diagram-2">ER Diagram</a></div>
+    <ul class="sub-items">
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#diagrams">Diagrams</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-diagrams"><span class="nav-action">List all ERD diagrams in the project.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/diagrams</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-diagrams"><span class="nav-action">Create a new ERD diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/diagrams</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-diagrams-id"><span class="nav-action">Get the details of the specified diagram.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/diagrams/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-diagrams-id"><span class="nav-action">Update the specified diagram.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/diagrams/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-diagrams-id"><span class="nav-action">Delete the specified diagram.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/diagrams/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#data-models">Data Models</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-data-models"><span class="nav-action">List all ERD data models in the project.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/data-models</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-data-models"><span class="nav-action">Create a new ERD data model.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/data-models</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-data-models-id"><span class="nav-action">Get the details of the specified data model.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/data-models/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-data-models-id"><span class="nav-action">Update the specified data model (rename).</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/data-models/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-data-models-id"><span class="nav-action">Delete the specified data model.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/data-models/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#entities">Entities</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-entities"><span class="nav-action">List entities (tables).</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/entities</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-entities"><span class="nav-action">Create a new entity (table).</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/entities</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-entities-id"><span class="nav-action">Get the details of the specified entity.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/entities/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-entities-id"><span class="nav-action">Update the specified entity.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/entities/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-entities-id"><span class="nav-action">Delete the specified entity.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/entities/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#columns">Columns</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-entities-id-columns"><span class="nav-action">List all columns of the specified entity.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/entities/:id/columns</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-entities-id-columns"><span class="nav-action">Add a new column to the specified entity.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/entities/:id/columns</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-columns-id"><span class="nav-action">Get the details of the specified column.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/columns/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-columns-id"><span class="nav-action">Update the specified column.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/columns/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-columns-id"><span class="nav-action">Delete the specified column.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/columns/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#sequences">Sequences</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-entities-id-sequences"><span class="nav-action">List all sequences of the specified entity.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/entities/:id/sequences</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-entities-id-sequences"><span class="nav-action">Create a new sequence on the specified entity.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/entities/:id/sequences</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-sequences-id"><span class="nav-action">Get the details of the specified sequence.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/sequences/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-sequences-id"><span class="nav-action">Update the specified sequence.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/sequences/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-sequences-id"><span class="nav-action">Delete the specified sequence.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/sequences/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#indexes">Indexes</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-entities-id-indexes"><span class="nav-action">List all indexes of the specified entity.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/entities/:id/indexes</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-entities-id-indexes"><span class="nav-action">Create a new index on the specified entity.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/entities/:id/indexes</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-indexes-id"><span class="nav-action">Get the details of the specified index.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/indexes/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-indexes-id"><span class="nav-action">Update the specified index.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/indexes/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-indexes-id"><span class="nav-action">Delete the specified index.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/indexes/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#relationships">Relationships</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-erd-relationships"><span class="nav-action">List relationships (associations between tables).</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/relationships</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-erd-relationships"><span class="nav-action">Create a new relationship (association between tables).</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/relationships</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-erd-relationships-id"><span class="nav-action">Get the details of the specified relationship.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/erd/relationships/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-erd-relationships-id"><span class="nav-action">Update the specified relationship.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/erd/relationships/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-erd-relationships-id"><span class="nav-action">Delete the specified relationship.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/erd/relationships/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#postgresql-ddl">PostgreSQL DDL</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#post-api-erd-postgresql-ddl"><span class="nav-action">Generate PostgreSQL DDL (Data Definition Language) from the ER diagram and write it to the specified absolute path.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/postgresql/ddl</span></span></a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+</nav>
+
+<div id="content">
+<h1>StarUML Controller API</h1>
+<h2 id="overview">Overview</h2>
+<ul>
+<li>Protocol: HTTP</li>
+<li>Default port: 12345 (configurable from 1 to 65535 via dialog)</li>
+<li>Request/Response format: JSON (<code>Content-Type: application/json; charset=utf-8</code>)</li>
+<li>CORS: All origins allowed (<code>Access-Control-Allow-Origin: *</code>)</li>
+</ul>
+<h3 id="general">General</h3>
+<h4 id="id-format-and-url-encoding">ID Format and URL Encoding</h4>
+<p>StarUML element IDs are Base64-encoded GUIDs that may contain <code>/</code> (slash), <code>+</code> (plus), and <code>=</code> (equals).
+When specifying an ID in a URL path parameter, the client must URL-encode it (e.g., <code>/</code> → <code>%2F</code>, <code>+</code> → <code>%2B</code>, <code>=</code> → <code>%3D</code>).
+The server automatically URL-decodes path parameters.</p>
+<h4 id="common-response-format">Common Response Format</h4>
+<p>Success:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;A message describing the operation&quot;,
+  &quot;request&quot;: {
+    &quot;method&quot;: &quot;POST&quot;,
+    &quot;path&quot;: &quot;/api/erd/entities&quot;,
+    &quot;body&quot;: { &quot;parentId&quot;: &quot;xxx&quot;, &quot;name&quot;: &quot;users&quot; }
+  },
+  &quot;data&quot;: { ... }
+}
+</code></pre>
+<p>Error:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: false,
+  &quot;error&quot;: &quot;Detailed error message&quot;,
+  &quot;request&quot;: {
+    &quot;method&quot;: &quot;PUT&quot;,
+    &quot;path&quot;: &quot;/api/erd/columns/xxx&quot;,
+    &quot;body&quot;: { &quot;type&quot;: &quot;INVALID&quot; }
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>success</td>
+<td><code>true</code> on success / <code>false</code> on failure</td>
+</tr>
+<tr>
+<td>message</td>
+<td>Success only. Description of the operation performed</td>
+</tr>
+<tr>
+<td>error</td>
+<td>Failure only. Detailed reason for the error</td>
+</tr>
+<tr>
+<td>request</td>
+<td>Request information (method, path, query?, body?)</td>
+</tr>
+<tr>
+<td>data</td>
+<td>Success only. Response data</td>
+</tr>
+</tbody>
+</table>
+<h4 id="input-validation">Input Validation</h4>
+<p>All mutation endpoints (POST/PUT) perform the following validation:</p>
+<ul>
+<li><strong>Unknown field rejection</strong>: Fields not defined in the specification cause an error</li>
+<li><strong>Type checking</strong>: Each field value must match the expected type (string, boolean, number, etc.)</li>
+<li><strong>Required fields</strong>: Fields defined as required must be present</li>
+<li><strong>Empty body rejection</strong>: PUT requests require at least one field</li>
+<li><strong>Empty name rejection</strong>: The name field does not accept empty strings</li>
+<li><strong>Reference existence check</strong>: ID references (parentId, diagramId, referenceToId, etc.) are verified for existence and correct type</li>
+<li><strong>Referential integrity on delete</strong>: Deletion is blocked when other elements reference the target entity or column</li>
+<li><strong>Self-reference prevention</strong>: Setting a column's referenceToId to its own ID is forbidden</li>
+</ul>
+<h4 id="tag-kind-constraints">Tag Kind Constraints</h4>
+<p>The tag <code>kind</code> field accepts only the following values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>string</td>
+</tr>
+<tr>
+<td>1</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>2</td>
+<td>number</td>
+</tr>
+<tr>
+<td>3</td>
+<td>reference</td>
+</tr>
+<tr>
+<td>4</td>
+<td>hidden</td>
+</tr>
+</tbody>
+</table>
+<h4 id="http-status-codes">HTTP Status Codes</h4>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Bad request (JSON parse error, validation error, etc.)</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Resource not found / Route does not exist</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal server error</td>
+</tr>
+</tbody>
+</table>
+<h3 id="er-diagram">ER Diagram</h3>
+<h4 id="column-type-constraints">Column Type Constraints</h4>
+<p>The column <code>type</code> field accepts only the following values (case-insensitive; normalized to uppercase on save):</p>
+<p><code>CHAR</code>, <code>VARCHAR</code>, <code>TEXT</code>, <code>CLOB</code>, <code>BOOLEAN</code>, <code>SMALLINT</code>, <code>INTEGER</code>, <code>INT</code>, <code>BIGINT</code>, <code>TINYINT</code>, <code>FLOAT</code>, <code>DOUBLE</code>, <code>REAL</code>, <code>DECIMAL</code>, <code>NUMERIC</code>, <code>DATE</code>, <code>TIME</code>, <code>DATETIME</code>, <code>TIMESTAMP</code>, <code>BLOB</code>, <code>BINARY</code>, <code>VARBINARY</code>, <code>UUID</code>, <code>JSON</code>, <code>JSONB</code>, <code>XML</code>, <code>SERIAL</code>, <code>BIGSERIAL</code></p>
+<h4 id="referential-integrity-checks">Referential Integrity Checks</h4>
+<p>On DELETE operations, the following checks are performed to maintain data integrity. If a check fails, a 400 error is returned and the deletion is blocked.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Check</th>
+<th>Error behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DELETE DataModel</td>
+<td>Must not contain any entities, relationships, or diagrams</td>
+<td>400: Error message includes child element counts</td>
+</tr>
+<tr>
+<td>DELETE Entity</td>
+<td>No columns in other entities may reference this entity's columns via referenceTo</td>
+<td>400: Error message includes referencing column details</td>
+</tr>
+<tr>
+<td>DELETE Entity</td>
+<td>No relationships may reference this entity via end1/end2</td>
+<td>400: Error message includes referencing relationship details</td>
+</tr>
+<tr>
+<td>DELETE Column</td>
+<td>No other columns may reference this column via referenceTo</td>
+<td>400: Error message includes referencing column details</td>
+</tr>
+<tr>
+<td>PUT Column</td>
+<td>referenceToId must not be the column's own ID</td>
+<td>400: Self-reference error message</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="endpoint-summary">Endpoint Summary</h2>
+<h3 id="general-1">General</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/status</td>
+<td>GET</td>
+<td>Health check and endpoint list</td>
+</tr>
+<tr>
+<td>/api/elements/:id</td>
+<td>GET</td>
+<td>Get any element by ID</td>
+</tr>
+<tr>
+<td>/api/elements/:id/tags</td>
+<td>GET</td>
+<td>List tags for an element</td>
+</tr>
+<tr>
+<td>/api/elements/:id/tags</td>
+<td>POST</td>
+<td>Create a tag on an element</td>
+</tr>
+<tr>
+<td>/api/tags/:id</td>
+<td>GET</td>
+<td>Get tag details</td>
+</tr>
+<tr>
+<td>/api/tags/:id</td>
+<td>PUT</td>
+<td>Update a tag</td>
+</tr>
+<tr>
+<td>/api/tags/:id</td>
+<td>DELETE</td>
+<td>Delete a tag</td>
+</tr>
+<tr>
+<td>/api/project/save</td>
+<td>POST</td>
+<td>Save project to file</td>
+</tr>
+<tr>
+<td>/api/project/open</td>
+<td>POST</td>
+<td>Open project from file</td>
+</tr>
+</tbody>
+</table>
+<h3 id="er-diagram-1">ER Diagram</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/erd/diagrams</td>
+<td>GET</td>
+<td>List all ER diagrams</td>
+</tr>
+<tr>
+<td>/api/erd/diagrams</td>
+<td>POST</td>
+<td>Create an ER diagram</td>
+</tr>
+<tr>
+<td>/api/erd/diagrams/:id</td>
+<td>GET</td>
+<td>Get diagram details</td>
+</tr>
+<tr>
+<td>/api/erd/diagrams/:id</td>
+<td>PUT</td>
+<td>Update a diagram</td>
+</tr>
+<tr>
+<td>/api/erd/diagrams/:id</td>
+<td>DELETE</td>
+<td>Delete a diagram</td>
+</tr>
+<tr>
+<td>/api/erd/data-models</td>
+<td>GET</td>
+<td>List all data models</td>
+</tr>
+<tr>
+<td>/api/erd/data-models</td>
+<td>POST</td>
+<td>Create a data model</td>
+</tr>
+<tr>
+<td>/api/erd/data-models/:id</td>
+<td>GET</td>
+<td>Get data model details</td>
+</tr>
+<tr>
+<td>/api/erd/data-models/:id</td>
+<td>PUT</td>
+<td>Update a data model</td>
+</tr>
+<tr>
+<td>/api/erd/data-models/:id</td>
+<td>DELETE</td>
+<td>Delete a data model</td>
+</tr>
+<tr>
+<td>/api/erd/entities</td>
+<td>GET</td>
+<td>List entities (filterable)</td>
+</tr>
+<tr>
+<td>/api/erd/entities</td>
+<td>POST</td>
+<td>Create an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id</td>
+<td>GET</td>
+<td>Get entity details</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id</td>
+<td>PUT</td>
+<td>Update an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id</td>
+<td>DELETE</td>
+<td>Delete an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/columns</td>
+<td>GET</td>
+<td>List columns of an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/columns</td>
+<td>POST</td>
+<td>Create a column</td>
+</tr>
+<tr>
+<td>/api/erd/columns/:id</td>
+<td>GET</td>
+<td>Get column details</td>
+</tr>
+<tr>
+<td>/api/erd/columns/:id</td>
+<td>PUT</td>
+<td>Update a column</td>
+</tr>
+<tr>
+<td>/api/erd/columns/:id</td>
+<td>DELETE</td>
+<td>Delete a column</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/sequences</td>
+<td>GET</td>
+<td>List sequences of an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/sequences</td>
+<td>POST</td>
+<td>Create a sequence</td>
+</tr>
+<tr>
+<td>/api/erd/sequences/:id</td>
+<td>GET</td>
+<td>Get sequence details</td>
+</tr>
+<tr>
+<td>/api/erd/sequences/:id</td>
+<td>PUT</td>
+<td>Update a sequence</td>
+</tr>
+<tr>
+<td>/api/erd/sequences/:id</td>
+<td>DELETE</td>
+<td>Delete a sequence</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/indexes</td>
+<td>GET</td>
+<td>List indexes of an entity</td>
+</tr>
+<tr>
+<td>/api/erd/entities/:id/indexes</td>
+<td>POST</td>
+<td>Create an index</td>
+</tr>
+<tr>
+<td>/api/erd/indexes/:id</td>
+<td>GET</td>
+<td>Get index details</td>
+</tr>
+<tr>
+<td>/api/erd/indexes/:id</td>
+<td>PUT</td>
+<td>Update an index</td>
+</tr>
+<tr>
+<td>/api/erd/indexes/:id</td>
+<td>DELETE</td>
+<td>Delete an index</td>
+</tr>
+<tr>
+<td>/api/erd/relationships</td>
+<td>GET</td>
+<td>List relationships (filterable)</td>
+</tr>
+<tr>
+<td>/api/erd/relationships</td>
+<td>POST</td>
+<td>Create a relationship</td>
+</tr>
+<tr>
+<td>/api/erd/relationships/:id</td>
+<td>GET</td>
+<td>Get relationship details</td>
+</tr>
+<tr>
+<td>/api/erd/relationships/:id</td>
+<td>PUT</td>
+<td>Update a relationship</td>
+</tr>
+<tr>
+<td>/api/erd/relationships/:id</td>
+<td>DELETE</td>
+<td>Delete a relationship</td>
+</tr>
+<tr>
+<td>/api/erd/postgresql/ddl</td>
+<td>POST</td>
+<td>Generate PostgreSQL DDL</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="general-2">General</h2>
+<h3 id="status">Status</h3>
+<h4 id="get-api-status">GET /api/status</h4>
+<div class="endpoint-action">Return the server health check and a list of available endpoints.</div>
+<p class="endpoint-detail">GET / returns the same response.</p>
+<p><strong>Request</strong>: None</p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Server is running&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/status&quot; },
+  &quot;data&quot;: {
+    &quot;status&quot;: &quot;running&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;allowedColumnTypes&quot;: [&quot;CHAR&quot;, &quot;VARCHAR&quot;, &quot;TEXT&quot;, &quot;...&quot;],
+    &quot;allowedTagKinds&quot;: { &quot;0&quot;: &quot;string&quot;, &quot;1&quot;: &quot;boolean&quot;, &quot;2&quot;: &quot;number&quot;, &quot;3&quot;: &quot;reference&quot;, &quot;4&quot;: &quot;hidden&quot; },
+    &quot;endpoints&quot;: [
+      &quot;GET  /api/status&quot;,
+      &quot;GET  /api/erd/diagrams&quot;,
+      &quot;GET  /api/erd/data-models&quot;,
+      &quot;...&quot;
+    ]
+  }
+}
+</code></pre>
+<hr />
+<h3 id="elements">Elements</h3>
+<h4 id="get-api-elements-id">GET /api/elements/:id</h4>
+<div class="endpoint-action">Get any element by its ID.</div>
+<p class="endpoint-detail">The element is serialized in a format appropriate for its type.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Element ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: An object in the format corresponding to the element's type:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Serialization format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ERDEntity</td>
+<td>Entity object (including columns and tags)</td>
+</tr>
+<tr>
+<td>ERDColumn</td>
+<td>Column object</td>
+</tr>
+<tr>
+<td>ERDDiagram</td>
+<td>Diagram object</td>
+</tr>
+<tr>
+<td>ERDRelationship</td>
+<td>Relationship object</td>
+</tr>
+<tr>
+<td>Tag</td>
+<td>Tag object</td>
+</tr>
+<tr>
+<td>Other</td>
+<td>Basic object (_id, _type, name, documentation)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 404: Element with the specified ID not found</p>
+<hr />
+<h3 id="tags">Tags</h3>
+<h4 id="get-api-elements-id-tags">GET /api/elements/:id/tags</h4>
+<div class="endpoint-action">List all tags attached to the specified element (entity, column, or any other element).</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Element ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 tag(s) from \&quot;users\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/elements/AAAAAAGVyyyy/tags&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVtttt&quot;,
+      &quot;_type&quot;: &quot;Tag&quot;,
+      &quot;name&quot;: &quot;schema&quot;,
+      &quot;kind&quot;: 0,
+      &quot;value&quot;: &quot;public&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVyyyy&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: Element with the specified ID not found</p>
+<hr />
+<h4 id="post-api-elements-id-tags">POST /api/elements/:id/tags</h4>
+<div class="endpoint-action">Create a new tag on the specified element.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Element ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Tag name (default: <code>"new_tag"</code>)</td>
+</tr>
+<tr>
+<td>kind</td>
+<td>number</td>
+<td>No</td>
+<td>Tag kind. <code>0</code>=string, <code>1</code>=boolean, <code>2</code>=number, <code>3</code>=reference, <code>4</code>=hidden</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string|number|boolean</td>
+<td>No</td>
+<td>Tag value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;schema&quot;,
+  &quot;kind&quot;: 0,
+  &quot;value&quot;: &quot;public&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created tag object. <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: Unknown fields, type mismatch, or empty name
+- 400: <code>kind</code> is not an allowed value (error message lists allowed values)
+- 400: <code>value</code> is not a string, number, or boolean
+- 404: Element with the specified ID not found</p>
+<p><strong>Tag object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the tag</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"Tag"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Tag name</td>
+</tr>
+<tr>
+<td>kind</td>
+<td>number</td>
+<td>Tag kind (0=string, 1=boolean, 2=number, 3=reference, 4=hidden)</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string|number|boolean</td>
+<td>Tag value</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element ID</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="get-api-tags-id">GET /api/tags/:id</h4>
+<div class="endpoint-action">Get the details of the specified tag.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Tag ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Tag object (same format as POST /api/elements/:id/tags response)</p>
+<p><strong>Errors</strong>:
+- 404: Tag with the specified ID not found</p>
+<hr />
+<h4 id="put-api-tags-id">PUT /api/tags/:id</h4>
+<div class="endpoint-action">Update the specified tag.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Tag ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Tag name</td>
+</tr>
+<tr>
+<td>kind</td>
+<td>number</td>
+<td>No</td>
+<td>Tag kind</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string|number|boolean</td>
+<td>No</td>
+<td>Tag value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;value&quot;: &quot;private&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated tag object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: <code>kind</code> is not an allowed value (error message lists allowed values)
+- 400: <code>value</code> is not a string, number, or boolean
+- 404: Tag with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-tags-id">DELETE /api/tags/:id</h4>
+<div class="endpoint-action">Delete the specified tag.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Tag ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted tag \&quot;schema\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/tags/AAAAAAGVtttt&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVtttt&quot;, &quot;name&quot;: &quot;schema&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: Tag with the specified ID not found</p>
+<hr />
+<h3 id="project">Project</h3>
+<h4 id="post-api-project-save">POST /api/project/save</h4>
+<div class="endpoint-action">Save the project to the specified absolute path.</div>
+<p class="endpoint-detail">No dialog is displayed.</p>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>string</td>
+<td>Yes</td>
+<td>Absolute path to save the project (e.g., <code>"/Users/xxx/project.mdj"</code>). Extension must be <code>.mdj</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot;
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Project saved to \&quot;/Users/xxx/my-project.mdj\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/project/save&quot;, &quot;body&quot;: { &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot; } },
+  &quot;data&quot;: { &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: <code>path</code> is missing, empty, or not a string
+- 400: <code>path</code> is not an absolute path (relative paths are not allowed)
+- 400: <code>path</code> extension is not <code>.mdj</code>
+- 400: Unknown fields present
+- 400: Save operation failed (filesystem error, etc.)</p>
+<hr />
+<h4 id="post-api-project-open">POST /api/project/open</h4>
+<div class="endpoint-action">Open an existing .mdj file from the specified absolute path.</div>
+<p class="endpoint-detail">No dialog is displayed.</p>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>string</td>
+<td>Yes</td>
+<td>Absolute path to the file (e.g., <code>"/Users/xxx/project.mdj"</code>). Extension must be <code>.mdj</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot;
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Project opened from \&quot;/Users/xxx/my-project.mdj\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/project/open&quot;, &quot;body&quot;: { &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot; } },
+  &quot;data&quot;: { &quot;path&quot;: &quot;/Users/xxx/my-project.mdj&quot;, &quot;projectName&quot;: &quot;MyProject&quot; }
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>string</td>
+<td>Absolute path of the opened file</td>
+</tr>
+<tr>
+<td>projectName</td>
+<td>string</td>
+<td>Project name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: <code>path</code> is missing, empty, or not a string
+- 400: <code>path</code> is not an absolute path (relative paths are not allowed)
+- 400: <code>path</code> extension is not <code>.mdj</code>
+- 400: Unknown fields present
+- 400: Open operation failed (file does not exist, etc.)</p>
+<hr />
+<h2 id="er-diagram-2">ER Diagram</h2>
+<h3 id="diagrams">Diagrams</h3>
+<h4 id="get-api-erd-diagrams">GET /api/erd/diagrams</h4>
+<div class="endpoint-action">List all ERD diagrams in the project.</div>
+
+<p><strong>Request</strong>: None</p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 diagram(s)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/diagrams&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
+      &quot;_type&quot;: &quot;ERDDiagram&quot;,
+      &quot;name&quot;: &quot;ERDDiagram1&quot;,
+      &quot;entityIds&quot;: [&quot;AAAAAAGVyyyy&quot;, &quot;AAAAAAGVzzzz&quot;],
+      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the diagram</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"ERDDiagram"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Diagram name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>entityIds</td>
+<td>string[]</td>
+<td>IDs of entities displayed on this diagram</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element (typically ERDDataModel) ID</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="post-api-erd-diagrams">POST /api/erd/diagrams</h4>
+<div class="endpoint-action">Create a new ERD diagram.</div>
+
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parentId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Parent element (ERDDataModel) ID</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram name (default: <code>"ERDDiagram1"</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;parentId&quot;: &quot;AAAAAAGVwwww&quot;,
+  &quot;name&quot;: &quot;Main ER Diagram&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created diagram object (same format as GET /api/erd/diagrams data array element). <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>parentId</code> is missing or the corresponding ERDDataModel not found
+- 400: Unknown fields present
+- 400: Field type mismatch
+- 400: <code>name</code> is empty</p>
+<hr />
+<h4 id="get-api-erd-diagrams-id">GET /api/erd/diagrams/:id</h4>
+<div class="endpoint-action">Get the details of the specified diagram.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Diagram object (same format as GET /api/erd/diagrams data array element)</p>
+<p><strong>Errors</strong>:
+- 404: ERDDiagram with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-diagrams-id">PUT /api/erd/diagrams/:id</h4>
+<div class="endpoint-action">Update the specified diagram.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Main ER Diagram&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated diagram object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: ERDDiagram with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-diagrams-id">DELETE /api/erd/diagrams/:id</h4>
+<div class="endpoint-action">Delete the specified diagram.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted diagram \&quot;ERDDiagram1\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/diagrams/AAAAAAGVxxxx&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;ERDDiagram1&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: ERDDiagram with the specified ID not found</p>
+<hr />
+<h3 id="data-models">Data Models</h3>
+<h4 id="get-api-erd-data-models">GET /api/erd/data-models</h4>
+<div class="endpoint-action">List all ERD data models in the project.</div>
+<p class="endpoint-detail">A data model serves as the parent container for entities and diagrams.</p>
+<p><strong>Request</strong>: None</p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 data model(s)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/data-models&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVwwww&quot;,
+      &quot;_type&quot;: &quot;ERDDataModel&quot;,
+      &quot;name&quot;: &quot;Data Model1&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the data model</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"ERDDataModel"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Data model name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="post-api-erd-data-models">POST /api/erd/data-models</h4>
+<div class="endpoint-action">Create a new ERD data model.</div>
+<p class="endpoint-detail">It is created directly under the project root.</p>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Data model name (default: <code>"ERDDataModel1"</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;MyDatabase&quot;
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Created data model \&quot;MyDatabase\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/erd/data-models&quot;, &quot;body&quot;: { &quot;name&quot;: &quot;MyDatabase&quot; } },
+  &quot;data&quot;: {
+    &quot;_id&quot;: &quot;AAAAAAGVwwww&quot;,
+    &quot;_type&quot;: &quot;ERDDataModel&quot;,
+    &quot;name&quot;: &quot;MyDatabase&quot;
+  }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Unknown fields present
+- 400: Field type mismatch
+- 400: <code>name</code> is empty
+- 400: No project is open</p>
+<hr />
+<h4 id="get-api-erd-data-models-id">GET /api/erd/data-models/:id</h4>
+<div class="endpoint-action">Get the details of the specified data model.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Data model ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Data model object (same format as GET /api/erd/data-models data array element)</p>
+<p><strong>Errors</strong>:
+- 404: ERDDataModel with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-data-models-id">PUT /api/erd/data-models/:id</h4>
+<div class="endpoint-action">Update the specified data model (rename).</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Data model ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Data model name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;MyDatabase_v2&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated data model object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: ERDDataModel with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-data-models-id">DELETE /api/erd/data-models/:id</h4>
+<div class="endpoint-action">Delete the specified data model.</div>
+<p class="endpoint-detail">Deletion is blocked if it contains entities, relationships, or diagrams.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Data model ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted data model \&quot;MyDatabase\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/data-models/AAAAAAGVwwww&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVwwww&quot;, &quot;name&quot;: &quot;MyDatabase&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Contains entities, relationships, or diagrams (error message includes counts)
+- 404: ERDDataModel with the specified ID not found</p>
+<hr />
+<h3 id="entities">Entities</h3>
+<h4 id="get-api-erd-entities">GET /api/erd/entities</h4>
+<div class="endpoint-action">List entities (tables).</div>
+<p class="endpoint-detail">Supports filtering via query parameters.</p>
+<p><strong>Query parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dataModelId</td>
+<td>string</td>
+<td>No</td>
+<td>Return only entities under the specified data model</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>Return only entities displayed on the specified diagram</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: The entity's <code>tags</code> array excludes tags managed as sequences (<code>sequence#</code> prefix) and indexes (<code>index#</code> prefix). Use the dedicated endpoints (<code>/api/erd/entities/:id/sequences</code>, <code>/api/erd/entities/:id/indexes</code>) to retrieve these.</p>
+<p><strong>Request example</strong>: <code>GET /api/erd/entities?dataModelId=AAAAAAGVwwww</code></p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 entity(ies)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/entities&quot;, &quot;query&quot;: { &quot;dataModelId&quot;: &quot;AAAAAAGVwwww&quot; } },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVyyyy&quot;,
+      &quot;_type&quot;: &quot;ERDEntity&quot;,
+      &quot;name&quot;: &quot;users&quot;,
+      &quot;columns&quot;: [
+        {
+          &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;,
+          &quot;_type&quot;: &quot;ERDColumn&quot;,
+          &quot;name&quot;: &quot;id&quot;,
+          &quot;type&quot;: &quot;INTEGER&quot;,
+          &quot;length&quot;: &quot;&quot;,
+          &quot;primaryKey&quot;: true,
+          &quot;foreignKey&quot;: false,
+          &quot;nullable&quot;: false,
+          &quot;unique&quot;: false,
+          &quot;_parentId&quot;: &quot;AAAAAAGVyyyy&quot;,
+          &quot;tags&quot;: []
+        }
+      ],
+      &quot;tags&quot;: [],
+      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Unknown query parameters present
+- 404: ERDDataModel with the specified <code>dataModelId</code> not found
+- 404: ERDDiagram with the specified <code>diagramId</code> not found</p>
+<hr />
+<h4 id="post-api-erd-entities">POST /api/erd/entities</h4>
+<div class="endpoint-action">Create a new entity (table).</div>
+
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parentId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Parent element (ERDDataModel) ID</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Entity name (default: <code>"NewEntity"</code>)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, a view (visual representation) is also created on the diagram</td>
+</tr>
+<tr>
+<td>x1</td>
+<td>number</td>
+<td>No</td>
+<td>Top-left X coordinate of the view (default: 100)</td>
+</tr>
+<tr>
+<td>y1</td>
+<td>number</td>
+<td>No</td>
+<td>Top-left Y coordinate of the view (default: 100)</td>
+</tr>
+<tr>
+<td>x2</td>
+<td>number</td>
+<td>No</td>
+<td>Bottom-right X coordinate of the view (default: 300)</td>
+</tr>
+<tr>
+<td>y2</td>
+<td>number</td>
+<td>No</td>
+<td>Bottom-right Y coordinate of the view (default: 200)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;parentId&quot;: &quot;AAAAAAGVwwww&quot;,
+  &quot;name&quot;: &quot;orders&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVxxxx&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created entity object (same format as GET /api/erd/entities/:id). <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>parentId</code> is missing or the corresponding ERDDataModel not found
+- 400: ERDDiagram with the specified <code>diagramId</code> not found
+- 400: Unknown fields present
+- 400: Field type mismatch</p>
+<hr />
+<h4 id="get-api-erd-entities-id">GET /api/erd/entities/:id</h4>
+<div class="endpoint-action">Get the details of the specified entity.</div>
+<p class="endpoint-detail">Includes columns and tags.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Entity object (same format as GET /api/erd/entities data array element)</p>
+<p><strong>Errors</strong>:
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-entities-id">PUT /api/erd/entities/:id</h4>
+<div class="endpoint-action">Update the specified entity.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Entity name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;customers&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated entity object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-entities-id">DELETE /api/erd/entities/:id</h4>
+<div class="endpoint-action">Delete the specified entity.</div>
+<p class="endpoint-detail">All child columns and tags are also deleted.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted entity \&quot;users\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/entities/AAAAAAGVyyyy&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVyyyy&quot;, &quot;name&quot;: &quot;users&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Columns in other entities reference this entity's columns via referenceTo (message includes referencing details)
+- 400: Relationships reference this entity via end1/end2 (message includes referencing details)
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h3 id="columns">Columns</h3>
+<h4 id="get-api-erd-entities-id-columns">GET /api/erd/entities/:id/columns</h4>
+<div class="endpoint-action">List all columns of the specified entity.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 column(s) from entity \&quot;users\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/entities/AAAAAAGVyyyy/columns&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;_type&quot;: &quot;ERDColumn&quot;,
+      &quot;name&quot;: &quot;id&quot;,
+      &quot;type&quot;: &quot;INTEGER&quot;,
+      &quot;length&quot;: &quot;&quot;,
+      &quot;primaryKey&quot;: true,
+      &quot;foreignKey&quot;: false,
+      &quot;nullable&quot;: false,
+      &quot;unique&quot;: false,
+      &quot;_parentId&quot;: &quot;AAAAAAGVyyyy&quot;,
+      &quot;tags&quot;: []
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="post-api-erd-entities-id-columns">POST /api/erd/entities/:id/columns</h4>
+<div class="endpoint-action">Add a new column to the specified entity.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Column name (default: <code>"new_column"</code>)</td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>No</td>
+<td>Data type (e.g., <code>"VARCHAR"</code>, <code>"INTEGER"</code>, <code>"BOOLEAN"</code>)</td>
+</tr>
+<tr>
+<td>length</td>
+<td>string</td>
+<td>No</td>
+<td>Length/precision (e.g., <code>"255"</code>)</td>
+</tr>
+<tr>
+<td>primaryKey</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether this is a primary key (default: false)</td>
+</tr>
+<tr>
+<td>foreignKey</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether this is a foreign key (default: false)</td>
+</tr>
+<tr>
+<td>nullable</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether NULL is allowed (default: false)</td>
+</tr>
+<tr>
+<td>unique</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether a unique constraint applies (default: false)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>referenceToId</td>
+<td>string</td>
+<td>No</td>
+<td>ID of the foreign key target column</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;email&quot;,
+  &quot;type&quot;: &quot;VARCHAR&quot;,
+  &quot;length&quot;: &quot;255&quot;,
+  &quot;nullable&quot;: false,
+  &quot;unique&quot;: true
+}
+</code></pre>
+<p><strong>Response</strong>: The created column object. <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>type</code> is not an allowed value (error message lists allowed types)
+- 400: Unknown fields, type mismatch, or empty name
+- 400: ERDColumn with the specified <code>referenceToId</code> not found
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="get-api-erd-columns-id">GET /api/erd/columns/:id</h4>
+<div class="endpoint-action">Get the details of the specified column.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Column ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Column object (same format as POST /api/erd/entities/:id/columns response)</p>
+<p><strong>Column object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the column</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"ERDColumn"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Column name</td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>Data type</td>
+</tr>
+<tr>
+<td>length</td>
+<td>string</td>
+<td>Length/precision</td>
+</tr>
+<tr>
+<td>primaryKey</td>
+<td>boolean</td>
+<td>Primary key flag</td>
+</tr>
+<tr>
+<td>foreignKey</td>
+<td>boolean</td>
+<td>Foreign key flag</td>
+</tr>
+<tr>
+<td>nullable</td>
+<td>boolean</td>
+<td>Nullable flag</td>
+</tr>
+<tr>
+<td>unique</td>
+<td>boolean</td>
+<td>Unique constraint flag</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>referenceTo</td>
+<td>string</td>
+<td>Foreign key target column ID (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent entity ID</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>Tag[]</td>
+<td>Tags attached to this column</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 404: ERDColumn with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-columns-id">PUT /api/erd/columns/:id</h4>
+<div class="endpoint-action">Update the specified column.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Column ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Column name</td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>No</td>
+<td>Data type</td>
+</tr>
+<tr>
+<td>length</td>
+<td>string</td>
+<td>No</td>
+<td>Length/precision</td>
+</tr>
+<tr>
+<td>primaryKey</td>
+<td>boolean</td>
+<td>No</td>
+<td>Primary key flag</td>
+</tr>
+<tr>
+<td>foreignKey</td>
+<td>boolean</td>
+<td>No</td>
+<td>Foreign key flag</td>
+</tr>
+<tr>
+<td>nullable</td>
+<td>boolean</td>
+<td>No</td>
+<td>Nullable flag</td>
+</tr>
+<tr>
+<td>unique</td>
+<td>boolean</td>
+<td>No</td>
+<td>Unique constraint flag</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>referenceToId</td>
+<td>string|null</td>
+<td>No</td>
+<td>Foreign key target column ID (<code>null</code> to remove reference)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;BIGINT&quot;,
+  &quot;nullable&quot;: true
+}
+</code></pre>
+<p><strong>Response</strong>: The updated column object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: <code>type</code> is not an allowed value (error message lists allowed types)
+- 400: <code>referenceToId</code> is the column's own ID (self-reference)
+- 400: ERDColumn with the specified <code>referenceToId</code> not found
+- 404: ERDColumn with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-columns-id">DELETE /api/erd/columns/:id</h4>
+<div class="endpoint-action">Delete the specified column.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Column ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted column \&quot;email\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/columns/AAAAAAGVaaaa&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVaaaa&quot;, &quot;name&quot;: &quot;email&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Other columns reference this column via referenceTo (message includes referencing details)
+- 404: ERDColumn with the specified ID not found</p>
+<hr />
+<h3 id="sequences">Sequences</h3>
+<h4 id="get-api-erd-entities-id-sequences">GET /api/erd/entities/:id/sequences</h4>
+<div class="endpoint-action">List all sequences of the specified entity.</div>
+<p class="endpoint-detail">Sequences are internally stored as tags, but this endpoint returns them in a sequence-specific format.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 sequence(s) from entity \&quot;users\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/entities/AAAAAAGVyyyy/sequences&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVssss&quot;,
+      &quot;_type&quot;: &quot;Sequence&quot;,
+      &quot;name&quot;: &quot;users_id_seq&quot;,
+      &quot;value&quot;: &quot;CREATE SEQUENCE users_id_seq&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVyyyy&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Sequence object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier (internal tag ID)</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"Sequence"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Sequence name</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Value in <code>CREATE SEQUENCE &lt;name&gt;</code> format</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="post-api-erd-entities-id-sequences">POST /api/erd/entities/:id/sequences</h4>
+<div class="endpoint-action">Create a new sequence on the specified entity.</div>
+<p class="endpoint-detail">Internally stored as a tag (tag name: sequence#<name>, tag value: CREATE SEQUENCE <name>).</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Yes</td>
+<td>Sequence name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;users_id_seq&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created sequence object. <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>name</code> is missing, empty, or not a string
+- 400: A sequence with the same name already exists on this entity
+- 400: Unknown fields present
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="get-api-erd-sequences-id">GET /api/erd/sequences/:id</h4>
+<div class="endpoint-action">Get the details of the specified sequence.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Sequence ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Sequence object (same format as GET /api/erd/entities/:id/sequences data array element)</p>
+<p><strong>Errors</strong>:
+- 404: Sequence (tag with <code>sequence#</code> prefix) with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-sequences-id">PUT /api/erd/sequences/:id</h4>
+<div class="endpoint-action">Update the specified sequence.</div>
+<p class="endpoint-detail">When the name is changed, the internal tag name (sequence#<name>) and value (CREATE SEQUENCE <name>) are updated accordingly.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Sequence ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>New sequence name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;orders_id_seq&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated sequence object. <code>message</code> includes update details.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body
+- 400: <code>name</code> is empty or not a string
+- 400: A sequence with the same name already exists on this entity
+- 400: Unknown fields present
+- 404: Sequence with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-sequences-id">DELETE /api/erd/sequences/:id</h4>
+<div class="endpoint-action">Delete the specified sequence.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Sequence ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted sequence \&quot;users_id_seq\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/sequences/AAAAAAGVssss&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVssss&quot;, &quot;name&quot;: &quot;users_id_seq&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: Sequence with the specified ID not found</p>
+<hr />
+<h3 id="indexes">Indexes</h3>
+<h4 id="get-api-erd-entities-id-indexes">GET /api/erd/entities/:id/indexes</h4>
+<div class="endpoint-action">List all indexes of the specified entity.</div>
+<p class="endpoint-detail">Indexes are internally stored as tags, but this endpoint returns them in an index-specific format.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 index(es) from entity \&quot;users\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/entities/AAAAAAGVyyyy/indexes&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGViiii&quot;,
+      &quot;_type&quot;: &quot;Index&quot;,
+      &quot;name&quot;: &quot;idx_email&quot;,
+      &quot;definition&quot;: &quot;CREATE INDEX idx_email ON users (email)&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVyyyy&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Index object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier (internal tag ID)</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"Index"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Index name</td>
+</tr>
+<tr>
+<td>definition</td>
+<td>string</td>
+<td>Full <code>CREATE INDEX ...</code> statement</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="post-api-erd-entities-id-indexes">POST /api/erd/entities/:id/indexes</h4>
+<div class="endpoint-action">Create a new index on the specified entity.</div>
+<p class="endpoint-detail">Internally stored as a tag (tag name: index#<name>, tag value: full definition).</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Yes</td>
+<td>Index name</td>
+</tr>
+<tr>
+<td>definition</td>
+<td>string</td>
+<td>Yes</td>
+<td>Full CREATE INDEX statement (e.g., <code>"CREATE INDEX idx_email ON users (email)"</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;idx_email&quot;,
+  &quot;definition&quot;: &quot;CREATE INDEX idx_email ON users (email)&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created index object. <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>name</code> or <code>definition</code> is missing, empty, or not a string
+- 400: An index with the same name already exists on this entity
+- 400: Unknown fields present
+- 404: ERDEntity with the specified ID not found</p>
+<hr />
+<h4 id="get-api-erd-indexes-id">GET /api/erd/indexes/:id</h4>
+<div class="endpoint-action">Get the details of the specified index.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Index ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Index object (same format as GET /api/erd/entities/:id/indexes data array element)</p>
+<p><strong>Errors</strong>:
+- 404: Index (tag with <code>index#</code> prefix) with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-indexes-id">PUT /api/erd/indexes/:id</h4>
+<div class="endpoint-action">Update the specified index.</div>
+<p class="endpoint-detail">Either name or definition (or both) can be specified.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Index ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>New index name</td>
+</tr>
+<tr>
+<td>definition</td>
+<td>string</td>
+<td>No</td>
+<td>New full CREATE INDEX statement</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;idx_users_email&quot;,
+  &quot;definition&quot;: &quot;CREATE INDEX idx_users_email ON users (email)&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated index object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body
+- 400: <code>name</code> or <code>definition</code> is empty or not a string
+- 400: An index with the same name already exists on this entity
+- 400: Unknown fields present
+- 404: Index with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-indexes-id">DELETE /api/erd/indexes/:id</h4>
+<div class="endpoint-action">Delete the specified index.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Index ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted index \&quot;idx_email\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/indexes/AAAAAAGViiii&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGViiii&quot;, &quot;name&quot;: &quot;idx_email&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: Index with the specified ID not found</p>
+<hr />
+<h3 id="relationships">Relationships</h3>
+<h4 id="get-api-erd-relationships">GET /api/erd/relationships</h4>
+<div class="endpoint-action">List relationships (associations between tables).</div>
+<p class="endpoint-detail">Supports filtering via query parameters.</p>
+<p><strong>Query parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dataModelId</td>
+<td>string</td>
+<td>No</td>
+<td>Return only relationships under the specified data model</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 relationship(s)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/erd/relationships&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVrrrr&quot;,
+      &quot;_type&quot;: &quot;ERDRelationship&quot;,
+      &quot;name&quot;: &quot;&quot;,
+      &quot;identifying&quot;: true,
+      &quot;end1&quot;: {
+        &quot;name&quot;: &quot;&quot;,
+        &quot;cardinality&quot;: &quot;1&quot;,
+        &quot;reference&quot;: &quot;AAAAAAGVyyyy&quot;
+      },
+      &quot;end2&quot;: {
+        &quot;name&quot;: &quot;&quot;,
+        &quot;cardinality&quot;: &quot;0..*&quot;,
+        &quot;reference&quot;: &quot;AAAAAAGVzzzz&quot;
+      },
+      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Relationship object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the relationship</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"ERDRelationship"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Relationship name</td>
+</tr>
+<tr>
+<td>identifying</td>
+<td>boolean</td>
+<td>Whether this is an identifying relationship</td>
+</tr>
+<tr>
+<td>end1</td>
+<td>object</td>
+<td>Endpoint 1 of the association</td>
+</tr>
+<tr>
+<td>end1.name</td>
+<td>string</td>
+<td>Endpoint name</td>
+</tr>
+<tr>
+<td>end1.cardinality</td>
+<td>string</td>
+<td>Cardinality (e.g., <code>"1"</code>, <code>"0..*"</code>, <code>"1..*"</code>)</td>
+</tr>
+<tr>
+<td>end1.reference</td>
+<td>string|null</td>
+<td>Referenced entity ID</td>
+</tr>
+<tr>
+<td>end2</td>
+<td>object</td>
+<td>Endpoint 2 of the association</td>
+</tr>
+<tr>
+<td>end2.name</td>
+<td>string</td>
+<td>Endpoint name</td>
+</tr>
+<tr>
+<td>end2.cardinality</td>
+<td>string</td>
+<td>Cardinality</td>
+</tr>
+<tr>
+<td>end2.reference</td>
+<td>string|null</td>
+<td>Referenced entity ID</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: Unknown query parameters present
+- 404: ERDDataModel with the specified <code>dataModelId</code> not found</p>
+<hr />
+<h4 id="post-api-erd-relationships">POST /api/erd/relationships</h4>
+<div class="endpoint-action">Create a new relationship (association between tables).</div>
+
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parentId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Parent element (ERDDataModel) ID</td>
+</tr>
+<tr>
+<td>end1</td>
+<td>object</td>
+<td>Yes</td>
+<td>Endpoint 1 of the association</td>
+</tr>
+<tr>
+<td>end1.reference</td>
+<td>string</td>
+<td>Yes</td>
+<td>Entity ID for endpoint 1</td>
+</tr>
+<tr>
+<td>end1.cardinality</td>
+<td>string</td>
+<td>No</td>
+<td>Cardinality for endpoint 1 (default: <code>"1"</code>)</td>
+</tr>
+<tr>
+<td>end1.name</td>
+<td>string</td>
+<td>No</td>
+<td>Name for endpoint 1</td>
+</tr>
+<tr>
+<td>end2</td>
+<td>object</td>
+<td>Yes</td>
+<td>Endpoint 2 of the association</td>
+</tr>
+<tr>
+<td>end2.reference</td>
+<td>string</td>
+<td>Yes</td>
+<td>Entity ID for endpoint 2</td>
+</tr>
+<tr>
+<td>end2.cardinality</td>
+<td>string</td>
+<td>No</td>
+<td>Cardinality for endpoint 2 (default: <code>"0..*"</code>)</td>
+</tr>
+<tr>
+<td>end2.name</td>
+<td>string</td>
+<td>No</td>
+<td>Name for endpoint 2</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Relationship name (default: <code>""</code>)</td>
+</tr>
+<tr>
+<td>identifying</td>
+<td>boolean</td>
+<td>No</td>
+<td>Identifying relationship flag</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Diagram ID. Must specify a diagram where the entity views are placed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: The entities specified by <code>end1.reference</code> and <code>end2.reference</code> must have views (visual representations) on the diagram specified by <code>diagramId</code>. A 400 error is returned if the views do not exist.</p>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;parentId&quot;: &quot;AAAAAAGcVcL1CP7Diws=&quot;,
+  &quot;end1&quot;: { &quot;reference&quot;: &quot;AAAAAAGcVcP7jf7I68Q=&quot;, &quot;cardinality&quot;: &quot;1&quot; },
+  &quot;end2&quot;: { &quot;reference&quot;: &quot;AAAAAAGcVcSvoP7yKw0=&quot;, &quot;cardinality&quot;: &quot;0..*&quot; },
+  &quot;name&quot;: &quot;user_orders&quot;,
+  &quot;identifying&quot;: false,
+  &quot;diagramId&quot;: &quot;AAAAAAGcVcL1CP7E0iI=&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created relationship object (same format as GET /api/erd/relationships/:id). <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>parentId</code> or <code>diagramId</code> is missing
+- 400: ERDDataModel with the specified <code>parentId</code> not found
+- 400: <code>end1.reference</code> or <code>end2.reference</code> is missing
+- 400: ERDEntity with the specified <code>end1.reference</code> or <code>end2.reference</code> not found
+- 400: ERDDiagram with the specified <code>diagramId</code> not found
+- 400: Entity view does not exist on the specified diagram
+- 400: Unknown fields present
+- 400: Field type mismatch</p>
+<hr />
+<h4 id="get-api-erd-relationships-id">GET /api/erd/relationships/:id</h4>
+<div class="endpoint-action">Get the details of the specified relationship.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Relationship ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Relationship object (same format as GET /api/erd/relationships data array element)</p>
+<p><strong>Errors</strong>:
+- 404: ERDRelationship with the specified ID not found</p>
+<hr />
+<h4 id="put-api-erd-relationships-id">PUT /api/erd/relationships/:id</h4>
+<div class="endpoint-action">Update the specified relationship.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Relationship ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Relationship name</td>
+</tr>
+<tr>
+<td>identifying</td>
+<td>boolean</td>
+<td>No</td>
+<td>Identifying relationship flag</td>
+</tr>
+<tr>
+<td>end1</td>
+<td>object</td>
+<td>No</td>
+<td>Endpoint 1 update</td>
+</tr>
+<tr>
+<td>end1.name</td>
+<td>string</td>
+<td>No</td>
+<td>Endpoint name</td>
+</tr>
+<tr>
+<td>end1.cardinality</td>
+<td>string</td>
+<td>No</td>
+<td>Cardinality</td>
+</tr>
+<tr>
+<td>end1.reference</td>
+<td>string</td>
+<td>No</td>
+<td>Referenced entity ID</td>
+</tr>
+<tr>
+<td>end2</td>
+<td>object</td>
+<td>No</td>
+<td>Endpoint 2 update</td>
+</tr>
+<tr>
+<td>end2.name</td>
+<td>string</td>
+<td>No</td>
+<td>Endpoint name</td>
+</tr>
+<tr>
+<td>end2.cardinality</td>
+<td>string</td>
+<td>No</td>
+<td>Cardinality</td>
+</tr>
+<tr>
+<td>end2.reference</td>
+<td>string</td>
+<td>No</td>
+<td>Referenced entity ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;end2&quot;: {
+    &quot;cardinality&quot;: &quot;1..*&quot;
+  }
+}
+</code></pre>
+<p><strong>Reference change example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;end1&quot;: {
+    &quot;reference&quot;: &quot;AAAAAAGVneww&quot;
+  }
+}
+</code></pre>
+<p><strong>Response</strong>: The updated relationship object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, or type mismatch
+- 400: <code>end1</code> or <code>end2</code> is an empty object (<code>{}</code>)
+- 400: Unknown sub-fields or type mismatch within <code>end1</code> or <code>end2</code>
+- 400: ERDEntity with the specified <code>end1.reference</code> or <code>end2.reference</code> not found
+- 404: ERDRelationship with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-erd-relationships-id">DELETE /api/erd/relationships/:id</h4>
+<div class="endpoint-action">Delete the specified relationship.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Relationship ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted relationship \&quot;AAAAAAGVrrrr\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/erd/relationships/AAAAAAGVrrrr&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVrrrr&quot;, &quot;name&quot;: &quot;AAAAAAGVrrrr&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: ERDRelationship with the specified ID not found</p>
+<hr />
+<h3 id="postgresql-ddl">PostgreSQL DDL</h3>
+<h4 id="post-api-erd-postgresql-ddl">POST /api/erd/postgresql/ddl</h4>
+<div class="endpoint-action">Generate PostgreSQL DDL (Data Definition Language) from the ER diagram and write it to the specified absolute path.</div>
+<p class="endpoint-detail">Ported from the staruml-postgresql extension's Generate DDL feature.</p>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>string</td>
+<td>Yes</td>
+<td>Absolute path for the output DDL file (e.g., <code>"/Users/xxx/output.sql"</code>)</td>
+</tr>
+<tr>
+<td>dataModelId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, only entities under this data model are included. If omitted, all data models are included</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;/Users/xxx/database.sql&quot;
+}
+</code></pre>
+<p><strong>Data model filter example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;/Users/xxx/database.sql&quot;,
+  &quot;dataModelId&quot;: &quot;AAAAAAGVwwww&quot;
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;DDL generated to \&quot;/Users/xxx/database.sql\&quot;&quot;,
+  &quot;request&quot;: {
+    &quot;method&quot;: &quot;POST&quot;,
+    &quot;path&quot;: &quot;/api/erd/postgresql/ddl&quot;,
+    &quot;body&quot;: { &quot;path&quot;: &quot;/Users/xxx/database.sql&quot; }
+  },
+  &quot;data&quot;: {
+    &quot;path&quot;: &quot;/Users/xxx/database.sql&quot;
+  }
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>string</td>
+<td>Absolute path of the generated DDL file</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated DDL contents</strong>:</p>
+<p>The DDL file contains the following sections in order:</p>
+<ol>
+<li>Header comment (generation timestamp in local time)</li>
+<li>Schema creation (if not <code>public</code>; specified by the data model's <code>schema</code> tag)</li>
+<li>DROP SEQUENCE IF EXISTS ... CASCADE statements (from <code>sequence#</code> tags)</li>
+<li>DROP TABLE IF EXISTS ... CASCADE statements (in reverse dependency order)</li>
+<li>CREATE SEQUENCE statements (from entity <code>sequence#</code> tags)</li>
+<li>CREATE TABLE statements (with column definitions and PRIMARY KEY constraints)</li>
+<li>ALTER TABLE ... ADD UNIQUE constraints</li>
+<li>FK auto-indexes (anonymous CREATE INDEX ON statements for FK columns)</li>
+<li>ALTER TABLE ... ADD CONSTRAINT FK ... FOREIGN KEY constraints (auto-generated from column referenceTo references)</li>
+<li>CREATE INDEX statements (from entity <code>index#</code> tags)</li>
+<li>COMMENT ON TABLE / COMMENT ON COLUMN statements (from documentation attributes)</li>
+</ol>
+<p><strong>PostgreSQL type mapping</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>StarUML type</th>
+<th>PostgreSQL type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CHAR</td>
+<td>char(n)</td>
+<td>With length</td>
+</tr>
+<tr>
+<td>VARCHAR</td>
+<td>varchar(n)</td>
+<td>With length</td>
+</tr>
+<tr>
+<td>TEXT</td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td>CLOB</td>
+<td>text</td>
+<td></td>
+</tr>
+<tr>
+<td>BOOLEAN</td>
+<td>boolean</td>
+<td></td>
+</tr>
+<tr>
+<td>SMALLINT</td>
+<td>smallint / smallserial</td>
+<td>smallserial when length=-1</td>
+</tr>
+<tr>
+<td>INTEGER, INT</td>
+<td>integer / serial</td>
+<td>serial when length=-1</td>
+</tr>
+<tr>
+<td>BIGINT</td>
+<td>bigint / bigserial</td>
+<td>bigserial when length=-1</td>
+</tr>
+<tr>
+<td>TINYINT</td>
+<td>smallint</td>
+<td>No tinyint in PostgreSQL</td>
+</tr>
+<tr>
+<td>FLOAT</td>
+<td>real</td>
+<td></td>
+</tr>
+<tr>
+<td>DOUBLE</td>
+<td>double precision</td>
+<td></td>
+</tr>
+<tr>
+<td>REAL</td>
+<td>real</td>
+<td></td>
+</tr>
+<tr>
+<td>DECIMAL</td>
+<td>numeric(n)</td>
+<td>With length</td>
+</tr>
+<tr>
+<td>NUMERIC</td>
+<td>numeric(n)</td>
+<td>With length</td>
+</tr>
+<tr>
+<td>DATE</td>
+<td>date</td>
+<td></td>
+</tr>
+<tr>
+<td>TIME</td>
+<td>time without time zone</td>
+<td></td>
+</tr>
+<tr>
+<td>DATETIME</td>
+<td>timestamp with time zone</td>
+<td></td>
+</tr>
+<tr>
+<td>TIMESTAMP</td>
+<td>timestamp without time zone</td>
+<td></td>
+</tr>
+<tr>
+<td>BLOB</td>
+<td>bytea</td>
+<td></td>
+</tr>
+<tr>
+<td>BINARY</td>
+<td>bytea</td>
+<td></td>
+</tr>
+<tr>
+<td>VARBINARY</td>
+<td>bytea</td>
+<td></td>
+</tr>
+<tr>
+<td>UUID</td>
+<td>uuid</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>json</td>
+<td></td>
+</tr>
+<tr>
+<td>JSONB</td>
+<td>jsonb</td>
+<td></td>
+</tr>
+<tr>
+<td>XML</td>
+<td>xml</td>
+<td></td>
+</tr>
+<tr>
+<td>SERIAL</td>
+<td>serial</td>
+<td></td>
+</tr>
+<tr>
+<td>BIGSERIAL</td>
+<td>bigserial</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>DDL customization via tags</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tag name</th>
+<th>Target element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>schema</td>
+<td>ERDDataModel</td>
+<td>Schema name (default: <code>public</code>)</td>
+</tr>
+<tr>
+<td>table</td>
+<td>ERDEntity</td>
+<td>Override table name (defaults to entity name)</td>
+</tr>
+<tr>
+<td>column</td>
+<td>ERDColumn</td>
+<td>Override column name (defaults to column name)</td>
+</tr>
+<tr>
+<td>default</td>
+<td>ERDColumn</td>
+<td>DEFAULT value (e.g., <code>"0"</code>, <code>"'active'"</code>, <code>"now()"</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: <code>path</code> is missing, empty, or not a string
+- 400: <code>path</code> is not an absolute path
+- 400: ERDDataModel with the specified <code>dataModelId</code> not found
+- 400: Unknown fields present
+- 400: DDL generation failed (filesystem error, etc.)</p>
+</div>
+<script>
+document.getElementById('sidebar').addEventListener('click', function(e) {
+  // 1) Toggle arrow click — expand/collapse
+  const toggle = e.target.closest('.toggle');
+  if (toggle) {
+    e.preventDefault();
+    e.stopPropagation();
+    const li = toggle.closest('.has-children');
+    if (!li) return;
+    const subList = li.querySelector(':scope > .sub-items');
+    if (subList) {
+      const isOpen = subList.classList.contains('open');
+      toggle.classList.toggle('open', !isOpen);
+      subList.classList.toggle('open', !isOpen);
+    }
+    return;           // ← do NOT fall through to the link handler
+  }
+
+  // 2) Link click — scroll + expand own children
+  const link = e.target.closest('a');
+  if (link) {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    e.preventDefault();
+    const target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.pushState(null, '', href);
+    }
+    // toggle only when clicking the heading's own link (not a child endpoint)
+    const navItem = link.closest('.nav-item');
+    if (navItem) {
+      const li = navItem.parentElement;
+      if (li && li.classList.contains('has-children')) {
+        const t = li.querySelector(':scope > .nav-item > .toggle');
+        const s = li.querySelector(':scope > .sub-items');
+        if (t && s) {
+          const isOpen = s.classList.contains('open');
+          t.classList.toggle('open', !isOpen);
+          s.classList.toggle('open', !isOpen);
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

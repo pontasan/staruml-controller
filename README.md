@@ -22,6 +22,7 @@ Designed for integration with LLMs (e.g. Claude Code via MCP) to programmaticall
 - **Input validation** - unknown fields rejected, type checking, required field enforcement, column type whitelist
 - **Referential integrity** - DELETE blocked when other elements reference the target; self-reference prevention
 - **Structured responses** - every response includes `success`, `message`/`error`, `request` context, and `data`
+- **PostgreSQL DDL generation** - generate DDL from ER diagrams with schema prefix, DROP SEQUENCE, FK auto-indexes, DEFAULT values (based on [staruml-postgresql](https://github.com/adrianandrei-ca/staruml-postgresql))
 - **Project save/load** - save and open `.mdj` project files programmatically
 - **CORS enabled** - accessible from any origin
 
@@ -80,8 +81,9 @@ Restart StarUML to load the extension.
 | `/api/erd/indexes/:id` | GET / PUT / DELETE | Get, update, or delete index |
 | `/api/erd/relationships` | GET / POST | List (filterable) or create relationships |
 | `/api/erd/relationships/:id` | GET / PUT / DELETE | Get, update, or delete relationship |
+| `/api/erd/postgresql/ddl` | POST | Generate PostgreSQL DDL to a file |
 
-For full API specifications including request/response formats, validation rules, and error codes, see the [API documentation](../staruml-controller-doc/docs/api.md).
+For full API specifications including request/response formats, validation rules, and error codes, see the [API Documentation](docs/api.html).
 
 ## Examples
 
@@ -129,6 +131,16 @@ curl -X POST http://localhost:12345/api/erd/entities/ENTITY_ID/indexes \
   -H "Content-Type: application/json" \
   -d '{"name": "idx_email", "definition": "CREATE INDEX idx_email ON users (email)"}'
 
+# Set default value on a column (via tag)
+curl -X POST http://localhost:12345/api/elements/COLUMN_ID/tags \
+  -H "Content-Type: application/json" \
+  -d '{"name": "default", "kind": 0, "value": "now()"}'
+
+# Generate PostgreSQL DDL
+curl -X POST http://localhost:12345/api/erd/postgresql/ddl \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/Users/xxx/output.sql"}'
+
 # Save project
 curl -X POST http://localhost:12345/api/project/save \
   -H "Content-Type: application/json" \
@@ -142,15 +154,22 @@ curl -X DELETE http://localhost:12345/api/erd/entities/ENTITY_ID
 
 ```
 staruml-controller/
-├── main.js          # Extension entry point (HTTP server management)
-├── api-handler.js   # REST API routing and handlers
+├── main.js            # Extension entry point (HTTP server management)
+├── api-handler.js     # REST API routing and handlers
+├── ddl-generator.js   # PostgreSQL DDL generation
 ├── menus/
-│   └── menu.json    # StarUML menu definition
+│   └── menu.json      # StarUML menu definition
+├── docs/
+│   └── api.html       # API documentation (HTML)
 ├── images/
-│   └── image1.gif   # Demo animation
-├── package.json     # Extension metadata
+│   └── image1.gif     # Demo animation
+├── package.json       # Extension metadata
 └── README.md
 ```
+
+## Acknowledgments
+
+The PostgreSQL DDL generation feature is based on [staruml-postgresql](https://github.com/adrianandrei-ca/staruml-postgresql) by Adrian Andrei. The type mapping and DDL output logic were ported from that extension.
 
 ## License
 

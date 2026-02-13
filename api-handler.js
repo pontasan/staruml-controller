@@ -5,6 +5,8 @@
  * and detailed request/response logging.
  */
 
+const ddlGenerator = require('./ddl-generator')
+
 // ============================================================
 // Constants
 // ============================================================
@@ -2040,6 +2042,64 @@ function getElement(id, reqInfo) {
     }
 }
 
+// --- DDL Generation ---
+
+const DDL_GENERATE_ALLOWED_FIELDS = ['path', 'dataModelId']
+
+function generatePostgresqlDDL(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, DDL_GENERATE_ALLOWED_FIELDS),
+        checkFieldType(body, 'path', 'string'),
+        checkFieldType(body, 'dataModelId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+
+    const nameErr = checkNonEmptyString(body, 'path')
+    if (nameErr) {
+        return validationError(nameErr, reqInfo, body)
+    }
+
+    // Validate absolute path
+    if (body.path.charAt(0) !== '/' && !/^[a-zA-Z]:[/\\]/.test(body.path)) {
+        return validationError('Field "path" must be an absolute path (e.g. "/Users/.../output.sql")', reqInfo, body)
+    }
+
+    // Validate dataModelId if provided
+    if (body.dataModelId) {
+        const dm = findById(body.dataModelId)
+        if (!dm || !(dm instanceof type.ERDDataModel)) {
+            return validationError('dataModelId must refer to an ERDDataModel. Not found or wrong type: ' + body.dataModelId, reqInfo, body)
+        }
+    }
+
+    const reqInfoWithBody = Object.assign({}, reqInfo, { body: body })
+
+    try {
+        ddlGenerator.generate(body.path, body.dataModelId || null)
+
+        return {
+            success: true,
+            message: 'DDL generated to "' + body.path + '"',
+            request: reqInfoWithBody,
+            data: {
+                path: body.path
+            }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to generate DDL: ' + (e.message || String(e)),
+            request: reqInfoWithBody
+        }
+    }
+}
+
 // ============================================================
 // Router
 // ============================================================
@@ -2284,6 +2344,11 @@ function route(method, url, body) {
         }
     }
 
+    // POST /api/erd/postgresql/ddl
+    if (method === 'POST' && path === '/api/erd/postgresql/ddl') {
+        return generatePostgresqlDDL(body, reqInfo)
+    }
+
     // POST /api/project/save
     if (method === 'POST' && path === '/api/project/save') {
         return saveProject(body, reqInfo)
@@ -2354,6 +2419,7 @@ function route(method, url, body) {
                     'PUT  /api/erd/relationships/:id',
                     'DELETE /api/erd/relationships/:id',
                     'GET  /api/elements/:id',
+                    'POST /api/erd/postgresql/ddl',
                     'POST /api/project/save',
                     'POST /api/project/open'
                 ]
