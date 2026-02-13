@@ -337,6 +337,15 @@ strong {
           <li class="nav-h4"><a href="#referential-integrity-checks">Referential Integrity Checks</a></li>
         </ul>
       </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#sequence-diagram">Sequence Diagram</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#message-sort-constraints">Message Sort Constraints</a></li>
+          <li class="nav-h4"><a href="#interaction-operator-constraints">Interaction Operator Constraints</a></li>
+          <li class="nav-h4"><a href="#sequence-diagram-referential-integrity-checks">Sequence Diagram Referential Integrity Checks</a></li>
+          <li class="nav-h4"><a href="#sequence-diagram-layout-guide">Sequence Diagram Layout Guide</a></li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li class="nav-h2 has-children">
@@ -344,6 +353,7 @@ strong {
     <ul class="sub-items">
       <li class="nav-h3"><a href="#general-1">General</a></li>
       <li class="nav-h3"><a href="#er-diagram-1">ER Diagram</a></li>
+      <li class="nav-h3"><a href="#sequence-diagram-1">Sequence Diagram</a></li>
     </ul>
   </li>
   <li class="nav-h2 has-children">
@@ -457,6 +467,91 @@ strong {
         <div class="nav-item"><span class="toggle">&#9654;</span><a href="#postgresql-ddl">PostgreSQL DDL</a></div>
         <ul class="sub-items">
           <li class="nav-h4"><a href="#post-api-erd-postgresql-ddl"><span class="nav-action">Generate PostgreSQL DDL (Data Definition Language) from the ER diagram and write it to the specified absolute path.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/erd/postgresql/ddl</span></span></a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li class="nav-h2 has-children">
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#sequence-diagram-2">Sequence Diagram</a></div>
+    <ul class="sub-items">
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#interactions">Interactions</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions"><span class="nav-action">List all interactions in the project.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions"><span class="nav-action">Create a new interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id"><span class="nav-action">Get the details of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-interactions-id"><span class="nav-action">Update the specified interaction.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/interactions/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-interactions-id"><span class="nav-action">Delete the specified interaction.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/interactions/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#sequence-diagrams">Sequence Diagrams</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-diagrams"><span class="nav-action">List all sequence diagrams in the project.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/diagrams</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-diagrams"><span class="nav-action">Create a new sequence diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/diagrams</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-diagrams-id"><span class="nav-action">Get the details of the specified sequence diagram.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/diagrams/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-diagrams-id"><span class="nav-action">Update the specified sequence diagram.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/diagrams/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-diagrams-id"><span class="nav-action">Delete the specified sequence diagram.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/diagrams/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#lifelines">Lifelines</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id-lifelines"><span class="nav-action">List all lifelines of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id/lifelines</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions-id-lifelines"><span class="nav-action">Add a new lifeline to the specified interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions/:id/lifelines</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-lifelines-id"><span class="nav-action">Get the details of the specified lifeline.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/lifelines/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-lifelines-id"><span class="nav-action">Update the specified lifeline.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/lifelines/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-lifelines-id"><span class="nav-action">Delete the specified lifeline.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/lifelines/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#messages">Messages</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id-messages"><span class="nav-action">List all messages of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id/messages</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions-id-messages"><span class="nav-action">Create a new message in the specified interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions/:id/messages</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-messages-id"><span class="nav-action">Get the details of the specified message.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/messages/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-messages-id"><span class="nav-action">Update the specified message.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/messages/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-messages-id"><span class="nav-action">Delete the specified message.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/messages/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#combined-fragments">Combined Fragments</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id-combined-fragments"><span class="nav-action">List all combined fragments of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id/combined-fragments</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions-id-combined-fragments"><span class="nav-action">Create a new combined fragment in the specified interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions/:id/combined-fragments</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-combined-fragments-id"><span class="nav-action">Get the details of the specified combined fragment.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/combined-fragments/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-combined-fragments-id"><span class="nav-action">Update the specified combined fragment.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/combined-fragments/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-combined-fragments-id"><span class="nav-action">Delete the specified combined fragment.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/combined-fragments/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#interaction-operands">Interaction Operands</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-combined-fragments-id-operands"><span class="nav-action">List all operands of the specified combined fragment.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/combined-fragments/:id/operands</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-combined-fragments-id-operands"><span class="nav-action">Add a new operand to the specified combined fragment.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/combined-fragments/:id/operands</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-operands-id"><span class="nav-action">Get the details of the specified operand.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/operands/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-operands-id"><span class="nav-action">Update the specified operand.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/operands/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-operands-id"><span class="nav-action">Delete the specified operand.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/operands/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#state-invariants">State Invariants</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id-state-invariants"><span class="nav-action">List all state invariants of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id/state-invariants</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions-id-state-invariants"><span class="nav-action">Create a new state invariant in the specified interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions/:id/state-invariants</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-state-invariants-id"><span class="nav-action">Get the details of the specified state invariant.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/state-invariants/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-state-invariants-id"><span class="nav-action">Update the specified state invariant.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/state-invariants/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-state-invariants-id"><span class="nav-action">Delete the specified state invariant.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/state-invariants/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#interaction-uses">Interaction Uses</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-seq-interactions-id-interaction-uses"><span class="nav-action">List all interaction uses of the specified interaction.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interactions/:id/interaction-uses</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-seq-interactions-id-interaction-uses"><span class="nav-action">Create a new interaction use in the specified interaction.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/seq/interactions/:id/interaction-uses</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-seq-interaction-uses-id"><span class="nav-action">Get the details of the specified interaction use.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/seq/interaction-uses/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-seq-interaction-uses-id"><span class="nav-action">Update the specified interaction use.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/seq/interaction-uses/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-seq-interaction-uses-id"><span class="nav-action">Delete the specified interaction use.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/seq/interaction-uses/:id</span></span></a></li>
         </ul>
       </li>
     </ul>
@@ -642,6 +737,94 @@ The server automatically URL-decodes path parameters.</p>
 <td>PUT Column</td>
 <td>referenceToId must not be the column's own ID</td>
 <td>400: Self-reference error message</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sequence-diagram">Sequence Diagram</h3>
+<h4 id="message-sort-constraints">Message Sort Constraints</h4>
+<p>The message <code>messageSort</code> field accepts only the following values:</p>
+<p><code>synchCall</code>, <code>asynchCall</code>, <code>asynchSignal</code>, <code>createMessage</code>, <code>deleteMessage</code>, <code>reply</code></p>
+<h4 id="interaction-operator-constraints">Interaction Operator Constraints</h4>
+<p>The combined fragment <code>interactionOperator</code> field accepts only the following values:</p>
+<p><code>alt</code>, <code>opt</code>, <code>par</code>, <code>loop</code>, <code>critical</code>, <code>neg</code>, <code>assert</code>, <code>strict</code>, <code>seq</code>, <code>ignore</code>, <code>consider</code>, <code>break</code></p>
+<h4 id="sequence-diagram-referential-integrity-checks">Sequence Diagram Referential Integrity Checks</h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Check</th>
+<th>Error behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DELETE Interaction</td>
+<td>Must not contain any lifelines, messages, fragments, or diagrams</td>
+<td>400: Error message includes child element counts</td>
+</tr>
+<tr>
+<td>DELETE Lifeline</td>
+<td>No messages may reference this lifeline as source or target</td>
+<td>400: Error message includes referencing message details</td>
+</tr>
+<tr>
+<td>DELETE Lifeline</td>
+<td>No state invariants may reference this lifeline via covered</td>
+<td>400: Error message includes referencing state invariant details</td>
+</tr>
+<tr>
+<td>DELETE CombinedFragment</td>
+<td>Child operands are cascade deleted</td>
+<td>Operands deleted automatically</td>
+</tr>
+<tr>
+<td>DELETE InteractionOperand</td>
+<td>Parent fragment must have at least 2 operands</td>
+<td>400: Error message</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sequence-diagram-layout-guide">Sequence Diagram Layout Guide</h4>
+<p>When creating sequence diagram elements programmatically, use the following positioning parameters for proper layout:</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Parameter</th>
+<th>Description</th>
+<th>Recommended Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sequence Diagram</td>
+<td><code>width</code>, <code>height</code></td>
+<td>Frame size</td>
+<td>Calculate based on lifeline count: width = (lifeline count) × 250 + 200, height based on message count</td>
+</tr>
+<tr>
+<td>Lifeline</td>
+<td><code>x</code>, <code>y</code>, <code>height</code></td>
+<td>Position and timeline length</td>
+<td>x: space 250px apart starting at 150. y: 50. height: (last message y) + 100</td>
+</tr>
+<tr>
+<td>Message</td>
+<td><code>y</code></td>
+<td>Vertical position on diagram</td>
+<td>Start at 150, increment by 50 for each message</td>
+</tr>
+<tr>
+<td>Message (synchCall)</td>
+<td><code>activationHeight</code></td>
+<td>Activation bar height</td>
+<td>Set to (reply message y) - (this message y) + 10</td>
+</tr>
+<tr>
+<td>Combined Fragment</td>
+<td><code>x</code>, <code>y</code>, <code>width</code>, <code>height</code></td>
+<td>Position and size</td>
+<td>x: 30, y/height: cover the messages inside, width: cover all lifelines</td>
 </tr>
 </tbody>
 </table>
@@ -893,6 +1076,218 @@ The server automatically URL-decodes path parameters.</p>
 <td>/api/erd/postgresql/ddl</td>
 <td>POST</td>
 <td>Generate PostgreSQL DDL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sequence-diagram-1">Sequence Diagram</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/seq/interactions</td>
+<td>GET</td>
+<td>List all interactions</td>
+</tr>
+<tr>
+<td>/api/seq/interactions</td>
+<td>POST</td>
+<td>Create an interaction</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id</td>
+<td>GET</td>
+<td>Get interaction details</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id</td>
+<td>PUT</td>
+<td>Update an interaction</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id</td>
+<td>DELETE</td>
+<td>Delete an interaction</td>
+</tr>
+<tr>
+<td>/api/seq/diagrams</td>
+<td>GET</td>
+<td>List all sequence diagrams</td>
+</tr>
+<tr>
+<td>/api/seq/diagrams</td>
+<td>POST</td>
+<td>Create a sequence diagram</td>
+</tr>
+<tr>
+<td>/api/seq/diagrams/:id</td>
+<td>GET</td>
+<td>Get sequence diagram details</td>
+</tr>
+<tr>
+<td>/api/seq/diagrams/:id</td>
+<td>PUT</td>
+<td>Update a sequence diagram</td>
+</tr>
+<tr>
+<td>/api/seq/diagrams/:id</td>
+<td>DELETE</td>
+<td>Delete a sequence diagram</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/lifelines</td>
+<td>GET</td>
+<td>List lifelines of an interaction</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/lifelines</td>
+<td>POST</td>
+<td>Create a lifeline</td>
+</tr>
+<tr>
+<td>/api/seq/lifelines/:id</td>
+<td>GET</td>
+<td>Get lifeline details</td>
+</tr>
+<tr>
+<td>/api/seq/lifelines/:id</td>
+<td>PUT</td>
+<td>Update a lifeline</td>
+</tr>
+<tr>
+<td>/api/seq/lifelines/:id</td>
+<td>DELETE</td>
+<td>Delete a lifeline</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/messages</td>
+<td>GET</td>
+<td>List messages of an interaction</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/messages</td>
+<td>POST</td>
+<td>Create a message</td>
+</tr>
+<tr>
+<td>/api/seq/messages/:id</td>
+<td>GET</td>
+<td>Get message details</td>
+</tr>
+<tr>
+<td>/api/seq/messages/:id</td>
+<td>PUT</td>
+<td>Update a message</td>
+</tr>
+<tr>
+<td>/api/seq/messages/:id</td>
+<td>DELETE</td>
+<td>Delete a message</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/combined-fragments</td>
+<td>GET</td>
+<td>List combined fragments</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/combined-fragments</td>
+<td>POST</td>
+<td>Create a combined fragment</td>
+</tr>
+<tr>
+<td>/api/seq/combined-fragments/:id</td>
+<td>GET</td>
+<td>Get combined fragment details</td>
+</tr>
+<tr>
+<td>/api/seq/combined-fragments/:id</td>
+<td>PUT</td>
+<td>Update a combined fragment</td>
+</tr>
+<tr>
+<td>/api/seq/combined-fragments/:id</td>
+<td>DELETE</td>
+<td>Delete a combined fragment</td>
+</tr>
+<tr>
+<td>/api/seq/combined-fragments/:id/operands</td>
+<td>GET</td>
+<td>List operands of a combined fragment</td>
+</tr>
+<tr>
+<td>/api/seq/combined-fragments/:id/operands</td>
+<td>POST</td>
+<td>Add an operand</td>
+</tr>
+<tr>
+<td>/api/seq/operands/:id</td>
+<td>GET</td>
+<td>Get operand details</td>
+</tr>
+<tr>
+<td>/api/seq/operands/:id</td>
+<td>PUT</td>
+<td>Update an operand</td>
+</tr>
+<tr>
+<td>/api/seq/operands/:id</td>
+<td>DELETE</td>
+<td>Delete an operand</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/state-invariants</td>
+<td>GET</td>
+<td>List state invariants</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/state-invariants</td>
+<td>POST</td>
+<td>Create a state invariant</td>
+</tr>
+<tr>
+<td>/api/seq/state-invariants/:id</td>
+<td>GET</td>
+<td>Get state invariant details</td>
+</tr>
+<tr>
+<td>/api/seq/state-invariants/:id</td>
+<td>PUT</td>
+<td>Update a state invariant</td>
+</tr>
+<tr>
+<td>/api/seq/state-invariants/:id</td>
+<td>DELETE</td>
+<td>Delete a state invariant</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/interaction-uses</td>
+<td>GET</td>
+<td>List interaction uses</td>
+</tr>
+<tr>
+<td>/api/seq/interactions/:id/interaction-uses</td>
+<td>POST</td>
+<td>Create an interaction use</td>
+</tr>
+<tr>
+<td>/api/seq/interaction-uses/:id</td>
+<td>GET</td>
+<td>Get interaction use details</td>
+</tr>
+<tr>
+<td>/api/seq/interaction-uses/:id</td>
+<td>PUT</td>
+<td>Update an interaction use</td>
+</tr>
+<tr>
+<td>/api/seq/interaction-uses/:id</td>
+<td>DELETE</td>
+<td>Delete an interaction use</td>
 </tr>
 </tbody>
 </table>
@@ -3572,6 +3967,2295 @@ The server automatically URL-decodes path parameters.</p>
 - 400: ERDDataModel with the specified <code>dataModelId</code> not found
 - 400: Unknown fields present
 - 400: DDL generation failed (filesystem error, etc.)</p>
+<hr />
+<h2 id="sequence-diagram-2">Sequence Diagram</h2>
+<h3 id="interactions">Interactions</h3>
+<h4 id="get-api-seq-interactions">GET /api/seq/interactions</h4>
+<div class="endpoint-action">List all interactions in the project.</div>
+<p class="endpoint-detail">An interaction serves as the parent container for lifelines, messages, combined fragments, and sequence diagrams.</p>
+<p><strong>Request</strong>: None</p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 interaction(s)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
+      &quot;_type&quot;: &quot;UMLInteraction&quot;,
+      &quot;name&quot;: &quot;Interaction1&quot;,
+      &quot;participants&quot;: [
+        { &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;, &quot;name&quot;: &quot;Lifeline1&quot; }
+      ],
+      &quot;messages&quot;: [
+        { &quot;_id&quot;: &quot;AAAAAAGVbbbb&quot;, &quot;name&quot;: &quot;message1&quot; }
+      ],
+      &quot;fragments&quot;: [
+        { &quot;_id&quot;: &quot;AAAAAAGVcccc&quot;, &quot;_type&quot;: &quot;UMLCombinedFragment&quot;, &quot;name&quot;: &quot;alt1&quot; }
+      ],
+      &quot;_parentId&quot;: &quot;AAAAAAGVrrrr&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the interaction</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLInteraction"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Interaction name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>participants</td>
+<td>object[]</td>
+<td>Lifelines in this interaction (<code>_id</code>, <code>name</code>)</td>
+</tr>
+<tr>
+<td>messages</td>
+<td>object[]</td>
+<td>Messages in this interaction (<code>_id</code>, <code>name</code>)</td>
+</tr>
+<tr>
+<td>fragments</td>
+<td>object[]</td>
+<td>Fragments in this interaction (<code>_id</code>, <code>_type</code>, <code>name</code>)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element ID</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="post-api-seq-interactions">POST /api/seq/interactions</h4>
+<div class="endpoint-action">Create a new interaction.</div>
+<p class="endpoint-detail">It is created directly under the project root.</p>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction name (default: <code>"Interaction1"</code>)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;LoginSequence&quot;
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Created interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/seq/interactions&quot;, &quot;body&quot;: { &quot;name&quot;: &quot;LoginSequence&quot; } },
+  &quot;data&quot;: {
+    &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
+    &quot;_type&quot;: &quot;UMLInteraction&quot;,
+    &quot;name&quot;: &quot;LoginSequence&quot;,
+    &quot;participants&quot;: [],
+    &quot;messages&quot;: [],
+    &quot;fragments&quot;: [],
+    &quot;_parentId&quot;: &quot;AAAAAAGVrrrr&quot;
+  }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Unknown fields present
+- 400: Field type mismatch
+- 400: <code>name</code> is empty
+- 400: No project is open</p>
+<hr />
+<h4 id="get-api-seq-interactions-id">GET /api/seq/interactions/:id</h4>
+<div class="endpoint-action">Get the details of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Interaction object (same format as GET /api/seq/interactions data array element)</p>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-interactions-id">PUT /api/seq/interactions/:id</h4>
+<div class="endpoint-action">Update the specified interaction.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;CheckoutSequence&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated interaction object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-interactions-id">DELETE /api/seq/interactions/:id</h4>
+<div class="endpoint-action">Delete the specified interaction.</div>
+<p class="endpoint-detail">Deletion is blocked if it contains lifelines, messages, fragments, or diagrams.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;LoginSequence&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Contains lifelines, messages, fragments, or diagrams (error message includes counts)
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h3 id="sequence-diagrams">Sequence Diagrams</h3>
+<h4 id="get-api-seq-diagrams">GET /api/seq/diagrams</h4>
+<div class="endpoint-action">List all sequence diagrams in the project.</div>
+
+<p><strong>Request</strong>: None</p>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 diagram(s)&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/diagrams&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVdddd&quot;,
+      &quot;_type&quot;: &quot;UMLSequenceDiagram&quot;,
+      &quot;name&quot;: &quot;SequenceDiagram1&quot;,
+      &quot;lifelineIds&quot;: [&quot;AAAAAAGVaaaa&quot;, &quot;AAAAAAGVeeee&quot;],
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the diagram</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLSequenceDiagram"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Diagram name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>lifelineIds</td>
+<td>string[]</td>
+<td>IDs of lifelines displayed on this diagram</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element (typically UMLInteraction) ID</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="post-api-seq-diagrams">POST /api/seq/diagrams</h4>
+<div class="endpoint-action">Create a new sequence diagram.</div>
+
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parentId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Parent element (UMLInteraction) ID</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram name (default: <code>"SequenceDiagram1"</code>)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>width</td>
+<td>number</td>
+<td>No</td>
+<td>Frame width in pixels (default: 692)</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>No</td>
+<td>Frame height in pixels (default: 592)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;parentId&quot;: &quot;AAAAAAGVxxxx&quot;,
+  &quot;name&quot;: &quot;Login Flow&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created diagram object (same format as GET /api/seq/diagrams data array element). <code>message</code> includes creation details.</p>
+<p><strong>Errors</strong>:
+- 400: <code>parentId</code> is missing or the corresponding UMLInteraction not found
+- 400: Unknown fields present
+- 400: Field type mismatch
+- 400: <code>name</code> is empty</p>
+<hr />
+<h4 id="get-api-seq-diagrams-id">GET /api/seq/diagrams/:id</h4>
+<div class="endpoint-action">Get the details of the specified sequence diagram.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Diagram object (same format as GET /api/seq/diagrams data array element)</p>
+<p><strong>Errors</strong>:
+- 404: UMLSequenceDiagram with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-diagrams-id">PUT /api/seq/diagrams/:id</h4>
+<div class="endpoint-action">Update the specified sequence diagram.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Login Flow Diagram&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated diagram object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: UMLSequenceDiagram with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-diagrams-id">DELETE /api/seq/diagrams/:id</h4>
+<div class="endpoint-action">Delete the specified sequence diagram.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted diagram \&quot;SequenceDiagram1\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/diagrams/AAAAAAGVdddd&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVdddd&quot;, &quot;name&quot;: &quot;SequenceDiagram1&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLSequenceDiagram with the specified ID not found</p>
+<hr />
+<h3 id="lifelines">Lifelines</h3>
+<h4 id="get-api-seq-interactions-id-lifelines">GET /api/seq/interactions/:id/lifelines</h4>
+<div class="endpoint-action">List all lifelines of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 2 lifeline(s) from interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx/lifelines&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;_type&quot;: &quot;UMLLifeline&quot;,
+      &quot;name&quot;: &quot;Client&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    },
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVeeee&quot;,
+      &quot;_type&quot;: &quot;UMLLifeline&quot;,
+      &quot;name&quot;: &quot;Server&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-interactions-id-lifelines">POST /api/seq/interactions/:id/lifelines</h4>
+<div class="endpoint-action">Add a new lifeline to the specified interaction.</div>
+<p class="endpoint-detail">If diagramId is specified, a view (visual representation) is also created on the diagram.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline name (default: <code>"Lifeline1"</code>)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, a view is created on the UMLSequenceDiagram</td>
+</tr>
+<tr>
+<td>x</td>
+<td>number</td>
+<td>No</td>
+<td>X coordinate of the view</td>
+</tr>
+<tr>
+<td>y</td>
+<td>number</td>
+<td>No</td>
+<td>Y coordinate of the view</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>No</td>
+<td>Lifeline height in pixels (default: 200)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;AuthService&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVdddd&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created lifeline object. <code>message</code> includes creation details.</p>
+<p><strong>Lifeline object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the lifeline</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLLifeline"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Lifeline name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>represent</td>
+<td>string</td>
+<td>Represented element (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: Unknown fields, type mismatch, or empty name
+- 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-lifelines-id">GET /api/seq/lifelines/:id</h4>
+<div class="endpoint-action">Get the details of the specified lifeline.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Lifeline object (same format as POST /api/seq/interactions/:id/lifelines response)</p>
+<p><strong>Errors</strong>:
+- 404: UMLLifeline with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-lifelines-id">PUT /api/seq/lifelines/:id</h4>
+<div class="endpoint-action">Update the specified lifeline.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;DatabaseService&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated lifeline object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: UMLLifeline with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-lifelines-id">DELETE /api/seq/lifelines/:id</h4>
+<div class="endpoint-action">Delete the specified lifeline.</div>
+<p class="endpoint-detail">Deletion is blocked if messages reference this lifeline as source or target, or if state invariants reference it via covered.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted lifeline \&quot;AuthService\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/lifelines/AAAAAAGVaaaa&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVaaaa&quot;, &quot;name&quot;: &quot;AuthService&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Messages reference this lifeline as source or target (message includes referencing details)
+- 400: State invariants reference this lifeline via covered (message includes referencing details)
+- 404: UMLLifeline with the specified ID not found</p>
+<hr />
+<h3 id="messages">Messages</h3>
+<h4 id="get-api-seq-interactions-id-messages">GET /api/seq/interactions/:id/messages</h4>
+<div class="endpoint-action">List all messages of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 message(s) from interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx/messages&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVbbbb&quot;,
+      &quot;_type&quot;: &quot;UMLMessage&quot;,
+      &quot;name&quot;: &quot;authenticate&quot;,
+      &quot;messageSort&quot;: &quot;synchCall&quot;,
+      &quot;source&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;target&quot;: &quot;AAAAAAGVeeee&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-interactions-id-messages">POST /api/seq/interactions/:id/messages</h4>
+<div class="endpoint-action">Create a new message in the specified interaction.</div>
+<p class="endpoint-detail">Uses createModelAndView to create both model and view on the diagram.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Message name</td>
+</tr>
+<tr>
+<td>messageSort</td>
+<td>string</td>
+<td>No</td>
+<td>Message sort. Allowed values: <code>synchCall</code>, <code>asynchCall</code>, <code>asynchSignal</code>, <code>createMessage</code>, <code>deleteMessage</code>, <code>reply</code></td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td>Yes</td>
+<td>Source lifeline ID</td>
+</tr>
+<tr>
+<td>target</td>
+<td>string</td>
+<td>Yes</td>
+<td>Target lifeline ID</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>Yes</td>
+<td>UMLSequenceDiagram ID</td>
+</tr>
+<tr>
+<td>y</td>
+<td>number</td>
+<td>No</td>
+<td>Vertical position (y-coordinate) on the diagram</td>
+</tr>
+<tr>
+<td>activationHeight</td>
+<td>number</td>
+<td>No</td>
+<td>Height of the activation bar on the target lifeline (for synchCall messages)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;authenticate&quot;,
+  &quot;messageSort&quot;: &quot;synchCall&quot;,
+  &quot;source&quot;: &quot;AAAAAAGVaaaa&quot;,
+  &quot;target&quot;: &quot;AAAAAAGVeeee&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVdddd&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created message object. <code>message</code> includes creation details.</p>
+<p><strong>Message object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the message</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLMessage"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Message name</td>
+</tr>
+<tr>
+<td>messageSort</td>
+<td>string</td>
+<td>Message sort (e.g., <code>"synchCall"</code>, <code>"asynchCall"</code>)</td>
+</tr>
+<tr>
+<td>source</td>
+<td>string</td>
+<td>Source lifeline ID (present only if set)</td>
+</tr>
+<tr>
+<td>target</td>
+<td>string</td>
+<td>Target lifeline ID (present only if set)</td>
+</tr>
+<tr>
+<td>signature</td>
+<td>string</td>
+<td>Signature (present only if set)</td>
+</tr>
+<tr>
+<td>connector</td>
+<td>string</td>
+<td>Connector (present only if set)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: <code>source</code> or <code>target</code> is missing
+- 400: <code>diagramId</code> is missing
+- 400: UMLLifeline with the specified <code>source</code> or <code>target</code> not found
+- 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
+- 400: <code>messageSort</code> is not an allowed value (error message lists allowed values)
+- 400: Unknown fields, type mismatch, or empty name
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-messages-id">GET /api/seq/messages/:id</h4>
+<div class="endpoint-action">Get the details of the specified message.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Message ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Message object (same format as POST /api/seq/interactions/:id/messages response)</p>
+<p><strong>Errors</strong>:
+- 404: UMLMessage with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-messages-id">PUT /api/seq/messages/:id</h4>
+<div class="endpoint-action">Update the specified message.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Message ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Message name</td>
+</tr>
+<tr>
+<td>messageSort</td>
+<td>string</td>
+<td>No</td>
+<td>Message sort</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;login&quot;,
+  &quot;messageSort&quot;: &quot;asynchCall&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated message object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: <code>messageSort</code> is not an allowed value (error message lists allowed values)
+- 404: UMLMessage with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-messages-id">DELETE /api/seq/messages/:id</h4>
+<div class="endpoint-action">Delete the specified message.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Message ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted message \&quot;authenticate\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/messages/AAAAAAGVbbbb&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVbbbb&quot;, &quot;name&quot;: &quot;authenticate&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLMessage with the specified ID not found</p>
+<hr />
+<h3 id="combined-fragments">Combined Fragments</h3>
+<h4 id="get-api-seq-interactions-id-combined-fragments">GET /api/seq/interactions/:id/combined-fragments</h4>
+<div class="endpoint-action">List all combined fragments of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 combined fragment(s) from interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx/combined-fragments&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVcccc&quot;,
+      &quot;_type&quot;: &quot;UMLCombinedFragment&quot;,
+      &quot;name&quot;: &quot;alt1&quot;,
+      &quot;interactionOperator&quot;: &quot;alt&quot;,
+      &quot;operands&quot;: [
+        { &quot;_id&quot;: &quot;AAAAAAGVffff&quot;, &quot;name&quot;: &quot;success&quot;, &quot;guard&quot;: &quot;isValid&quot; },
+        { &quot;_id&quot;: &quot;AAAAAAGVgggg&quot;, &quot;name&quot;: &quot;failure&quot;, &quot;guard&quot;: &quot;else&quot; }
+      ],
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-interactions-id-combined-fragments">POST /api/seq/interactions/:id/combined-fragments</h4>
+<div class="endpoint-action">Create a new combined fragment in the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Fragment name</td>
+</tr>
+<tr>
+<td>interactionOperator</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction operator (default: <code>"alt"</code>). Allowed values: <code>alt</code>, <code>opt</code>, <code>par</code>, <code>loop</code>, <code>critical</code>, <code>neg</code>, <code>assert</code>, <code>strict</code>, <code>seq</code>, <code>ignore</code>, <code>consider</code>, <code>break</code></td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, a view is created on the UMLSequenceDiagram</td>
+</tr>
+<tr>
+<td>x</td>
+<td>number</td>
+<td>No</td>
+<td>X position on the diagram</td>
+</tr>
+<tr>
+<td>y</td>
+<td>number</td>
+<td>No</td>
+<td>Y position on the diagram</td>
+</tr>
+<tr>
+<td>width</td>
+<td>number</td>
+<td>No</td>
+<td>Width on the diagram (default: 350)</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>No</td>
+<td>Height on the diagram (default: 200)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;authCheck&quot;,
+  &quot;interactionOperator&quot;: &quot;alt&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVdddd&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created combined fragment object. <code>message</code> includes creation details.</p>
+<p><strong>Combined fragment object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the combined fragment</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLCombinedFragment"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Fragment name</td>
+</tr>
+<tr>
+<td>interactionOperator</td>
+<td>string</td>
+<td>Interaction operator (e.g., <code>"alt"</code>, <code>"loop"</code>)</td>
+</tr>
+<tr>
+<td>operands</td>
+<td>object[]</td>
+<td>Child operands (<code>_id</code>, <code>name</code>, <code>guard</code>)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: <code>interactionOperator</code> is not an allowed value (error message lists allowed values)
+- 400: Unknown fields, type mismatch, or empty name
+- 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-combined-fragments-id">GET /api/seq/combined-fragments/:id</h4>
+<div class="endpoint-action">Get the details of the specified combined fragment.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Combined fragment object (same format as GET /api/seq/interactions/:id/combined-fragments data array element)</p>
+<p><strong>Errors</strong>:
+- 404: UMLCombinedFragment with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-combined-fragments-id">PUT /api/seq/combined-fragments/:id</h4>
+<div class="endpoint-action">Update the specified combined fragment.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Fragment name</td>
+</tr>
+<tr>
+<td>interactionOperator</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction operator</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;interactionOperator&quot;: &quot;loop&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated combined fragment object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: <code>interactionOperator</code> is not an allowed value (error message lists allowed values)
+- 404: UMLCombinedFragment with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-combined-fragments-id">DELETE /api/seq/combined-fragments/:id</h4>
+<div class="endpoint-action">Delete the specified combined fragment.</div>
+<p class="endpoint-detail">Child operands are cascade deleted automatically.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted combined fragment \&quot;authCheck\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/combined-fragments/AAAAAAGVcccc&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVcccc&quot;, &quot;name&quot;: &quot;authCheck&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLCombinedFragment with the specified ID not found</p>
+<hr />
+<h3 id="interaction-operands">Interaction Operands</h3>
+<h4 id="get-api-seq-combined-fragments-id-operands">GET /api/seq/combined-fragments/:id/operands</h4>
+<div class="endpoint-action">List all operands of the specified combined fragment.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 2 operand(s) from combined fragment \&quot;authCheck\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/combined-fragments/AAAAAAGVcccc/operands&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVffff&quot;,
+      &quot;_type&quot;: &quot;UMLInteractionOperand&quot;,
+      &quot;name&quot;: &quot;success&quot;,
+      &quot;guard&quot;: &quot;isValid&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVcccc&quot;
+    },
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVgggg&quot;,
+      &quot;_type&quot;: &quot;UMLInteractionOperand&quot;,
+      &quot;name&quot;: &quot;failure&quot;,
+      &quot;guard&quot;: &quot;else&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVcccc&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLCombinedFragment with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-combined-fragments-id-operands">POST /api/seq/combined-fragments/:id/operands</h4>
+<div class="endpoint-action">Add a new operand to the specified combined fragment.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Operand name</td>
+</tr>
+<tr>
+<td>guard</td>
+<td>string</td>
+<td>No</td>
+<td>Guard condition</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;timeout&quot;,
+  &quot;guard&quot;: &quot;elapsed &gt; 30s&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created operand object. <code>message</code> includes creation details.</p>
+<p><strong>Interaction operand object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the operand</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLInteractionOperand"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Operand name</td>
+</tr>
+<tr>
+<td>guard</td>
+<td>string</td>
+<td>Guard condition</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent combined fragment ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: Unknown fields, type mismatch, or empty name
+- 404: UMLCombinedFragment with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-operands-id">GET /api/seq/operands/:id</h4>
+<div class="endpoint-action">Get the details of the specified operand.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Operand ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Operand object (same format as POST /api/seq/combined-fragments/:id/operands response)</p>
+<p><strong>Errors</strong>:
+- 404: UMLInteractionOperand with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-operands-id">PUT /api/seq/operands/:id</h4>
+<div class="endpoint-action">Update the specified operand.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Operand ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Operand name</td>
+</tr>
+<tr>
+<td>guard</td>
+<td>string</td>
+<td>No</td>
+<td>Guard condition</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;guard&quot;: &quot;retryCount &lt; 3&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated operand object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 404: UMLInteractionOperand with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-operands-id">DELETE /api/seq/operands/:id</h4>
+<div class="endpoint-action">Delete the specified operand.</div>
+<p class="endpoint-detail">Deletion is blocked if the parent combined fragment has only 1 operand remaining.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Operand ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted operand \&quot;timeout\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/operands/AAAAAAGVhhhh&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVhhhh&quot;, &quot;name&quot;: &quot;timeout&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 400: Parent combined fragment has only 1 operand remaining (error message)
+- 404: UMLInteractionOperand with the specified ID not found</p>
+<hr />
+<h3 id="state-invariants">State Invariants</h3>
+<h4 id="get-api-seq-interactions-id-state-invariants">GET /api/seq/interactions/:id/state-invariants</h4>
+<div class="endpoint-action">List all state invariants of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 state invariant(s) from interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx/state-invariants&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGViiii&quot;,
+      &quot;_type&quot;: &quot;UMLStateInvariant&quot;,
+      &quot;name&quot;: &quot;authenticated&quot;,
+      &quot;covered&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;invariant&quot;: &quot;isLoggedIn == true&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-interactions-id-state-invariants">POST /api/seq/interactions/:id/state-invariants</h4>
+<div class="endpoint-action">Create a new state invariant in the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>State invariant name</td>
+</tr>
+<tr>
+<td>covered</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline ID that this state invariant covers</td>
+</tr>
+<tr>
+<td>invariant</td>
+<td>string</td>
+<td>No</td>
+<td>Invariant expression</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, a view is created on the UMLSequenceDiagram</td>
+</tr>
+<tr>
+<td>x</td>
+<td>number</td>
+<td>No</td>
+<td>X position on the diagram</td>
+</tr>
+<tr>
+<td>y</td>
+<td>number</td>
+<td>No</td>
+<td>Y position on the diagram</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;authenticated&quot;,
+  &quot;covered&quot;: &quot;AAAAAAGVaaaa&quot;,
+  &quot;invariant&quot;: &quot;isLoggedIn == true&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVdddd&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created state invariant object. <code>message</code> includes creation details.</p>
+<p><strong>State invariant object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the state invariant</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLStateInvariant"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>State invariant name</td>
+</tr>
+<tr>
+<td>covered</td>
+<td>string</td>
+<td>Covered lifeline ID (present only if set)</td>
+</tr>
+<tr>
+<td>invariant</td>
+<td>string</td>
+<td>Invariant expression (present only if set)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: Unknown fields, type mismatch, or empty name
+- 400: UMLLifeline with the specified <code>covered</code> not found
+- 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-state-invariants-id">GET /api/seq/state-invariants/:id</h4>
+<div class="endpoint-action">Get the details of the specified state invariant.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>State invariant ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: State invariant object (same format as POST /api/seq/interactions/:id/state-invariants response)</p>
+<p><strong>Errors</strong>:
+- 404: UMLStateInvariant with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-state-invariants-id">PUT /api/seq/state-invariants/:id</h4>
+<div class="endpoint-action">Update the specified state invariant.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>State invariant ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>State invariant name</td>
+</tr>
+<tr>
+<td>covered</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline ID</td>
+</tr>
+<tr>
+<td>invariant</td>
+<td>string</td>
+<td>No</td>
+<td>Invariant expression</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;invariant&quot;: &quot;sessionActive == true&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated state invariant object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: UMLLifeline with the specified <code>covered</code> not found
+- 404: UMLStateInvariant with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-state-invariants-id">DELETE /api/seq/state-invariants/:id</h4>
+<div class="endpoint-action">Delete the specified state invariant.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>State invariant ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted state invariant \&quot;authenticated\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/state-invariants/AAAAAAGViiii&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGViiii&quot;, &quot;name&quot;: &quot;authenticated&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLStateInvariant with the specified ID not found</p>
+<hr />
+<h3 id="interaction-uses">Interaction Uses</h3>
+<h4 id="get-api-seq-interactions-id-interaction-uses">GET /api/seq/interactions/:id/interaction-uses</h4>
+<div class="endpoint-action">List all interaction uses of the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 interaction use(s) from interaction \&quot;LoginSequence\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/seq/interactions/AAAAAAGVxxxx/interaction-uses&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVjjjj&quot;,
+      &quot;_type&quot;: &quot;UMLInteractionUse&quot;,
+      &quot;name&quot;: &quot;validateToken&quot;,
+      &quot;refersTo&quot;: &quot;AAAAAAGVkkkk&quot;,
+      &quot;arguments&quot;: &quot;token, userId&quot;,
+      &quot;returnValue&quot;: &quot;boolean&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="post-api-seq-interactions-id-interaction-uses">POST /api/seq/interactions/:id/interaction-uses</h4>
+<div class="endpoint-action">Create a new interaction use in the specified interaction.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction use name</td>
+</tr>
+<tr>
+<td>refersTo</td>
+<td>string</td>
+<td>No</td>
+<td>Referenced UMLInteraction ID</td>
+</tr>
+<tr>
+<td>arguments</td>
+<td>string</td>
+<td>No</td>
+<td>Arguments</td>
+</tr>
+<tr>
+<td>returnValue</td>
+<td>string</td>
+<td>No</td>
+<td>Return value</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>If specified, a view is created on the UMLSequenceDiagram</td>
+</tr>
+<tr>
+<td>x</td>
+<td>number</td>
+<td>No</td>
+<td>X position on the diagram</td>
+</tr>
+<tr>
+<td>y</td>
+<td>number</td>
+<td>No</td>
+<td>Y position on the diagram</td>
+</tr>
+<tr>
+<td>width</td>
+<td>number</td>
+<td>No</td>
+<td>Width on the diagram (default: 350)</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>No</td>
+<td>Height on the diagram (default: 100)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;validateToken&quot;,
+  &quot;refersTo&quot;: &quot;AAAAAAGVkkkk&quot;,
+  &quot;arguments&quot;: &quot;token, userId&quot;,
+  &quot;returnValue&quot;: &quot;boolean&quot;,
+  &quot;diagramId&quot;: &quot;AAAAAAGVdddd&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created interaction use object. <code>message</code> includes creation details.</p>
+<p><strong>Interaction use object fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier of the interaction use</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>"UMLInteractionUse"</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Interaction use name</td>
+</tr>
+<tr>
+<td>refersTo</td>
+<td>string</td>
+<td>Referenced UMLInteraction ID (present only if set)</td>
+</tr>
+<tr>
+<td>arguments</td>
+<td>string</td>
+<td>Arguments (present only if set)</td>
+</tr>
+<tr>
+<td>returnValue</td>
+<td>string</td>
+<td>Return value (present only if set)</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Description (present only if set)</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent interaction ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:
+- 400: Unknown fields, type mismatch, or empty name
+- 400: UMLInteraction with the specified <code>refersTo</code> not found
+- 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
+- 404: UMLInteraction with the specified ID not found</p>
+<hr />
+<h4 id="get-api-seq-interaction-uses-id">GET /api/seq/interaction-uses/:id</h4>
+<div class="endpoint-action">Get the details of the specified interaction use.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction use ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Interaction use object (same format as POST /api/seq/interactions/:id/interaction-uses response)</p>
+<p><strong>Errors</strong>:
+- 404: UMLInteractionUse with the specified ID not found</p>
+<hr />
+<h4 id="put-api-seq-interaction-uses-id">PUT /api/seq/interaction-uses/:id</h4>
+<div class="endpoint-action">Update the specified interaction use.</div>
+<p class="endpoint-detail">Only the specified fields are updated.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction use ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Interaction use name</td>
+</tr>
+<tr>
+<td>refersTo</td>
+<td>string</td>
+<td>No</td>
+<td>Referenced UMLInteraction ID</td>
+</tr>
+<tr>
+<td>arguments</td>
+<td>string</td>
+<td>No</td>
+<td>Arguments</td>
+</tr>
+<tr>
+<td>returnValue</td>
+<td>string</td>
+<td>No</td>
+<td>Return value</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;arguments&quot;: &quot;token, userId, sessionId&quot;,
+  &quot;returnValue&quot;: &quot;AuthResult&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated interaction use object. <code>message</code> includes the names of updated fields.</p>
+<p><strong>Errors</strong>:
+- 400: Empty body, unknown fields, type mismatch, or empty name
+- 400: UMLInteraction with the specified <code>refersTo</code> not found
+- 404: UMLInteractionUse with the specified ID not found</p>
+<hr />
+<h4 id="delete-api-seq-interaction-uses-id">DELETE /api/seq/interaction-uses/:id</h4>
+<div class="endpoint-action">Delete the specified interaction use.</div>
+
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Interaction use ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted interaction use \&quot;validateToken\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/seq/interaction-uses/AAAAAAGVjjjj&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVjjjj&quot;, &quot;name&quot;: &quot;validateToken&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:
+- 404: UMLInteractionUse with the specified ID not found</p>
 </div>
 <script>
 document.getElementById('sidebar').addEventListener('click', function(e) {

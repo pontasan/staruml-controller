@@ -11,6 +11,18 @@ const ddlGenerator = require('./ddl-generator')
 // Constants
 // ============================================================
 
+// --- Sequence Diagram Constants ---
+
+const VALID_MESSAGE_SORTS = [
+    'synchCall', 'asynchCall', 'asynchSignal', 'createMessage', 'deleteMessage', 'reply'
+]
+
+const VALID_INTERACTION_OPERATORS = [
+    'alt', 'opt', 'par', 'loop', 'critical', 'neg', 'assert', 'strict', 'seq', 'ignore', 'consider', 'break'
+]
+
+// --- ERD Constants ---
+
 const ALLOWED_COLUMN_TYPES = [
     'CHAR', 'VARCHAR', 'TEXT', 'CLOB',
     'BOOLEAN',
@@ -1660,18 +1672,8 @@ function createRelationship(body, reqInfo) {
     }
 
     // Find entity views on the diagram
-    let tailView = null
-    let headView = null
-    if (diagram.ownedViews) {
-        diagram.ownedViews.forEach(function (view) {
-            if (view.model && view.model._id === entity1._id) {
-                tailView = view
-            }
-            if (view.model && view.model._id === entity2._id) {
-                headView = view
-            }
-        })
-    }
+    const tailView = findViewOnDiagram(diagram, entity1._id)
+    const headView = findViewOnDiagram(diagram, entity2._id)
 
     if (!tailView) {
         return validationError('end1 entity "' + entity1.name + '" does not have a view on diagram "' + diagram.name + '". Add the entity to the diagram first.', reqInfo, body)
@@ -2012,6 +2014,1677 @@ function openProject(body, reqInfo) {
     }
 }
 
+// ============================================================
+// Sequence Diagram - Serialization
+// ============================================================
+
+function serializeInteraction(interaction) {
+    if (!interaction) {
+        return null
+    }
+    const result = serializeElement(interaction)
+    result.participants = (interaction.participants || []).map(function (p) {
+        return { _id: p._id, name: p.name || '' }
+    })
+    result.messages = (interaction.messages || []).map(function (m) {
+        return { _id: m._id, name: m.name || '' }
+    })
+    result.fragments = (interaction.fragments || []).map(function (f) {
+        return { _id: f._id, _type: f.constructor.name, name: f.name || '' }
+    })
+    if (interaction._parent) {
+        result._parentId = interaction._parent._id
+    }
+    return result
+}
+
+function serializeSeqDiagram(diagram) {
+    if (!diagram) {
+        return null
+    }
+    const result = serializeElement(diagram)
+    const lifelineIds = []
+    if (diagram.ownedViews) {
+        diagram.ownedViews.forEach(function (view) {
+            if (view.model && view.model instanceof type.UMLLifeline) {
+                if (lifelineIds.indexOf(view.model._id) === -1) {
+                    lifelineIds.push(view.model._id)
+                }
+            }
+        })
+    }
+    result.lifelineIds = lifelineIds
+    if (diagram._parent) {
+        result._parentId = diagram._parent._id
+    }
+    return result
+}
+
+function serializeLifeline(lifeline) {
+    if (!lifeline) {
+        return null
+    }
+    const result = serializeElement(lifeline)
+    if (lifeline.represent) {
+        result.represent = lifeline.represent._id
+    }
+    if (lifeline._parent) {
+        result._parentId = lifeline._parent._id
+    }
+    return result
+}
+
+function serializeMessage(msg) {
+    if (!msg) {
+        return null
+    }
+    const result = {
+        _id: msg._id,
+        _type: msg.constructor.name,
+        name: msg.name || '',
+        messageSort: msg.messageSort || 'synchCall'
+    }
+    if (msg.source) {
+        result.source = msg.source._id
+    }
+    if (msg.target) {
+        result.target = msg.target._id
+    }
+    if (msg.signature) {
+        result.signature = msg.signature._id
+    }
+    if (msg.connector) {
+        result.connector = msg.connector._id
+    }
+    if (msg.documentation) {
+        result.documentation = msg.documentation
+    }
+    if (msg._parent) {
+        result._parentId = msg._parent._id
+    }
+    return result
+}
+
+function serializeCombinedFragment(fragment) {
+    if (!fragment) {
+        return null
+    }
+    const result = {
+        _id: fragment._id,
+        _type: fragment.constructor.name,
+        name: fragment.name || '',
+        interactionOperator: fragment.interactionOperator || 'alt'
+    }
+    result.operands = (fragment.operands || []).map(function (op) {
+        return { _id: op._id, name: op.name || '', guard: op.guard || '' }
+    })
+    if (fragment.documentation) {
+        result.documentation = fragment.documentation
+    }
+    if (fragment._parent) {
+        result._parentId = fragment._parent._id
+    }
+    return result
+}
+
+function serializeInteractionOperand(operand) {
+    if (!operand) {
+        return null
+    }
+    const result = {
+        _id: operand._id,
+        _type: operand.constructor.name,
+        name: operand.name || '',
+        guard: operand.guard || ''
+    }
+    if (operand.documentation) {
+        result.documentation = operand.documentation
+    }
+    if (operand._parent) {
+        result._parentId = operand._parent._id
+    }
+    return result
+}
+
+function serializeStateInvariant(si) {
+    if (!si) {
+        return null
+    }
+    const result = {
+        _id: si._id,
+        _type: si.constructor.name,
+        name: si.name || ''
+    }
+    if (si.covered) {
+        result.covered = si.covered._id
+    }
+    if (si.invariant) {
+        result.invariant = si.invariant
+    }
+    if (si.documentation) {
+        result.documentation = si.documentation
+    }
+    if (si._parent) {
+        result._parentId = si._parent._id
+    }
+    return result
+}
+
+function serializeInteractionUse(iu) {
+    if (!iu) {
+        return null
+    }
+    const result = {
+        _id: iu._id,
+        _type: iu.constructor.name,
+        name: iu.name || ''
+    }
+    if (iu.refersTo) {
+        result.refersTo = iu.refersTo._id
+    }
+    if (iu.arguments) {
+        result.arguments = iu.arguments
+    }
+    if (iu.returnValue) {
+        result.returnValue = iu.returnValue
+    }
+    if (iu.documentation) {
+        result.documentation = iu.documentation
+    }
+    if (iu._parent) {
+        result._parentId = iu._parent._id
+    }
+    return result
+}
+
+// ============================================================
+// Sequence Diagram - Helpers
+// ============================================================
+
+/**
+ * Find a view for a given model on a specific diagram.
+ */
+function findViewOnDiagram(diagram, modelId) {
+    if (!diagram || !diagram.ownedViews) {
+        return null
+    }
+    for (let i = 0; i < diagram.ownedViews.length; i++) {
+        const view = diagram.ownedViews[i]
+        if (view.model && view.model._id === modelId) {
+            return view
+        }
+    }
+    return null
+}
+
+/**
+ * Find messages that reference the given lifeline as source or target.
+ */
+function findMessagesReferencingLifeline(lifelineId) {
+    const allMsgs = app.repository.select('@UMLMessage')
+    const result = []
+    for (let i = 0; i < allMsgs.length; i++) {
+        const msg = allMsgs[i]
+        const refs = []
+        if (msg.source && msg.source._id === lifelineId) {
+            refs.push('source')
+        }
+        if (msg.target && msg.target._id === lifelineId) {
+            refs.push('target')
+        }
+        if (refs.length > 0) {
+            result.push({
+                messageId: msg._id,
+                messageName: msg.name || msg._id,
+                refs: refs
+            })
+        }
+    }
+    return result
+}
+
+/**
+ * Find state invariants that reference the given lifeline via covered.
+ */
+function findStateInvariantsReferencingLifeline(lifelineId) {
+    const allSI = app.repository.select('@UMLStateInvariant')
+    const result = []
+    for (let i = 0; i < allSI.length; i++) {
+        const si = allSI[i]
+        if (si.covered && si.covered._id === lifelineId) {
+            result.push({
+                stateInvariantId: si._id,
+                stateInvariantName: si.name || si._id
+            })
+        }
+    }
+    return result
+}
+
+// ============================================================
+// Sequence Diagram - Route Handlers
+// ============================================================
+
+// --- Allowed Fields ---
+
+const INTERACTION_ALLOWED_FIELDS = ['name', 'documentation']
+const INTERACTION_UPDATE_FIELDS = ['name', 'documentation']
+const SEQ_DIAGRAM_ALLOWED_FIELDS = ['parentId', 'name', 'width', 'height', 'documentation']
+const SEQ_DIAGRAM_UPDATE_FIELDS = ['name', 'documentation']
+const LIFELINE_ALLOWED_FIELDS = ['name', 'documentation', 'diagramId', 'x', 'y', 'height']
+const LIFELINE_UPDATE_FIELDS = ['name', 'documentation']
+const MESSAGE_ALLOWED_FIELDS = ['name', 'messageSort', 'source', 'target', 'diagramId', 'y', 'activationHeight', 'documentation']
+const MESSAGE_UPDATE_FIELDS = ['name', 'messageSort', 'documentation']
+const COMBINED_FRAGMENT_ALLOWED_FIELDS = ['name', 'interactionOperator', 'diagramId', 'x', 'y', 'width', 'height', 'documentation']
+const COMBINED_FRAGMENT_UPDATE_FIELDS = ['name', 'interactionOperator', 'documentation']
+const OPERAND_ALLOWED_FIELDS = ['name', 'guard', 'documentation']
+const OPERAND_UPDATE_FIELDS = ['name', 'guard', 'documentation']
+const STATE_INVARIANT_ALLOWED_FIELDS = ['name', 'covered', 'invariant', 'diagramId', 'x', 'y', 'documentation']
+const STATE_INVARIANT_UPDATE_FIELDS = ['name', 'covered', 'invariant', 'documentation']
+const INTERACTION_USE_ALLOWED_FIELDS = ['name', 'refersTo', 'arguments', 'returnValue', 'diagramId', 'x', 'y', 'width', 'height', 'documentation']
+const INTERACTION_USE_UPDATE_FIELDS = ['name', 'refersTo', 'arguments', 'returnValue', 'documentation']
+
+// --- Interactions ---
+
+function getInteractions(reqInfo) {
+    const interactions = app.repository.select('@UMLInteraction')
+    return {
+        success: true,
+        message: 'Retrieved ' + interactions.length + ' interaction(s)',
+        request: reqInfo,
+        data: interactions.map(function (i) { return serializeInteraction(i) })
+    }
+}
+
+function getInteraction(id, reqInfo) {
+    const interaction = findById(id)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: serializeInteraction(interaction)
+    }
+}
+
+function createInteraction(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, INTERACTION_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const project = app.repository.select('@Project')[0]
+    if (!project) {
+        return validationError('No project found. Open a project first.', reqInfo, body)
+    }
+
+    // StarUML requires UMLInteraction to be under UMLCollaboration for proper diagram support.
+    // Auto-create a UMLCollaboration under Project if one doesn't exist.
+    let collaboration = app.repository.select('@UMLCollaboration')[0]
+    if (!collaboration) {
+        collaboration = app.factory.createModel({
+            id: 'UMLCollaboration',
+            parent: project,
+            modelInitializer: function (m) {
+                m.name = 'Collaborations'
+            }
+        })
+    }
+
+    const interaction = app.factory.createModel({
+        id: 'UMLInteraction',
+        parent: collaboration,
+        modelInitializer: function (m) {
+            m.name = body.name || 'Interaction1'
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Created interaction "' + interaction.name + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteraction(interaction)
+    }
+}
+
+function updateInteraction(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, INTERACTION_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + INTERACTION_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const interaction = findById(id)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(interaction, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(interaction, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated interaction "' + interaction.name + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteraction(interaction)
+    }
+}
+
+function deleteInteraction(id, reqInfo) {
+    const interaction = findById(id)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + id, request: reqInfo }
+    }
+    const name = interaction.name
+
+    // Safety check: block deletion if lifelines, messages, fragments, or diagrams exist
+    const lifelines = (interaction.participants || [])
+    const messages = (interaction.messages || [])
+    const fragments = (interaction.fragments || [])
+    const diagrams = app.repository.select('@UMLSequenceDiagram').filter(function (d) {
+        return d._parent && d._parent._id === id
+    })
+
+    if (lifelines.length > 0 || messages.length > 0 || fragments.length > 0 || diagrams.length > 0) {
+        return validationError(
+            'Cannot delete interaction "' + name + '": ' + lifelines.length + ' lifeline(s), ' + messages.length + ' message(s), ' + fragments.length + ' fragment(s), and ' + diagrams.length + ' diagram(s) exist under it. Delete them first.',
+            reqInfo
+        )
+    }
+
+    app.engine.deleteElements([interaction], [])
+    return {
+        success: true,
+        message: 'Deleted interaction "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Sequence Diagrams ---
+
+function getSeqDiagrams(reqInfo) {
+    const diagrams = app.repository.select('@UMLSequenceDiagram')
+    return {
+        success: true,
+        message: 'Retrieved ' + diagrams.length + ' sequence diagram(s)',
+        request: reqInfo,
+        data: diagrams.map(function (d) { return serializeSeqDiagram(d) })
+    }
+}
+
+function getSeqDiagram(id, reqInfo) {
+    const diagram = findById(id)
+    if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+        return { success: false, error: 'Sequence diagram not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved sequence diagram "' + diagram.name + '"',
+        request: reqInfo,
+        data: serializeSeqDiagram(diagram)
+    }
+}
+
+function createSeqDiagram(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, SEQ_DIAGRAM_ALLOWED_FIELDS),
+        checkFieldType(body, 'parentId', 'string'),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'width', 'number'),
+        checkFieldType(body, 'height', 'number'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.parentId) {
+        return validationError('Field "parentId" is required', reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const parent = findById(body.parentId)
+    if (!parent || !(parent instanceof type.UMLInteraction)) {
+        return validationError('parentId must refer to a UMLInteraction. Not found or wrong type: ' + body.parentId, reqInfo, body)
+    }
+
+    const diagram = app.factory.createDiagram({
+        id: 'UMLSequenceDiagram',
+        parent: parent,
+        diagramInitializer: function (d) {
+            d.name = body.name || 'SequenceDiagram1'
+            if (body.documentation !== undefined) {
+                d.documentation = body.documentation
+            }
+        }
+    })
+
+    // Resize frame if width/height specified
+    if (body.width !== undefined || body.height !== undefined) {
+        const frameView = (diagram.ownedViews || []).filter(function (v) {
+            return v.constructor && v.constructor.name === 'UMLFrameView'
+        })[0]
+        if (frameView) {
+            if (body.width !== undefined) {
+                app.engine.setProperty(frameView, 'width', body.width)
+            }
+            if (body.height !== undefined) {
+                app.engine.setProperty(frameView, 'height', body.height)
+            }
+        }
+    }
+
+    return {
+        success: true,
+        message: 'Created sequence diagram "' + diagram.name + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeSeqDiagram(diagram)
+    }
+}
+
+function updateSeqDiagram(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, SEQ_DIAGRAM_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + SEQ_DIAGRAM_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const diagram = findById(id)
+    if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+        return { success: false, error: 'Sequence diagram not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(diagram, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(diagram, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated sequence diagram "' + diagram.name + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeSeqDiagram(diagram)
+    }
+}
+
+function deleteSeqDiagram(id, reqInfo) {
+    const diagram = findById(id)
+    if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+        return { success: false, error: 'Sequence diagram not found: ' + id, request: reqInfo }
+    }
+    const name = diagram.name
+    app.engine.deleteElements([diagram], [])
+    return {
+        success: true,
+        message: 'Deleted sequence diagram "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Lifelines ---
+
+function getLifelines(interactionId, reqInfo) {
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: reqInfo }
+    }
+    const lifelines = interaction.participants || []
+    return {
+        success: true,
+        message: 'Retrieved ' + lifelines.length + ' lifeline(s) from interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: lifelines.map(function (l) { return serializeLifeline(l) })
+    }
+}
+
+function createLifeline(interactionId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, LIFELINE_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string'),
+        checkFieldType(body, 'diagramId', 'string'),
+        checkFieldType(body, 'x', 'number'),
+        checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'height', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.diagramId) {
+        const diagram = findById(body.diagramId)
+        if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+            return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
+        }
+        const options = {
+            id: 'UMLLifeline',
+            parent: interaction,
+            diagram: diagram,
+            x1: body.x !== undefined ? body.x : 100,
+            y1: body.y !== undefined ? body.y : 50,
+            x2: (body.x !== undefined ? body.x : 100) + 100,
+            y2: (body.y !== undefined ? body.y : 50) + (body.height !== undefined ? body.height : 200),
+            modelInitializer: function (m) {
+                m.name = body.name || 'Lifeline1'
+                if (body.documentation !== undefined) {
+                    m.documentation = body.documentation
+                }
+            }
+        }
+        const view = app.factory.createModelAndView(options)
+        if (!view || !view.model) {
+            return { success: false, error: 'Failed to create lifeline view on diagram. Ensure the interaction has a valid parent hierarchy (UMLCollaboration).', request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        return {
+            success: true,
+            message: 'Created lifeline "' + view.model.name + '" with view on diagram "' + diagram.name + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeLifeline(view.model)
+        }
+    }
+
+    const lifeline = app.factory.createModel({
+        id: 'UMLLifeline',
+        parent: interaction,
+        field: 'participants',
+        modelInitializer: function (m) {
+            m.name = body.name || 'Lifeline1'
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    if (!lifeline) {
+        return { success: false, error: 'Failed to create lifeline model. Ensure the interaction has a valid parent hierarchy (UMLCollaboration).', request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    return {
+        success: true,
+        message: 'Created lifeline "' + lifeline.name + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeLifeline(lifeline)
+    }
+}
+
+function getLifeline(id, reqInfo) {
+    const lifeline = findById(id)
+    if (!lifeline || !(lifeline instanceof type.UMLLifeline)) {
+        return { success: false, error: 'Lifeline not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved lifeline "' + lifeline.name + '"',
+        request: reqInfo,
+        data: serializeLifeline(lifeline)
+    }
+}
+
+function updateLifeline(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, LIFELINE_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + LIFELINE_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const lifeline = findById(id)
+    if (!lifeline || !(lifeline instanceof type.UMLLifeline)) {
+        return { success: false, error: 'Lifeline not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(lifeline, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(lifeline, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated lifeline "' + lifeline.name + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeLifeline(lifeline)
+    }
+}
+
+function deleteLifeline(id, reqInfo) {
+    const lifeline = findById(id)
+    if (!lifeline || !(lifeline instanceof type.UMLLifeline)) {
+        return { success: false, error: 'Lifeline not found: ' + id, request: reqInfo }
+    }
+    const name = lifeline.name
+
+    // Check referential integrity: messages referencing this lifeline
+    const referencingMsgs = findMessagesReferencingLifeline(id)
+    if (referencingMsgs.length > 0) {
+        const msgDetails = referencingMsgs.map(function (ref) {
+            return ref.messageName + ' (' + ref.refs.join(', ') + ')'
+        })
+        return validationError(
+            'Cannot delete lifeline "' + name + '": ' + referencingMsgs.length + ' message(s) reference this lifeline. ' + msgDetails.join(', '),
+            reqInfo
+        )
+    }
+
+    // Check referential integrity: state invariants referencing this lifeline
+    const referencingSI = findStateInvariantsReferencingLifeline(id)
+    if (referencingSI.length > 0) {
+        const siDetails = referencingSI.map(function (ref) {
+            return ref.stateInvariantName + ' (' + ref.stateInvariantId + ')'
+        })
+        return validationError(
+            'Cannot delete lifeline "' + name + '": ' + referencingSI.length + ' state invariant(s) reference this lifeline. ' + siDetails.join(', '),
+            reqInfo
+        )
+    }
+
+    const elementsToDelete = [lifeline]
+    if (lifeline.represent) {
+        elementsToDelete.push(lifeline.represent)
+    }
+    app.engine.deleteElements(elementsToDelete, [])
+    return {
+        success: true,
+        message: 'Deleted lifeline "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Messages ---
+
+function getMessages(interactionId, reqInfo) {
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: reqInfo }
+    }
+    const messages = interaction.messages || []
+    return {
+        success: true,
+        message: 'Retrieved ' + messages.length + ' message(s) from interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: messages.map(function (m) { return serializeMessage(m) })
+    }
+}
+
+function createMessage(interactionId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, MESSAGE_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'messageSort', 'string'),
+        checkFieldType(body, 'source', 'string'),
+        checkFieldType(body, 'target', 'string'),
+        checkFieldType(body, 'diagramId', 'string'),
+        checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'activationHeight', 'number'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (body.messageSort !== undefined && VALID_MESSAGE_SORTS.indexOf(body.messageSort) === -1) {
+        return validationError('Invalid messageSort "' + body.messageSort + '". Allowed values: ' + VALID_MESSAGE_SORTS.join(', '), reqInfo, body)
+    }
+
+    if (!body.source) {
+        return validationError('Field "source" is required (lifeline ID)', reqInfo, body)
+    }
+    if (!body.target) {
+        return validationError('Field "target" is required (lifeline ID)', reqInfo, body)
+    }
+    if (!body.diagramId) {
+        return validationError('Field "diagramId" is required for message creation', reqInfo, body)
+    }
+
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const sourceLifeline = findById(body.source)
+    if (!sourceLifeline || !(sourceLifeline instanceof type.UMLLifeline)) {
+        return validationError('source must refer to a UMLLifeline. Not found or wrong type: ' + body.source, reqInfo, body)
+    }
+
+    const targetLifeline = findById(body.target)
+    if (!targetLifeline || !(targetLifeline instanceof type.UMLLifeline)) {
+        return validationError('target must refer to a UMLLifeline. Not found or wrong type: ' + body.target, reqInfo, body)
+    }
+
+    const diagram = findById(body.diagramId)
+    if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+        return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
+    }
+
+    // Find lifeline views on the diagram
+    const tailView = findViewOnDiagram(diagram, sourceLifeline._id)
+    const headView = findViewOnDiagram(diagram, targetLifeline._id)
+
+    if (!tailView) {
+        return validationError('source lifeline "' + sourceLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
+    }
+    if (!headView) {
+        return validationError('target lifeline "' + targetLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
+    }
+
+    const options = {
+        id: 'UMLMessage',
+        parent: interaction,
+        diagram: diagram,
+        tailModel: sourceLifeline,
+        headModel: targetLifeline,
+        tailView: tailView,
+        headView: headView,
+        modelInitializer: function (m) {
+            m.name = body.name || ''
+            if (body.messageSort !== undefined) {
+                m.messageSort = body.messageSort
+            }
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    }
+
+    if (body.y !== undefined) {
+        options.y1 = body.y
+        options.y2 = body.y
+    }
+
+    const view = app.factory.createModelAndView(options)
+    const msg = view.model
+
+    // Resize activation bar if activationHeight is specified
+    if (body.activationHeight !== undefined && view.activation) {
+        app.engine.setProperty(view.activation, 'height', body.activationHeight)
+    }
+
+    return {
+        success: true,
+        message: 'Created message "' + (msg.name || msg._id) + '" with view on diagram "' + diagram.name + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeMessage(msg)
+    }
+}
+
+function getMessage(id, reqInfo) {
+    const msg = findById(id)
+    if (!msg || !(msg instanceof type.UMLMessage)) {
+        return { success: false, error: 'Message not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved message "' + (msg.name || msg._id) + '"',
+        request: reqInfo,
+        data: serializeMessage(msg)
+    }
+}
+
+function updateMessage(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, MESSAGE_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'messageSort', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + MESSAGE_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.messageSort !== undefined && VALID_MESSAGE_SORTS.indexOf(body.messageSort) === -1) {
+        return validationError('Invalid messageSort "' + body.messageSort + '". Allowed values: ' + VALID_MESSAGE_SORTS.join(', '), reqInfo, body)
+    }
+
+    const msg = findById(id)
+    if (!msg || !(msg instanceof type.UMLMessage)) {
+        return { success: false, error: 'Message not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(msg, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.messageSort !== undefined) {
+        app.engine.setProperty(msg, 'messageSort', body.messageSort)
+        updated.push('messageSort')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(msg, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated message "' + (msg.name || msg._id) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeMessage(msg)
+    }
+}
+
+function deleteMessage(id, reqInfo) {
+    const msg = findById(id)
+    if (!msg || !(msg instanceof type.UMLMessage)) {
+        return { success: false, error: 'Message not found: ' + id, request: reqInfo }
+    }
+    const name = msg.name || msg._id
+    app.engine.deleteElements([msg], [])
+    return {
+        success: true,
+        message: 'Deleted message "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Combined Fragments ---
+
+function getCombinedFragments(interactionId, reqInfo) {
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: reqInfo }
+    }
+    const fragments = (interaction.fragments || []).filter(function (f) {
+        return f instanceof type.UMLCombinedFragment
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + fragments.length + ' combined fragment(s) from interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: fragments.map(function (f) { return serializeCombinedFragment(f) })
+    }
+}
+
+function createCombinedFragment(interactionId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, COMBINED_FRAGMENT_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'interactionOperator', 'string'),
+        checkFieldType(body, 'diagramId', 'string'),
+        checkFieldType(body, 'x', 'number'),
+        checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'width', 'number'),
+        checkFieldType(body, 'height', 'number'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (body.interactionOperator !== undefined && VALID_INTERACTION_OPERATORS.indexOf(body.interactionOperator) === -1) {
+        return validationError('Invalid interactionOperator "' + body.interactionOperator + '". Allowed values: ' + VALID_INTERACTION_OPERATORS.join(', '), reqInfo, body)
+    }
+
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.diagramId) {
+        const diagram = findById(body.diagramId)
+        if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+            return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
+        }
+        const cfX = body.x !== undefined ? body.x : 50
+        const cfY = body.y !== undefined ? body.y : 100
+        const cfW = body.width !== undefined ? body.width : 350
+        const cfH = body.height !== undefined ? body.height : 200
+        const options = {
+            id: 'UMLCombinedFragment',
+            parent: interaction,
+            diagram: diagram,
+            x1: cfX,
+            y1: cfY,
+            x2: cfX + cfW,
+            y2: cfY + cfH,
+            modelInitializer: function (m) {
+                m.name = body.name || ''
+                if (body.interactionOperator !== undefined) {
+                    m.interactionOperator = body.interactionOperator
+                }
+                if (body.documentation !== undefined) {
+                    m.documentation = body.documentation
+                }
+            }
+        }
+        const view = app.factory.createModelAndView(options)
+        return {
+            success: true,
+            message: 'Created combined fragment "' + (view.model.name || view.model.interactionOperator) + '" with view on diagram "' + diagram.name + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeCombinedFragment(view.model)
+        }
+    }
+
+    const fragment = app.factory.createModel({
+        id: 'UMLCombinedFragment',
+        parent: interaction,
+        field: 'fragments',
+        modelInitializer: function (m) {
+            m.name = body.name || ''
+            if (body.interactionOperator !== undefined) {
+                m.interactionOperator = body.interactionOperator
+            }
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Created combined fragment "' + (fragment.name || fragment.interactionOperator) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeCombinedFragment(fragment)
+    }
+}
+
+function getCombinedFragment(id, reqInfo) {
+    const fragment = findById(id)
+    if (!fragment || !(fragment instanceof type.UMLCombinedFragment)) {
+        return { success: false, error: 'Combined fragment not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved combined fragment "' + (fragment.name || fragment.interactionOperator) + '"',
+        request: reqInfo,
+        data: serializeCombinedFragment(fragment)
+    }
+}
+
+function updateCombinedFragment(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, COMBINED_FRAGMENT_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'interactionOperator', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + COMBINED_FRAGMENT_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.interactionOperator !== undefined && VALID_INTERACTION_OPERATORS.indexOf(body.interactionOperator) === -1) {
+        return validationError('Invalid interactionOperator "' + body.interactionOperator + '". Allowed values: ' + VALID_INTERACTION_OPERATORS.join(', '), reqInfo, body)
+    }
+
+    const fragment = findById(id)
+    if (!fragment || !(fragment instanceof type.UMLCombinedFragment)) {
+        return { success: false, error: 'Combined fragment not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(fragment, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.interactionOperator !== undefined) {
+        app.engine.setProperty(fragment, 'interactionOperator', body.interactionOperator)
+        updated.push('interactionOperator')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(fragment, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated combined fragment "' + (fragment.name || fragment.interactionOperator) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeCombinedFragment(fragment)
+    }
+}
+
+function deleteCombinedFragment(id, reqInfo) {
+    const fragment = findById(id)
+    if (!fragment || !(fragment instanceof type.UMLCombinedFragment)) {
+        return { success: false, error: 'Combined fragment not found: ' + id, request: reqInfo }
+    }
+    const name = fragment.name || fragment.interactionOperator
+    // Cascade delete: operands are children and will be deleted with the fragment
+    app.engine.deleteElements([fragment], [])
+    return {
+        success: true,
+        message: 'Deleted combined fragment "' + name + '" (operands cascade deleted)',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Interaction Operands ---
+
+function getOperands(fragmentId, reqInfo) {
+    const fragment = findById(fragmentId)
+    if (!fragment || !(fragment instanceof type.UMLCombinedFragment)) {
+        return { success: false, error: 'Combined fragment not found: ' + fragmentId, request: reqInfo }
+    }
+    const operands = fragment.operands || []
+    return {
+        success: true,
+        message: 'Retrieved ' + operands.length + ' operand(s) from combined fragment "' + (fragment.name || fragment.interactionOperator) + '"',
+        request: reqInfo,
+        data: operands.map(function (op) { return serializeInteractionOperand(op) })
+    }
+}
+
+function createOperand(fragmentId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, OPERAND_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'guard', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const fragment = findById(fragmentId)
+    if (!fragment || !(fragment instanceof type.UMLCombinedFragment)) {
+        return { success: false, error: 'Combined fragment not found: ' + fragmentId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const operand = app.factory.createModel({
+        id: 'UMLInteractionOperand',
+        parent: fragment,
+        field: 'operands',
+        modelInitializer: function (m) {
+            m.name = body.name || ''
+            if (body.guard !== undefined) {
+                m.guard = body.guard
+            }
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Created operand on combined fragment "' + (fragment.name || fragment.interactionOperator) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteractionOperand(operand)
+    }
+}
+
+function getOperand(id, reqInfo) {
+    const operand = findById(id)
+    if (!operand || !(operand instanceof type.UMLInteractionOperand)) {
+        return { success: false, error: 'Operand not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved operand "' + (operand.name || operand.guard || operand._id) + '"',
+        request: reqInfo,
+        data: serializeInteractionOperand(operand)
+    }
+}
+
+function updateOperand(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, OPERAND_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'guard', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + OPERAND_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const operand = findById(id)
+    if (!operand || !(operand instanceof type.UMLInteractionOperand)) {
+        return { success: false, error: 'Operand not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(operand, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.guard !== undefined) {
+        app.engine.setProperty(operand, 'guard', body.guard)
+        updated.push('guard')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(operand, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated operand "' + (operand.name || operand.guard || operand._id) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteractionOperand(operand)
+    }
+}
+
+function deleteOperand(id, reqInfo) {
+    const operand = findById(id)
+    if (!operand || !(operand instanceof type.UMLInteractionOperand)) {
+        return { success: false, error: 'Operand not found: ' + id, request: reqInfo }
+    }
+
+    // Check: parent fragment must have at least 2 operands to allow deletion
+    const parent = operand._parent
+    if (parent && parent.operands && parent.operands.length <= 1) {
+        return validationError(
+            'Cannot delete the last operand of combined fragment "' + (parent.name || parent.interactionOperator) + '". A combined fragment must have at least one operand.',
+            reqInfo
+        )
+    }
+
+    const name = operand.name || operand.guard || operand._id
+    app.engine.deleteElements([operand], [])
+    return {
+        success: true,
+        message: 'Deleted operand "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- State Invariants ---
+
+function getStateInvariants(interactionId, reqInfo) {
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: reqInfo }
+    }
+    const stateInvariants = (interaction.fragments || []).filter(function (f) {
+        return f instanceof type.UMLStateInvariant
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + stateInvariants.length + ' state invariant(s) from interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: stateInvariants.map(function (si) { return serializeStateInvariant(si) })
+    }
+}
+
+function createStateInvariant(interactionId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, STATE_INVARIANT_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'covered', 'string'),
+        checkFieldType(body, 'invariant', 'string'),
+        checkFieldType(body, 'diagramId', 'string'),
+        checkFieldType(body, 'x', 'number'),
+        checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.covered) {
+        const coveredLifeline = findById(body.covered)
+        if (!coveredLifeline || !(coveredLifeline instanceof type.UMLLifeline)) {
+            return validationError('covered must refer to a UMLLifeline. Not found or wrong type: ' + body.covered, reqInfo, body)
+        }
+    }
+
+    if (body.diagramId) {
+        const diagram = findById(body.diagramId)
+        if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+            return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
+        }
+        const siX = body.x !== undefined ? body.x : 100
+        const siY = body.y !== undefined ? body.y : 100
+        const options = {
+            id: 'UMLStateInvariant',
+            parent: interaction,
+            diagram: diagram,
+            x1: siX,
+            y1: siY,
+            x2: siX + 100,
+            y2: siY + 50,
+            modelInitializer: function (m) {
+                m.name = body.name || ''
+                if (body.covered) {
+                    m.covered = findById(body.covered)
+                }
+                if (body.invariant !== undefined) {
+                    m.invariant = body.invariant
+                }
+                if (body.documentation !== undefined) {
+                    m.documentation = body.documentation
+                }
+            }
+        }
+        const view = app.factory.createModelAndView(options)
+        return {
+            success: true,
+            message: 'Created state invariant "' + (view.model.name || view.model._id) + '" with view on diagram',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeStateInvariant(view.model)
+        }
+    }
+
+    const si = app.factory.createModel({
+        id: 'UMLStateInvariant',
+        parent: interaction,
+        field: 'fragments',
+        modelInitializer: function (m) {
+            m.name = body.name || ''
+            if (body.covered) {
+                m.covered = findById(body.covered)
+            }
+            if (body.invariant !== undefined) {
+                m.invariant = body.invariant
+            }
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Created state invariant "' + (si.name || si._id) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeStateInvariant(si)
+    }
+}
+
+function getStateInvariant(id, reqInfo) {
+    const si = findById(id)
+    if (!si || !(si instanceof type.UMLStateInvariant)) {
+        return { success: false, error: 'State invariant not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved state invariant "' + (si.name || si._id) + '"',
+        request: reqInfo,
+        data: serializeStateInvariant(si)
+    }
+}
+
+function updateStateInvariant(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, STATE_INVARIANT_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'covered', 'string'),
+        checkFieldType(body, 'invariant', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + STATE_INVARIANT_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const si = findById(id)
+    if (!si || !(si instanceof type.UMLStateInvariant)) {
+        return { success: false, error: 'State invariant not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.covered !== undefined) {
+        const coveredLifeline = findById(body.covered)
+        if (!coveredLifeline || !(coveredLifeline instanceof type.UMLLifeline)) {
+            return validationError('covered must refer to a UMLLifeline. Not found or wrong type: ' + body.covered, reqInfo, body)
+        }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(si, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.covered !== undefined) {
+        const coveredRef = findById(body.covered)
+        app.engine.setProperty(si, 'covered', coveredRef)
+        updated.push('covered')
+    }
+    if (body.invariant !== undefined) {
+        app.engine.setProperty(si, 'invariant', body.invariant)
+        updated.push('invariant')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(si, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated state invariant "' + (si.name || si._id) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeStateInvariant(si)
+    }
+}
+
+function deleteStateInvariant(id, reqInfo) {
+    const si = findById(id)
+    if (!si || !(si instanceof type.UMLStateInvariant)) {
+        return { success: false, error: 'State invariant not found: ' + id, request: reqInfo }
+    }
+    const name = si.name || si._id
+    app.engine.deleteElements([si], [])
+    return {
+        success: true,
+        message: 'Deleted state invariant "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// --- Interaction Uses ---
+
+function getInteractionUses(interactionId, reqInfo) {
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: reqInfo }
+    }
+    const interactionUses = (interaction.fragments || []).filter(function (f) {
+        return f instanceof type.UMLInteractionUse
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + interactionUses.length + ' interaction use(s) from interaction "' + interaction.name + '"',
+        request: reqInfo,
+        data: interactionUses.map(function (iu) { return serializeInteractionUse(iu) })
+    }
+}
+
+function createInteractionUse(interactionId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, INTERACTION_USE_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'refersTo', 'string'),
+        checkFieldType(body, 'arguments', 'string'),
+        checkFieldType(body, 'returnValue', 'string'),
+        checkFieldType(body, 'diagramId', 'string'),
+        checkFieldType(body, 'x', 'number'),
+        checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'width', 'number'),
+        checkFieldType(body, 'height', 'number'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const interaction = findById(interactionId)
+    if (!interaction || !(interaction instanceof type.UMLInteraction)) {
+        return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.refersTo) {
+        const refInteraction = findById(body.refersTo)
+        if (!refInteraction || !(refInteraction instanceof type.UMLInteraction)) {
+            return validationError('refersTo must refer to a UMLInteraction. Not found or wrong type: ' + body.refersTo, reqInfo, body)
+        }
+    }
+
+    if (body.diagramId) {
+        const diagram = findById(body.diagramId)
+        if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
+            return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
+        }
+        const iuX = body.x !== undefined ? body.x : 50
+        const iuY = body.y !== undefined ? body.y : 100
+        const iuW = body.width !== undefined ? body.width : 350
+        const iuH = body.height !== undefined ? body.height : 100
+        const options = {
+            id: 'UMLInteractionUse',
+            parent: interaction,
+            diagram: diagram,
+            x1: iuX,
+            y1: iuY,
+            x2: iuX + iuW,
+            y2: iuY + iuH,
+            modelInitializer: function (m) {
+                m.name = body.name || ''
+                if (body.refersTo) {
+                    m.refersTo = findById(body.refersTo)
+                }
+                if (body.arguments !== undefined) {
+                    m.arguments = body.arguments
+                }
+                if (body.returnValue !== undefined) {
+                    m.returnValue = body.returnValue
+                }
+                if (body.documentation !== undefined) {
+                    m.documentation = body.documentation
+                }
+            }
+        }
+        const view = app.factory.createModelAndView(options)
+        return {
+            success: true,
+            message: 'Created interaction use "' + (view.model.name || view.model._id) + '" with view on diagram',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeInteractionUse(view.model)
+        }
+    }
+
+    const iu = app.factory.createModel({
+        id: 'UMLInteractionUse',
+        parent: interaction,
+        field: 'fragments',
+        modelInitializer: function (m) {
+            m.name = body.name || ''
+            if (body.refersTo) {
+                m.refersTo = findById(body.refersTo)
+            }
+            if (body.arguments !== undefined) {
+                m.arguments = body.arguments
+            }
+            if (body.returnValue !== undefined) {
+                m.returnValue = body.returnValue
+            }
+            if (body.documentation !== undefined) {
+                m.documentation = body.documentation
+            }
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Created interaction use "' + (iu.name || iu._id) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteractionUse(iu)
+    }
+}
+
+function getInteractionUse(id, reqInfo) {
+    const iu = findById(id)
+    if (!iu || !(iu instanceof type.UMLInteractionUse)) {
+        return { success: false, error: 'Interaction use not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved interaction use "' + (iu.name || iu._id) + '"',
+        request: reqInfo,
+        data: serializeInteractionUse(iu)
+    }
+}
+
+function updateInteractionUse(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, INTERACTION_USE_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'refersTo', 'string'),
+        checkFieldType(body, 'arguments', 'string'),
+        checkFieldType(body, 'returnValue', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + INTERACTION_USE_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const iu = findById(id)
+    if (!iu || !(iu instanceof type.UMLInteractionUse)) {
+        return { success: false, error: 'Interaction use not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.refersTo !== undefined) {
+        const refInteraction = findById(body.refersTo)
+        if (!refInteraction || !(refInteraction instanceof type.UMLInteraction)) {
+            return validationError('refersTo must refer to a UMLInteraction. Not found or wrong type: ' + body.refersTo, reqInfo, body)
+        }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(iu, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.refersTo !== undefined) {
+        const refTarget = findById(body.refersTo)
+        app.engine.setProperty(iu, 'refersTo', refTarget)
+        updated.push('refersTo')
+    }
+    if (body.arguments !== undefined) {
+        app.engine.setProperty(iu, 'arguments', body.arguments)
+        updated.push('arguments')
+    }
+    if (body.returnValue !== undefined) {
+        app.engine.setProperty(iu, 'returnValue', body.returnValue)
+        updated.push('returnValue')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(iu, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated interaction use "' + (iu.name || iu._id) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeInteractionUse(iu)
+    }
+}
+
+function deleteInteractionUse(id, reqInfo) {
+    const iu = findById(id)
+    if (!iu || !(iu instanceof type.UMLInteractionUse)) {
+        return { success: false, error: 'Interaction use not found: ' + id, request: reqInfo }
+    }
+    const name = iu.name || iu._id
+    app.engine.deleteElements([iu], [])
+    return {
+        success: true,
+        message: 'Deleted interaction use "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
 // --- Generic Element ---
 
 function getElement(id, reqInfo) {
@@ -2030,6 +3703,22 @@ function getElement(id, reqInfo) {
         data = serializeRelationship(elem)
     } else if (elem instanceof type.Tag) {
         data = serializeTag(elem)
+    } else if (elem instanceof type.UMLInteraction) {
+        data = serializeInteraction(elem)
+    } else if (elem instanceof type.UMLSequenceDiagram) {
+        data = serializeSeqDiagram(elem)
+    } else if (elem instanceof type.UMLLifeline) {
+        data = serializeLifeline(elem)
+    } else if (elem instanceof type.UMLMessage) {
+        data = serializeMessage(elem)
+    } else if (elem instanceof type.UMLCombinedFragment) {
+        data = serializeCombinedFragment(elem)
+    } else if (elem instanceof type.UMLInteractionOperand) {
+        data = serializeInteractionOperand(elem)
+    } else if (elem instanceof type.UMLStateInvariant) {
+        data = serializeStateInvariant(elem)
+    } else if (elem instanceof type.UMLInteractionUse) {
+        data = serializeInteractionUse(elem)
     } else {
         data = serializeElement(elem)
     }
@@ -2349,6 +4038,206 @@ function route(method, url, body) {
         return generatePostgresqlDDL(body, reqInfo)
     }
 
+    // ============ Sequence Diagram Routes ============
+
+    // GET /api/seq/interactions
+    if (method === 'GET' && path === '/api/seq/interactions') {
+        return getInteractions(reqInfo)
+    }
+
+    // POST /api/seq/interactions
+    if (method === 'POST' && path === '/api/seq/interactions') {
+        return createInteraction(body, reqInfo)
+    }
+
+    // /api/seq/interactions/:id
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getInteraction(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateInteraction(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteInteraction(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // GET /api/seq/diagrams
+    if (method === 'GET' && path === '/api/seq/diagrams') {
+        return getSeqDiagrams(reqInfo)
+    }
+
+    // POST /api/seq/diagrams
+    if (method === 'POST' && path === '/api/seq/diagrams') {
+        return createSeqDiagram(body, reqInfo)
+    }
+
+    // /api/seq/diagrams/:id
+    match = path.match(/^\/api\/seq\/diagrams\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getSeqDiagram(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateSeqDiagram(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteSeqDiagram(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/interactions/:id/lifelines
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)\/lifelines$/)
+    if (match) {
+        if (method === 'GET') {
+            return getLifelines(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createLifeline(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/lifelines/:id
+    match = path.match(/^\/api\/seq\/lifelines\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getLifeline(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateLifeline(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteLifeline(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/interactions/:id/messages
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)\/messages$/)
+    if (match) {
+        if (method === 'GET') {
+            return getMessages(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createMessage(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/messages/:id
+    match = path.match(/^\/api\/seq\/messages\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getMessage(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateMessage(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteMessage(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/interactions/:id/combined-fragments
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)\/combined-fragments$/)
+    if (match) {
+        if (method === 'GET') {
+            return getCombinedFragments(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createCombinedFragment(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/combined-fragments/:id
+    match = path.match(/^\/api\/seq\/combined-fragments\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getCombinedFragment(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateCombinedFragment(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteCombinedFragment(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/combined-fragments/:id/operands
+    match = path.match(/^\/api\/seq\/combined-fragments\/([^/]+)\/operands$/)
+    if (match) {
+        if (method === 'GET') {
+            return getOperands(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createOperand(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/operands/:id
+    match = path.match(/^\/api\/seq\/operands\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getOperand(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateOperand(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteOperand(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/interactions/:id/state-invariants
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)\/state-invariants$/)
+    if (match) {
+        if (method === 'GET') {
+            return getStateInvariants(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createStateInvariant(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/state-invariants/:id
+    match = path.match(/^\/api\/seq\/state-invariants\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getStateInvariant(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateStateInvariant(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteStateInvariant(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/seq/interactions/:id/interaction-uses
+    match = path.match(/^\/api\/seq\/interactions\/([^/]+)\/interaction-uses$/)
+    if (match) {
+        if (method === 'GET') {
+            return getInteractionUses(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createInteractionUse(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/seq/interaction-uses/:id
+    match = path.match(/^\/api\/seq\/interaction-uses\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getInteractionUse(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateInteractionUse(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteInteractionUse(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
     // POST /api/project/save
     if (method === 'POST' && path === '/api/project/save') {
         return saveProject(body, reqInfo)
@@ -2376,6 +4265,8 @@ function route(method, url, body) {
                 version: '1.0.0',
                 allowedColumnTypes: ALLOWED_COLUMN_TYPES,
                 allowedTagKinds: TAG_KIND_LABELS,
+                allowedMessageSorts: VALID_MESSAGE_SORTS,
+                allowedInteractionOperators: VALID_INTERACTION_OPERATORS,
                 endpoints: [
                     'GET  /api/status',
                     'GET  /api/erd/diagrams',
@@ -2421,7 +4312,47 @@ function route(method, url, body) {
                     'GET  /api/elements/:id',
                     'POST /api/erd/postgresql/ddl',
                     'POST /api/project/save',
-                    'POST /api/project/open'
+                    'POST /api/project/open',
+                    'GET  /api/seq/interactions',
+                    'POST /api/seq/interactions',
+                    'GET  /api/seq/interactions/:id',
+                    'PUT  /api/seq/interactions/:id',
+                    'DELETE /api/seq/interactions/:id',
+                    'GET  /api/seq/diagrams',
+                    'POST /api/seq/diagrams',
+                    'GET  /api/seq/diagrams/:id',
+                    'PUT  /api/seq/diagrams/:id',
+                    'DELETE /api/seq/diagrams/:id',
+                    'GET  /api/seq/interactions/:id/lifelines',
+                    'POST /api/seq/interactions/:id/lifelines',
+                    'GET  /api/seq/lifelines/:id',
+                    'PUT  /api/seq/lifelines/:id',
+                    'DELETE /api/seq/lifelines/:id',
+                    'GET  /api/seq/interactions/:id/messages',
+                    'POST /api/seq/interactions/:id/messages',
+                    'GET  /api/seq/messages/:id',
+                    'PUT  /api/seq/messages/:id',
+                    'DELETE /api/seq/messages/:id',
+                    'GET  /api/seq/interactions/:id/combined-fragments',
+                    'POST /api/seq/interactions/:id/combined-fragments',
+                    'GET  /api/seq/combined-fragments/:id',
+                    'PUT  /api/seq/combined-fragments/:id',
+                    'DELETE /api/seq/combined-fragments/:id',
+                    'GET  /api/seq/combined-fragments/:id/operands',
+                    'POST /api/seq/combined-fragments/:id/operands',
+                    'GET  /api/seq/operands/:id',
+                    'PUT  /api/seq/operands/:id',
+                    'DELETE /api/seq/operands/:id',
+                    'GET  /api/seq/interactions/:id/state-invariants',
+                    'POST /api/seq/interactions/:id/state-invariants',
+                    'GET  /api/seq/state-invariants/:id',
+                    'PUT  /api/seq/state-invariants/:id',
+                    'DELETE /api/seq/state-invariants/:id',
+                    'GET  /api/seq/interactions/:id/interaction-uses',
+                    'POST /api/seq/interactions/:id/interaction-uses',
+                    'GET  /api/seq/interaction-uses/:id',
+                    'PUT  /api/seq/interaction-uses/:id',
+                    'DELETE /api/seq/interaction-uses/:id'
                 ]
             }
         }

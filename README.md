@@ -1,13 +1,19 @@
 # StarUML Controller
 
-A StarUML extension that exposes ER diagram operations via an HTTP REST API.
+A StarUML extension that exposes ER diagram and sequence diagram operations via an HTTP REST API.
 
-Designed for integration with LLMs (e.g. Claude Code via MCP) to programmatically read and edit ER diagrams.
+Designed for integration with AI tools such as Claude Code (via MCP) to programmatically read and edit ER diagrams and sequence diagrams.
 
 <p align="center">
-  <img src="images/image1.gif" alt="Claude Code generating a Web Shopping ER diagram in StarUML via REST API" width="800">
+  <img src="images/image1.gif" alt="AI generating a Web Shopping ER diagram in StarUML via REST API" width="800">
   <br>
-  <em>Claude Code creating a complete Web Shopping ER diagram through the StarUML Controller API</em>
+  <em>An AI tool creating a complete Web Shopping ER diagram through the StarUML Controller API</em>
+</p>
+
+<p align="center">
+  <img src="images/image3.gif" alt="AI generating a Login Check sequence diagram from source code in StarUML via REST API" width="800">
+  <br>
+  <em>An AI tool analyzing source code and generating a Login Check sequence diagram through the API</em>
 </p>
 
 <p align="center">
@@ -23,8 +29,9 @@ Designed for integration with LLMs (e.g. Claude Code via MCP) to programmaticall
 ## Features
 
 - **Full CRUD for ERD elements** - data models, diagrams, entities, columns, tags, relationships, sequences, and indexes
-- **Diagram-aware entity creation** - place entities on specific diagrams with coordinates
-- **Relationship creation with diagram views** - create relationships between entities displayed on a diagram
+- **Full CRUD for sequence diagram elements** - interactions, sequence diagrams, lifelines, messages, combined fragments, operands, state invariants, and interaction uses
+- **Diagram-aware entity/lifeline creation** - place entities or lifelines on specific diagrams with coordinates
+- **Relationship/message creation with diagram views** - create relationships or messages between elements displayed on a diagram
 - **Input validation** - unknown fields rejected, type checking, required field enforcement, column type whitelist
 - **Referential integrity** - DELETE blocked when other elements reference the target; self-reference prevention
 - **Structured responses** - every response includes `success`, `message`/`error`, `request` context, and `data`
@@ -88,6 +95,27 @@ Restart StarUML to load the extension.
 | `/api/erd/relationships` | GET / POST | List (filterable) or create relationships |
 | `/api/erd/relationships/:id` | GET / PUT / DELETE | Get, update, or delete relationship |
 | `/api/erd/postgresql/ddl` | POST | Generate PostgreSQL DDL to a file |
+
+### Sequence Diagram
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/seq/interactions` | GET / POST | List or create interactions |
+| `/api/seq/interactions/:id` | GET / PUT / DELETE | Get, update, or delete interaction |
+| `/api/seq/diagrams` | GET / POST | List or create sequence diagrams |
+| `/api/seq/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete sequence diagram |
+| `/api/seq/interactions/:id/lifelines` | GET / POST | List or create lifelines |
+| `/api/seq/lifelines/:id` | GET / PUT / DELETE | Get, update, or delete lifeline |
+| `/api/seq/interactions/:id/messages` | GET / POST | List or create messages |
+| `/api/seq/messages/:id` | GET / PUT / DELETE | Get, update, or delete message |
+| `/api/seq/interactions/:id/combined-fragments` | GET / POST | List or create combined fragments |
+| `/api/seq/combined-fragments/:id` | GET / PUT / DELETE | Get, update, or delete combined fragment |
+| `/api/seq/combined-fragments/:id/operands` | GET / POST | List or add operands |
+| `/api/seq/operands/:id` | GET / PUT / DELETE | Get, update, or delete operand |
+| `/api/seq/interactions/:id/state-invariants` | GET / POST | List or create state invariants |
+| `/api/seq/state-invariants/:id` | GET / PUT / DELETE | Get, update, or delete state invariant |
+| `/api/seq/interactions/:id/interaction-uses` | GET / POST | List or create interaction uses |
+| `/api/seq/interaction-uses/:id` | GET / PUT / DELETE | Get, update, or delete interaction use |
 
 For full API specifications including request/response formats, validation rules, and error codes, see the [API Documentation](https://pontasan.github.io/staruml-controller/api.html).
 
@@ -154,6 +182,38 @@ curl -X POST http://localhost:12345/api/project/save \
 
 # Delete entity (blocked if referenced by other elements)
 curl -X DELETE http://localhost:12345/api/erd/entities/ENTITY_ID
+
+# --- Sequence Diagram ---
+
+# Create an interaction
+curl -X POST http://localhost:12345/api/seq/interactions \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Login Flow"}'
+
+# Create a sequence diagram
+curl -X POST http://localhost:12345/api/seq/diagrams \
+  -H "Content-Type: application/json" \
+  -d '{"parentId": "INTERACTION_ID", "name": "Login Sequence"}'
+
+# Create lifelines with diagram placement
+curl -X POST http://localhost:12345/api/seq/interactions/INTERACTION_ID/lifelines \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Client", "diagramId": "DIAGRAM_ID"}'
+
+# Create a message between lifelines
+curl -X POST http://localhost:12345/api/seq/interactions/INTERACTION_ID/messages \
+  -H "Content-Type: application/json" \
+  -d '{"name": "login()", "messageSort": "synchCall", "source": "LIFELINE1_ID", "target": "LIFELINE2_ID", "diagramId": "DIAGRAM_ID"}'
+
+# Create a combined fragment (alt/opt/loop)
+curl -X POST http://localhost:12345/api/seq/interactions/INTERACTION_ID/combined-fragments \
+  -H "Content-Type: application/json" \
+  -d '{"interactionOperator": "alt", "diagramId": "DIAGRAM_ID"}'
+
+# Add operand to a combined fragment
+curl -X POST http://localhost:12345/api/seq/combined-fragments/FRAGMENT_ID/operands \
+  -H "Content-Type: application/json" \
+  -d '{"guard": "[success]"}'
 ```
 
 ## File Structure
@@ -168,8 +228,9 @@ staruml-controller/
 ├── docs/
 │   └── api.html       # API documentation (HTML)
 ├── images/
-│   ├── image1.gif     # Demo animation
-│   └── image2.jpg     # PostgreSQL DDL export screenshot
+│   ├── image1.gif     # ER diagram demo animation
+│   ├── image2.jpg     # PostgreSQL DDL export screenshot
+│   └── image3.gif     # Sequence diagram demo animation
 ├── package.json       # Extension metadata
 └── README.md
 ```
