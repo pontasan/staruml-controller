@@ -1,6 +1,6 @@
 # StarUML Controller
 
-A StarUML extension that exposes ER diagram and sequence diagram operations via an HTTP REST API.
+A [StarUML](https://staruml.io/) extension that exposes ER diagram and sequence diagram operations via an HTTP REST API.
 
 Designed for integration with AI tools such as Claude Code (via MCP) to programmatically read and edit ER diagrams and sequence diagrams.
 
@@ -20,6 +20,12 @@ Designed for integration with AI tools such as Claude Code (via MCP) to programm
   <img src="images/image3.gif" alt="AI generating a Login Check sequence diagram from source code in StarUML via REST API" width="800">
   <br>
   <em>An AI tool analyzing source code and generating a Login Check sequence diagram through the API</em>
+</p>
+
+## Architecture Overview
+
+<p align="center">
+  <img src="images/architecture.svg" alt="Architecture overview: Claude Code communicates with staruml-controller-mcp via MCP protocol, which connects to StarUML's staruml-controller extension via HTTP REST API" width="800">
 </p>
 
 ## Supported Versions
@@ -245,6 +251,7 @@ staruml-controller/
 ├── docs/
 │   └── api.html       # API documentation (HTML)
 ├── images/
+│   ├── architecture.svg  # Architecture overview diagram
 │   ├── image1.gif     # ER diagram demo animation
 │   ├── image2.jpg     # PostgreSQL DDL export screenshot
 │   ├── image3.gif     # Sequence diagram demo animation
