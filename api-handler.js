@@ -1583,7 +1583,14 @@ function getRelationships(query, reqInfo) {
             return { success: false, error: 'Data model not found: ' + query.dataModelId, request: reqInfo }
         }
         rels = rels.filter(function (r) {
-            return r._parent && r._parent._id === query.dataModelId
+            let current = r._parent
+            while (current) {
+                if (current._id === query.dataModelId) {
+                    return true
+                }
+                current = current._parent
+            }
+            return false
         })
     }
 
@@ -3337,21 +3344,33 @@ function createStateInvariant(interactionId, body, reqInfo) {
         if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
             return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
         }
-        const siX = body.x !== undefined ? body.x : 100
-        const siY = body.y !== undefined ? body.y : 100
+        if (!body.covered) {
+            return validationError('Field "covered" (lifeline ID) is required when creating a state invariant with a diagram view', reqInfo, body)
+        }
+        const coveredLifeline = findById(body.covered)
+        if (!coveredLifeline || !(coveredLifeline instanceof type.UMLLifeline)) {
+            return validationError('covered must refer to a UMLLifeline. Not found or wrong type: ' + body.covered, reqInfo, body)
+        }
+        const lifelineView = findViewOnDiagram(diagram, coveredLifeline._id)
+        if (!lifelineView) {
+            return validationError('Covered lifeline "' + coveredLifeline.name + '" does not have a view on diagram "' + diagram.name + '".', reqInfo, body)
+        }
+        const siX = body.x !== undefined ? body.x : lifelineView.left
+        const siY = body.y !== undefined ? body.y : 200
         const options = {
             id: 'UMLStateInvariant',
             parent: interaction,
             diagram: diagram,
+            field: 'fragments',
+            headModel: coveredLifeline,
+            headView: lifelineView,
             x1: siX,
             y1: siY,
             x2: siX + 100,
             y2: siY + 50,
             modelInitializer: function (m) {
                 m.name = body.name || ''
-                if (body.covered) {
-                    m.covered = findById(body.covered)
-                }
+                m.covered = coveredLifeline
                 if (body.invariant !== undefined) {
                     m.invariant = body.invariant
                 }
@@ -3360,7 +3379,15 @@ function createStateInvariant(interactionId, body, reqInfo) {
                 }
             }
         }
-        const view = app.factory.createModelAndView(options)
+        let view
+        try {
+            view = app.factory.createModelAndView(options)
+        } catch (e) {
+            return { success: false, error: 'Failed to create state invariant: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        if (!view || !view.model) {
+            return { success: false, error: 'Failed to create state invariant view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
         return {
             success: true,
             message: 'Created state invariant "' + (view.model.name || view.model._id) + '" with view on diagram',
@@ -3386,6 +3413,10 @@ function createStateInvariant(interactionId, body, reqInfo) {
             }
         }
     })
+
+    if (!si) {
+        return { success: false, error: 'Failed to create state invariant. Try providing diagramId to create with a diagram context.', request: Object.assign({}, reqInfo, { body: body }) }
+    }
 
     return {
         success: true,

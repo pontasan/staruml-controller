@@ -247,7 +247,11 @@ staruml-controller/
 ├── images/
 │   ├── image1.gif     # ER diagram demo animation
 │   ├── image2.jpg     # PostgreSQL DDL export screenshot
-│   └── image3.gif     # Sequence diagram demo animation
+│   ├── image3.gif     # Sequence diagram demo animation
+│   ├── image4.jpg     # Tools menu screenshot
+│   └── image5.jpg     # Port number dialog screenshot
+├── test/
+│   └── test_all_endpoints.sh  # Integration test script (92 tests)
 ├── package.json       # Extension metadata
 └── README.md
 ```

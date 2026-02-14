@@ -5704,8 +5704,8 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>covered</td>
 <td>string</td>
-<td>No</td>
-<td>Lifeline ID that this state invariant covers</td>
+<td>Conditional</td>
+<td>Lifeline ID that this state invariant covers. <strong>Required when <code>diagramId</code> is specified</strong></td>
 </tr>
 <tr>
 <td>invariant</td>
@@ -5798,6 +5798,8 @@ The server automatically URL-decodes path parameters.</p>
 <p><strong>Errors</strong>:
 - 400: Unknown fields, type mismatch, or empty name
 - 400: UMLLifeline with the specified <code>covered</code> not found
+- 400: <code>covered</code> is required when <code>diagramId</code> is specified
+- 400: Covered lifeline does not have a view on the specified diagram
 - 400: UMLSequenceDiagram with the specified <code>diagramId</code> not found
 - 404: UMLInteraction with the specified ID not found</p>
 <hr />
