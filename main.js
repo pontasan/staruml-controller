@@ -51,12 +51,27 @@ function startServer(port) {
       return
     }
 
-    // Collect request body
+    // Collect request body (limit to 10MB)
+    const MAX_BODY_SIZE = 10 * 1024 * 1024
     const bodyChunks = []
+    let bodySize = 0
+    let bodyTooLarge = false
     req.on('data', function (chunk) {
+      bodySize += chunk.length
+      if (bodySize > MAX_BODY_SIZE) {
+        bodyTooLarge = true
+        req.destroy()
+        return
+      }
       bodyChunks.push(chunk)
     })
     req.on('end', function () {
+      if (bodyTooLarge) {
+        res.writeHead(413)
+        res.end(JSON.stringify({ success: false, error: 'Request body too large (max 10MB)' }))
+        return
+      }
+
       let body = {}
       if (bodyChunks.length > 0) {
         try {

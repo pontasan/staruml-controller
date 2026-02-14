@@ -46,7 +46,10 @@ if [ -z "$STATUS" ]; then
     echo "Make sure StarUML is running and the server is started."
     exit 1
 fi
-echo "Connected. Starting tests..."
+echo "Connected. Saving project snapshot for restore..."
+SNAPSHOT="/tmp/test_staruml_snapshot_$$.mdj"
+curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d "{\"path\":\"$SNAPSHOT\"}" > /dev/null
+echo "Starting tests..."
 echo ""
 
 # =============================
@@ -238,7 +241,12 @@ R=$(curl -s -X POST $BASE/api/seq/combined-fragments/$(enc $CF_ID)/operands -H "
 check "66.seq_create_operand" "$R"
 OP2_ID=$(getid "$R")
 
-check "67.seq_delete_operand" "$(curl -s -X DELETE $BASE/api/seq/operands/$(enc $OP2_ID))"
+if [ -n "$OP2_ID" ]; then
+    check "67.seq_delete_operand" "$(curl -s -X DELETE $BASE/api/seq/operands/$(enc $OP2_ID))"
+else
+    FAIL=$((FAIL+1))
+    TOTAL_RESULTS="${TOTAL_RESULTS}SKIP 67.seq_delete_operand (create failed)\n"
+fi
 
 # =============================
 # Seq State Invariants: list, create, get, update, delete (5)
@@ -323,49 +331,721 @@ check "90.gen_list_free_lines" "$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/free-
 check "91.gen_delete_free_line" "$(curl -s -X DELETE $BASE/api/free-lines/$(enc $FL_ID))"
 
 # =============================
-# Generic: Diagram Export (2)
+# Generic: Shapes CRUD (5)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/shapes -H "Content-Type: application/json" -d '{"type":"Rect","text":"TestRect","x1":400,"y1":300,"x2":550,"y2":380}')
+check "200.gen_create_shape(Rect)" "$R"
+SHAPE_ID=$(getid "$R")
+
+check "201.gen_list_shapes" "$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/shapes)"
+check "202.gen_get_shape" "$(curl -s $BASE/api/shapes/$(enc $SHAPE_ID))"
+check "203.gen_update_shape" "$(curl -s -X PUT $BASE/api/shapes/$(enc $SHAPE_ID) -H "Content-Type: application/json" -d '{"text":"UpdatedRect"}')"
+check "204.gen_delete_shape" "$(curl -s -X DELETE $BASE/api/shapes/$(enc $SHAPE_ID))"
+
+# =============================
+# Generic: Diagram Export (3)
 # =============================
 check "92.gen_export_png" "$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H "Content-Type: application/json" -d '{"path":"/tmp/test_export.png","format":"png"}')"
 check "93.gen_export_svg" "$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H "Content-Type: application/json" -d '{"path":"/tmp/test_export.svg","format":"svg"}')"
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H 'Content-Type: application/json' \
+  -d "{\"format\":\"jpeg\",\"path\":\"/tmp/test_export.jpeg\"}")
+check "94.erd_export_jpeg" "$R"
+check "205.gen_export_pdf" "$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H "Content-Type: application/json" -d '{"path":"/tmp/test_export.pdf","format":"pdf"}')"
 
 # =============================
 # Generic: Element Update + Delete (3)
 # =============================
-check "94.gen_update_element" "$(curl -s -X PUT $BASE/api/elements/$(enc $E1_ID) -H "Content-Type: application/json" -d '{"documentation":"Updated via generic"}')"
+check "95.gen_update_element" "$(curl -s -X PUT $BASE/api/elements/$(enc $E1_ID) -H "Content-Type: application/json" -d '{"documentation":"Updated via generic"}')"
 
 # Create a tag then delete it via generic endpoint to verify delegation
 R=$(curl -s -X POST $BASE/api/elements/$(enc $E1_ID)/tags -H "Content-Type: application/json" -d '{"name":"tmp_tag","kind":0,"value":"tmp"}')
 TMP_TAG_ID=$(getid "$R")
-check "95.gen_delete_element(tag)" "$(curl -s -X DELETE $BASE/api/elements/$(enc $TMP_TAG_ID))"
+check "96.gen_delete_element(tag)" "$(curl -s -X DELETE $BASE/api/elements/$(enc $TMP_TAG_ID))"
 
 # =============================
 # Generic: Delete Note (cleanup) (1)
 # =============================
-check "96.gen_delete_note" "$(curl -s -X DELETE $BASE/api/notes/$(enc $NOTE_ID))"
+check "97.gen_delete_note" "$(curl -s -X DELETE $BASE/api/notes/$(enc $NOTE_ID))"
+
+# =============================
+# Generic Diagram: POST /api/diagrams (UMLClassDiagram) (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLClassDiagram","name":"TestClassDiag"}')
+check "112.gen_create_class_diagram" "$R"
+GD_CD_ID=$(getid "$R")
+
+# =============================
+# Generic Diagram: GET /api/diagrams/:id (1)
+# =============================
+check "113.gen_get_diagram" "$(curl -s $BASE/api/diagrams/$(enc $GD_CD_ID))"
+
+# =============================
+# Generic Diagram: PUT /api/diagrams/:id (1)
+# =============================
+check "114.gen_update_diagram" "$(curl -s -X PUT $BASE/api/diagrams/$(enc $GD_CD_ID) -H "Content-Type: application/json" -d '{"name":"TestClassDiag_Up"}')"
+
+# =============================
+# Generic Diagram Elements: POST /api/diagrams/:id/elements (UMLClass x2, UMLInterface, UMLEnumeration) (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLClass","name":"User","x1":100,"y1":100,"x2":250,"y2":200}')
+check "115.gen_create_element(UMLClass_User)" "$R"
+GD_C1_VID=$(getid "$R")
+GD_C1_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLClass","name":"Order","x1":350,"y1":100,"x2":500,"y2":200}')
+check "116.gen_create_element(UMLClass_Order)" "$R"
+GD_C2_VID=$(getid "$R")
+GD_C2_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLInterface","name":"IRepository","x1":100,"y1":300,"x2":250,"y2":400}')
+check "117.gen_create_element(UMLInterface)" "$R"
+GD_IF_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLEnumeration","name":"Status","x1":500,"y1":300,"x2":650,"y2":400}')
+check "118.gen_create_element(UMLEnumeration)" "$R"
+GD_ENUM_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLPackage","name":"core","x1":50,"y1":450,"x2":300,"y2":550}')
+check "206.gen_create_element(UMLPackage)" "$R"
+GD_PKG_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+# =============================
+# Generic Diagram Elements: GET /api/diagrams/:id/elements (1)
+# =============================
+check "119.gen_get_diagram_elements" "$(curl -s $BASE/api/diagrams/$(enc $GD_CD_ID)/elements)"
+
+# =============================
+# Generic Relations: POST /api/diagrams/:id/relations (UMLAssociation, UMLInterfaceRealization) (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"UMLAssociation\",\"sourceId\":\"$GD_C1_MID\",\"targetId\":\"$GD_C2_MID\",\"name\":\"places\"}")
+check "120.gen_create_relation(UMLAssociation)" "$R"
+GD_ASSOC_VID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"UMLInterfaceRealization\",\"sourceId\":\"$GD_C1_MID\",\"targetId\":\"$GD_IF_MID\"}")
+check "121.gen_create_relation(UMLInterfaceRealization)" "$R"
+
+# =============================
+# Child Elements: POST /api/elements/:id/children (UMLAttribute, UMLOperation, UMLEnumerationLiteral) (3)
+# =============================
+R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_C1_MID)/children -H "Content-Type: application/json" \
+  -d '{"type":"UMLAttribute","name":"email"}')
+check "122.gen_create_child(UMLAttribute)" "$R"
+
+R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_C1_MID)/children -H "Content-Type: application/json" \
+  -d '{"type":"UMLOperation","name":"getEmail"}')
+check "123.gen_create_child(UMLOperation)" "$R"
+
+R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_ENUM_MID)/children -H "Content-Type: application/json" \
+  -d '{"type":"UMLEnumerationLiteral","name":"ACTIVE"}')
+check "124.gen_create_child(UMLEnumerationLiteral)" "$R"
+
+# =============================
+# View Styling: PUT /api/views/:id/style (1)
+# =============================
+check "125.gen_update_view_style" "$(curl -s -X PUT $BASE/api/views/$(enc $GD_C1_VID)/style -H "Content-Type: application/json" \
+  -d '{"fillColor":"#CCE5FF","lineColor":"#0066CC","fontSize":14,"fontStyle":1,"showShadow":true}')"
+
+# =============================
+# Auto Layout: POST /api/diagrams/:id/layout (1)
+# =============================
+check "126.gen_layout_diagram" "$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/layout -H "Content-Type: application/json" \
+  -d '{"direction":"LR"}')"
+
+# =============================
+# Undo / Redo: POST /api/undo, POST /api/redo (2)
+# =============================
+check "127.gen_undo" "$(curl -s -X POST $BASE/api/undo)"
+check "128.gen_redo" "$(curl -s -X POST $BASE/api/redo)"
+
+# =============================
+# Search: GET /api/search (2)
+# =============================
+check "129.gen_search" "$(curl -s "$BASE/api/search?keyword=User")"
+check "130.gen_search_with_type" "$(curl -s "$BASE/api/search?keyword=User&type=UMLClass")"
+
+# =============================
+# Use Case Diagram: create + actor + usecase + assoc (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLUseCaseDiagram","name":"TestUC"}')
+check "131.gen_create_usecase_diagram" "$R"
+GD_UC_ID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_UC_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLActor","name":"Admin"}')
+check "132.gen_create_element(UMLActor)" "$R"
+GD_ACT_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_UC_ID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLUseCase","name":"Login","x1":300,"y1":100,"x2":450,"y2":160}')
+check "133.gen_create_element(UMLUseCase)" "$R"
+GD_UC_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_UC_ID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"UMLAssociation\",\"sourceId\":\"$GD_ACT_MID\",\"targetId\":\"$GD_UC_MID\"}")
+check "134.gen_create_relation_uc(UMLAssociation)" "$R"
+
+# =============================
+# Activity Diagram: create + initial + action + flow (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLActivityDiagram","name":"TestActivity"}')
+check "135.gen_create_activity_diagram" "$R"
+GD_ACT_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ACT_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLInitialNode","x1":200,"y1":50,"x2":230,"y2":80}')
+check "136.gen_create_element(UMLInitialNode)" "$R"
+GD_INIT_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ACT_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLAction","name":"ProcessData","x1":150,"y1":150,"x2":300,"y2":200}')
+check "137.gen_create_element(UMLAction)" "$R"
+GD_ACTION_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ACT_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"UMLControlFlow\",\"sourceId\":\"$GD_INIT_MID\",\"targetId\":\"$GD_ACTION_MID\"}")
+check "138.gen_create_relation(UMLControlFlow)" "$R"
+
+# Child elements: UMLInputPin / UMLOutputPin on UMLAction (2)
+R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_ACTION_MID)/children -H "Content-Type: application/json" \
+  -d '{"type":"UMLInputPin","name":"dataIn"}')
+check "138a.gen_create_child(UMLInputPin)" "$R"
+
+R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_ACTION_MID)/children -H "Content-Type: application/json" \
+  -d '{"type":"UMLOutputPin","name":"dataOut"}')
+check "138b.gen_create_child(UMLOutputPin)" "$R"
+
+# =============================
+# State Machine Diagram: create + pseudostate + state + transition (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLStatechartDiagram","name":"TestState"}')
+check "139.gen_create_statechart_diagram" "$R"
+GD_ST_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ST_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLPseudostate","pseudostateKind":"initial","x1":200,"y1":50,"x2":230,"y2":80}')
+check "140.gen_create_element(UMLPseudostate)" "$R"
+GD_PS_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ST_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLState","name":"Active","x1":150,"y1":150,"x2":300,"y2":220}')
+check "141.gen_create_element(UMLState)" "$R"
+GD_STATE_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_ST_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"UMLTransition\",\"sourceId\":\"$GD_PS_MID\",\"targetId\":\"$GD_STATE_MID\"}")
+check "142.gen_create_relation(UMLTransition)" "$R"
+
+# =============================
+# Component Diagram: create + component (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLComponentDiagram","name":"TestComp"}')
+check "143.gen_create_component_diagram" "$R"
+GD_COMP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_COMP_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLComponent","name":"AuthService"}')
+check "144.gen_create_element(UMLComponent)" "$R"
+
+# =============================
+# Deployment Diagram: create + node (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLDeploymentDiagram","name":"TestDeploy"}')
+check "145.gen_create_deployment_diagram" "$R"
+GD_DEP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_DEP_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLNode","name":"WebServer"}')
+check "146.gen_create_element(UMLNode)" "$R"
+
+# =============================
+# Object Diagram: create + object (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLObjectDiagram","name":"TestObj"}')
+check "147.gen_create_object_diagram" "$R"
+GD_OBJ_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_OBJ_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLObject","name":"user1"}')
+check "148.gen_create_element(UMLObject)" "$R"
+
+# =============================
+# Communication Diagram: create + lifeline (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLCommunicationDiagram","name":"TestComm"}')
+check "149.gen_create_communication_diagram" "$R"
+GD_COMM_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_COMM_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"UMLLifeline","name":"Client"}')
+check "150.gen_create_element(UMLLifeline_comm)" "$R"
+
+# =============================
+# Flowchart Diagram: create + terminator + process + flow (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"FCFlowchartDiagram","name":"TestFlow"}')
+check "151.gen_create_flowchart_diagram" "$R"
+GD_FC_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_FC_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"FCTerminator","name":"Start"}')
+check "152.gen_create_element(FCTerminator)" "$R"
+GD_FC_T1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_FC_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"FCProcess","name":"DoWork","x1":100,"y1":200,"x2":250,"y2":270}')
+check "153.gen_create_element(FCProcess)" "$R"
+GD_FC_P1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_FC_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"FCFlow\",\"sourceId\":\"$GD_FC_T1\",\"targetId\":\"$GD_FC_P1\"}")
+check "154.gen_create_relation(FCFlow)" "$R"
+
+# =============================
+# DFD Diagram: create + process + datastore + dataflow (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"DFDDiagram","name":"TestDFD"}')
+check "155.gen_create_dfd_diagram" "$R"
+GD_DFD_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_DFD_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"DFDProcess","name":"Validate"}')
+check "156.gen_create_element(DFDProcess)" "$R"
+GD_DFD_P1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_DFD_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"DFDDataStore","name":"DB","x1":300,"y1":100,"x2":450,"y2":160}')
+check "157.gen_create_element(DFDDataStore)" "$R"
+GD_DFD_DS1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_DFD_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"DFDDataFlow\",\"sourceId\":\"$GD_DFD_P1\",\"targetId\":\"$GD_DFD_DS1\",\"name\":\"write\"}")
+check "158.gen_create_relation(DFDDataFlow)" "$R"
+
+# =============================
+# BPMN Diagram: create + task + gateway + sequence flow (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"BPMNDiagram","name":"TestBPMN"}')
+check "210.gen_create_bpmn_diagram" "$R"
+GD_BPMN_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_BPMN_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"BPMNTask","name":"Review"}')
+check "211.gen_create_element(BPMNTask)" "$R"
+GD_BPMN_T1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_BPMN_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"BPMNExclusiveGateway","name":"Decision","x1":300,"y1":100,"x2":350,"y2":150}')
+check "212.gen_create_element(BPMNExclusiveGateway)" "$R"
+GD_BPMN_GW=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_BPMN_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"BPMNSequenceFlow\",\"sourceId\":\"$GD_BPMN_T1\",\"targetId\":\"$GD_BPMN_GW\"}")
+check "213.gen_create_relation(BPMNSequenceFlow)" "$R"
+
+# =============================
+# C4 Diagram: create + person + system + relationship (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"C4Diagram","name":"TestC4"}')
+check "214.gen_create_c4_diagram" "$R"
+GD_C4_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_C4_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"C4Person","name":"EndUser"}')
+check "215.gen_create_element(C4Person)" "$R"
+GD_C4_P=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_C4_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"C4SoftwareSystem","name":"WebApp","x1":300,"y1":100,"x2":500,"y2":200}')
+check "216.gen_create_element(C4SoftwareSystem)" "$R"
+GD_C4_S=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_C4_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"C4Relationship\",\"sourceId\":\"$GD_C4_P\",\"targetId\":\"$GD_C4_S\",\"name\":\"uses\"}")
+check "217.gen_create_relation(C4Relationship)" "$R"
+
+# =============================
+# SysML Requirement Diagram: create + req x2 + derive (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"SysMLRequirementDiagram","name":"TestSysML"}')
+check "218.gen_create_sysml_req_diagram" "$R"
+GD_SYSML_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_SYSML_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"SysMLRequirement","name":"REQ001"}')
+check "219.gen_create_element(SysMLRequirement)" "$R"
+GD_SYSML_R1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_SYSML_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"SysMLRequirement","name":"REQ002","x1":300,"y1":100,"x2":500,"y2":200}')
+check "220.gen_create_element(SysMLRequirement2)" "$R"
+GD_SYSML_R2=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_SYSML_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"SysMLDeriveReqt\",\"sourceId\":\"$GD_SYSML_R1\",\"targetId\":\"$GD_SYSML_R2\"}")
+check "221.gen_create_relation(SysMLDeriveReqt)" "$R"
+
+# =============================
+# Wireframe Diagram: create + frame + button (3)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"WFWireframeDiagram","name":"TestWF"}')
+check "222.gen_create_wireframe_diagram" "$R"
+GD_WF_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_WF_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"WFFrame","name":"LoginPage"}')
+check "223.gen_create_element(WFFrame)" "$R"
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_WF_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"WFButton","name":"Submit","x1":100,"y1":200,"x2":200,"y2":240}')
+check "224.gen_create_element(WFButton)" "$R"
+
+# =============================
+# MindMap Diagram: create + node x2 + edge (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"MMMindmapDiagram","name":"TestMM"}')
+check "225.gen_create_mindmap_diagram" "$R"
+GD_MM_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_MM_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"MMNode","name":"Central"}')
+check "226.gen_create_element(MMNode_Central)" "$R"
+GD_MM_N1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_MM_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"MMNode","name":"Branch1","x1":300,"y1":100,"x2":400,"y2":140}')
+check "227.gen_create_element(MMNode_Branch1)" "$R"
+GD_MM_N2=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_MM_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"MMEdge\",\"sourceId\":\"$GD_MM_N1\",\"targetId\":\"$GD_MM_N2\"}")
+check "228.gen_create_relation(MMEdge)" "$R"
+
+# =============================
+# AWS Diagram: create + service x2 + arrow (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"AWSDiagram","name":"TestAWS"}')
+check "229.gen_create_aws_diagram" "$R"
+GD_AWS_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AWS_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"AWSService","name":"EC2"}')
+check "230.gen_create_element(AWSService_EC2)" "$R"
+GD_AWS_S1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AWS_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"AWSService","name":"RDS","x1":300,"y1":100,"x2":400,"y2":150}')
+check "231.gen_create_element(AWSService_RDS)" "$R"
+GD_AWS_S2=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AWS_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"AWSArrow\",\"sourceId\":\"$GD_AWS_S1\",\"targetId\":\"$GD_AWS_S2\"}")
+check "232.gen_create_relation(AWSArrow)" "$R"
+
+# =============================
+# Azure Diagram: create + service x2 + connector (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"AzureDiagram","name":"TestAzure"}')
+check "233.gen_create_azure_diagram" "$R"
+GD_AZ_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AZ_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"AzureService","name":"AppService"}')
+check "234.gen_create_element(AzureService_AppSvc)" "$R"
+GD_AZ_S1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AZ_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"AzureService","name":"CosmosDB","x1":300,"y1":100,"x2":400,"y2":150}')
+check "235.gen_create_element(AzureService_CosmosDB)" "$R"
+GD_AZ_S2=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_AZ_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"AzureConnector\",\"sourceId\":\"$GD_AZ_S1\",\"targetId\":\"$GD_AZ_S2\"}")
+check "236.gen_create_relation(AzureConnector)" "$R"
+
+# =============================
+# GCP Diagram: create + product x2 + path (4)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"GCPDiagram","name":"TestGCP"}')
+check "237.gen_create_gcp_diagram" "$R"
+GD_GCP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_GCP_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"GCPProduct","name":"ComputeEngine"}')
+check "238.gen_create_element(GCPProduct_CE)" "$R"
+GD_GCP_P1=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_GCP_DID)/elements -H "Content-Type: application/json" \
+  -d '{"type":"GCPProduct","name":"CloudSQL","x1":300,"y1":100,"x2":400,"y2":150}')
+check "239.gen_create_element(GCPProduct_SQL)" "$R"
+GD_GCP_P2=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['modelId'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_GCP_DID)/relations -H "Content-Type: application/json" \
+  -d "{\"type\":\"GCPPath\",\"sourceId\":\"$GD_GCP_P1\",\"targetId\":\"$GD_GCP_P2\"}")
+check "240.gen_create_relation(GCPPath)" "$R"
+
+# =============================
+# New API: Element Relationships + Views (2)
+# =============================
+check "250.gen_element_relationships" "$(curl -s $BASE/api/elements/$(enc $GD_C1_MID)/relationships)"
+check "251.gen_element_views" "$(curl -s $BASE/api/elements/$(enc $GD_C1_MID)/views)"
+
+# =============================
+# New API: Create View Of (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams -H "Content-Type: application/json" -d '{"type":"UMLClassDiagram","name":"TestClassDiag2"}')
+check "252.gen_create_class_diagram2" "$R"
+GD_CD2_ID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD2_ID)/create-view-of -H "Content-Type: application/json" \
+  -d "{\"modelId\":\"$GD_C1_MID\",\"x\":100,\"y\":100}")
+check "253.gen_create_view_of" "$R"
+
+# =============================
+# New API: Reconnect Edge (1)
+# =============================
+check "254.gen_reconnect_edge" "$(curl -s -X PUT $BASE/api/views/$(enc $GD_ASSOC_VID)/reconnect -H 'Content-Type: application/json' \
+  -d "{\"newTargetId\":\"$GD_IF_MID\"}")"
+
+# =============================
+# New API: Relocate Element (1)
+# =============================
+check "255.gen_relocate_element" "$(curl -s -X PUT $BASE/api/elements/$(enc $GD_ENUM_MID)/relocate -H 'Content-Type: application/json' \
+  -d "{\"newParentId\":\"$GD_PKG_MID\"}")"
+
+# =============================
+# New API: Open Diagram + Zoom (2)
+# =============================
+check "256.gen_open_diagram" "$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/open)"
+check "257.gen_set_zoom" "$(curl -s -X PUT $BASE/api/diagrams/$(enc $GD_CD_ID)/zoom -H 'Content-Type: application/json' -d '{"level":1.5}')"
+
+# =============================
+# New API: Validate Model (1)
+# =============================
+check "258.gen_validate_model" "$(curl -s -X POST $BASE/api/validate)"
+
+# =============================
+# New API: Export All Diagrams (1)
+# =============================
+mkdir -p /tmp/staruml_export_test
+check "259.gen_export_all" "$(curl -s -X POST $BASE/api/project/export-all -H 'Content-Type: application/json' -d '{"path":"/tmp/staruml_export_test","format":"png"}')"
+
+# =============================
+# New API: Export Fragment (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/project/export -H 'Content-Type: application/json' \
+  -d "{\"elementId\":\"$GD_C1_MID\",\"path\":\"/tmp/test_fragment.mfj\"}")
+check "260.gen_export_fragment" "$R"
+
+# =============================
+# New API: Import Fragment (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/project/import -H 'Content-Type: application/json' \
+  -d "{\"path\":\"/tmp/test_fragment.mfj\"}")
+check "261.gen_import_fragment" "$R"
+
+# =============================
+# Alignment: POST /api/views/align (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/views/align -H "Content-Type: application/json" \
+  -d "{\"viewIds\":[\"$GD_C1_VID\",\"$GD_C2_VID\"],\"action\":\"align-top\"}")
+check "262.gen_align_views" "$R"
+
+# =============================
+# Mermaid Import: POST /api/mermaid/import (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/mermaid/import -H "Content-Type: application/json" \
+  -d '{"code":"classDiagram\n  class Animal {\n    +String name\n  }\n  class Dog\n  Animal <|-- Dog"}')
+check "263.gen_mermaid_import" "$R"
+
+# =============================
+# Diagram Generator: POST /api/diagrams/generate (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/generate -H "Content-Type: application/json" \
+  -d '{"type":"overview"}')
+check "264.gen_diagram_generator" "$R"
+
+# =============================
+# Reorder Element: PUT /api/elements/:id/reorder (1)
+# =============================
+R=$(curl -s -X PUT $BASE/api/elements/$(enc $GD_C1_MID)/reorder -H "Content-Type: application/json" \
+  -d '{"direction":"down"}')
+check "265.gen_reorder_element" "$R"
+
+# =============================
+# FoundMessage / LostMessage (2)
+# =============================
+R=$(curl -s -X POST $BASE/api/seq/interactions/$(enc $INT_ID)/messages -H "Content-Type: application/json" \
+  -d "{\"messageType\":\"UMLFoundMessage\",\"target\":\"$LL2_ID\",\"diagramId\":\"$SD_ID\",\"name\":\"foundMsg\",\"y\":250}")
+check "266.seq_create_found_message" "$R"
+FOUND_MSG_ID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/seq/interactions/$(enc $INT_ID)/messages -H "Content-Type: application/json" \
+  -d "{\"messageType\":\"UMLLostMessage\",\"source\":\"$LL1_ID\",\"diagramId\":\"$SD_ID\",\"name\":\"lostMsg\",\"y\":300}")
+check "267.seq_create_lost_message" "$R"
+LOST_MSG_ID=$(getid "$R")
+
+# =============================
+# BPMN Event Definition child: POST /api/elements/:id/children (1)
+# =============================
+# Get the BPMN start event ID from the BPMN diagram
+GD_BPMN_SE_MID=""
+if [ -n "$GD_BPMN_DID" ]; then
+  R=$(curl -s "$BASE/api/diagrams/$(enc $GD_BPMN_DID)/elements")
+  GD_BPMN_SE_MID=$(echo "$R" | python3 -c "
+import sys,json
+d=json.load(sys.stdin).get('data',[])
+for e in d:
+  if e.get('_type','')=='BPMNStartEvent':
+    print(e['_id'])
+    break
+" 2>/dev/null)
+fi
+if [ -n "$GD_BPMN_SE_MID" ]; then
+  R=$(curl -s -X POST $BASE/api/elements/$(enc $GD_BPMN_SE_MID)/children -H "Content-Type: application/json" \
+    -d '{"type":"BPMNTimerEventDefinition"}')
+  check "268.gen_create_child(BPMNTimerEventDefinition)" "$R"
+else
+  echo "SKIP 268.gen_create_child(BPMNTimerEventDefinition) - no BPMNStartEvent found"
+  TOTAL_RESULTS="${TOTAL_RESULTS}SKIP 268.gen_create_child(BPMNTimerEventDefinition)\n"
+fi
+
+# =============================
+# UMLFrame shape: POST /api/diagrams/:id/shapes (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_CD_ID)/shapes -H "Content-Type: application/json" \
+  -d '{"type":"UMLFrame","x1":10,"y1":10,"x2":500,"y2":400}')
+check "269.gen_create_shape(UMLFrame)" "$R"
+
+# =============================
+# Style: autoResize, stereotypeDisplay (1)
+# =============================
+R=$(curl -s -X PUT $BASE/api/views/$(enc $GD_C1_VID)/style -H "Content-Type: application/json" \
+  -d '{"autoResize":false,"stereotypeDisplay":"label"}')
+check "269a.gen_style_autoResize_stereotypeDisplay" "$R"
+
+# =============================
+# UMLLinkObject: POST /api/diagrams/:id/link-object (1)
+# =============================
+# Create on object diagram using two existing objects
+GD_OBJ2_MID=""
+GD_OBJ_DID_VAR=""
+# Look for the object diagram created earlier
+if [ -n "$GD_OBJ_DID" ]; then
+  # Create a second object for the link
+  R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_OBJ_DID)/elements -H "Content-Type: application/json" \
+    -d '{"type":"UMLObject","name":"obj2","x1":300,"y1":100,"x2":400,"y2":150}')
+  GD_OBJ2_MID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('modelId',''))" 2>/dev/null)
+  # Get first object on the diagram
+  R=$(curl -s "$BASE/api/diagrams/$(enc $GD_OBJ_DID)/elements")
+  GD_OBJ1_MID=$(echo "$R" | python3 -c "
+import sys,json
+d=json.load(sys.stdin).get('data',[])
+for e in d:
+  if e.get('_type','')=='UMLObject':
+    print(e['_id'])
+    break
+" 2>/dev/null)
+  if [ -n "$GD_OBJ1_MID" ] && [ -n "$GD_OBJ2_MID" ]; then
+    R=$(curl -s -X POST $BASE/api/diagrams/$(enc $GD_OBJ_DID)/link-object -H "Content-Type: application/json" \
+      -d "{\"name\":\"TestLinkObj\",\"sourceId\":\"$GD_OBJ1_MID\",\"targetId\":\"$GD_OBJ2_MID\"}")
+    check "269b.gen_create_link_object" "$R"
+  else
+    echo "SKIP 269b.gen_create_link_object - objects not found"
+    TOTAL_RESULTS="${TOTAL_RESULTS}SKIP 269b.gen_create_link_object\n"
+  fi
+else
+  echo "SKIP 269b.gen_create_link_object - no object diagram"
+  TOTAL_RESULTS="${TOTAL_RESULTS}SKIP 269b.gen_create_link_object\n"
+fi
+
+# =============================
+# Export Doc: POST /api/project/export-doc (1)
+# =============================
+R=$(curl -s -X POST $BASE/api/project/export-doc -H "Content-Type: application/json" \
+  -d '{"path":"/tmp/staruml_test_doc","format":"html"}')
+check "269c.gen_export_doc_html" "$R"
+
+# =============================
+# Cleanup new diagrams: DELETE (9)
+# =============================
+check "270.gen_delete_bpmn_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_BPMN_DID))"
+check "271.gen_delete_c4_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_C4_DID))"
+check "272.gen_delete_sysml_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_SYSML_DID))"
+check "273.gen_delete_wireframe_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_WF_DID))"
+check "274.gen_delete_mindmap_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_MM_DID))"
+check "275.gen_delete_aws_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_AWS_DID))"
+check "276.gen_delete_azure_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_AZ_DID))"
+check "277.gen_delete_gcp_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_GCP_DID))"
+check "278.gen_delete_class_diagram2" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_CD2_ID))"
+
+# =============================
+# Cleanup generic diagrams: DELETE /api/diagrams/:id (10)
+# =============================
+check "159.gen_delete_class_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_CD_ID))"
+check "160.gen_delete_usecase_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_UC_ID))"
+check "161.gen_delete_activity_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_ACT_DID))"
+check "162.gen_delete_statechart_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_ST_DID))"
+check "163.gen_delete_component_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_COMP_DID))"
+check "164.gen_delete_deployment_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_DEP_DID))"
+check "165.gen_delete_object_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_OBJ_DID))"
+check "166.gen_delete_communication_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_COMM_DID))"
+check "167.gen_delete_flowchart_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_FC_DID))"
+check "168.gen_delete_dfd_diagram" "$(curl -s -X DELETE $BASE/api/diagrams/$(enc $GD_DFD_DID))"
 
 # =============================
 # Cleanup: Delete all test data (reverse dependency order)
 # =============================
-check "97.seq_delete_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $MSG_ID))"
-check "98.seq_delete_combined_fragment" "$(curl -s -X DELETE $BASE/api/seq/combined-fragments/$(enc $CF_ID))"
-check "99.seq_delete_lifeline(Client)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL1_ID))"
-check "100.seq_delete_lifeline(Server)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL2_ID))"
-check "101.seq_delete_diagram" "$(curl -s -X DELETE $BASE/api/seq/diagrams/$(enc $SD_ID))"
-check "102.seq_delete_interaction" "$(curl -s -X DELETE $BASE/api/seq/interactions/$(enc $INT_ID))"
+check "169.seq_delete_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $MSG_ID))"
+check "169a.seq_delete_found_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $FOUND_MSG_ID))"
+check "169b.seq_delete_lost_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $LOST_MSG_ID))"
+check "170.seq_delete_combined_fragment" "$(curl -s -X DELETE $BASE/api/seq/combined-fragments/$(enc $CF_ID))"
+check "171.seq_delete_lifeline(Client)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL1_ID))"
+check "172.seq_delete_lifeline(Server)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL2_ID))"
+# Delete auto-created UMLEndpoints from FoundMessage/LostMessage
+R=$(curl -s "$BASE/api/seq/interactions/$(enc $INT_ID)")
+for EP_ID in $(echo "$R" | python3 -c "
+import sys,json
+d=json.load(sys.stdin).get('data',{})
+for p in d.get('participants',[]):
+    if p.get('_type','')=='UMLEndpoint':
+        print(p['_id'])
+" 2>/dev/null); do
+  curl -s -X DELETE "$BASE/api/elements/$(enc $EP_ID)" > /dev/null
+done
+check "173.seq_delete_diagram" "$(curl -s -X DELETE $BASE/api/seq/diagrams/$(enc $SD_ID))"
+check "174.seq_delete_interaction" "$(curl -s -X DELETE $BASE/api/seq/interactions/$(enc $INT_ID))"
 
-check "103.erd_delete_relationship" "$(curl -s -X DELETE $BASE/api/erd/relationships/$(enc $REL_ID))"
-check "104.erd_delete_column(id)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C1_ID))"
-check "105.erd_delete_column(email)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C2_ID))"
-check "106.erd_delete_entity(users)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E1_ID))"
-check "107.erd_delete_entity(orders)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E2_ID))"
-check "108.erd_delete_diagram" "$(curl -s -X DELETE $BASE/api/erd/diagrams/$(enc $DG_ID))"
-check "109.erd_delete_data_model" "$(curl -s -X DELETE $BASE/api/erd/data-models/$(enc $DM_ID))"
+check "175.erd_delete_relationship" "$(curl -s -X DELETE $BASE/api/erd/relationships/$(enc $REL_ID))"
+check "176.erd_delete_column(id)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C1_ID))"
+check "177.erd_delete_column(email)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C2_ID))"
+check "178.erd_delete_entity(users)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E1_ID))"
+check "179.erd_delete_entity(orders)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E2_ID))"
+check "180.erd_delete_diagram" "$(curl -s -X DELETE $BASE/api/erd/diagrams/$(enc $DG_ID))"
+check "181.erd_delete_data_model" "$(curl -s -X DELETE $BASE/api/erd/data-models/$(enc $DM_ID))"
 
 # =============================
 # Project: save, open (2)
 # =============================
-check "110.save_project" "$(curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
-check "111.open_project" "$(curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
+check "182.save_project" "$(curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
+check "183.open_project" "$(curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
+
+# =============================
+# Restore project to pre-test state
+# =============================
+echo ""
+echo "Restoring project from snapshot..."
+curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d "{\"path\":\"$SNAPSHOT\"}" > /dev/null
+
+# Cleanup temp files
+rm -f /tmp/test_export.png /tmp/test_export.svg /tmp/test_export.jpeg /tmp/test_export.pdf /tmp/test_ddl.sql /tmp/test_fragment.mfj /tmp/test_staruml.mdj "$SNAPSHOT"
+rm -rf /tmp/staruml_export_test /tmp/staruml_test_doc
 
 # =============================
 # Results

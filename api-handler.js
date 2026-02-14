@@ -44,6 +44,218 @@ const INDEX_PREFIX = 'index#'
 const SEQUENCE_ALLOWED_FIELDS = ['name']
 const INDEX_ALLOWED_FIELDS = ['name', 'definition']
 
+// --- Generic Diagram Constants ---
+
+const ALLOWED_DIAGRAM_TYPES = [
+    // UML
+    'UMLClassDiagram', 'UMLPackageDiagram', 'UMLObjectDiagram',
+    'UMLComponentDiagram', 'UMLDeploymentDiagram', 'UMLUseCaseDiagram',
+    'UMLStatechartDiagram', 'UMLActivityDiagram', 'UMLCommunicationDiagram',
+    'UMLCompositeStructureDiagram', 'UMLProfileDiagram',
+    'UMLTimingDiagram', 'UMLInteractionOverviewDiagram', 'UMLInformationFlowDiagram',
+    // Flowchart / DFD
+    'FCFlowchartDiagram', 'DFDDiagram',
+    // BPMN / C4
+    'BPMNDiagram', 'C4Diagram',
+    // SysML
+    'SysMLRequirementDiagram', 'SysMLBlockDefinitionDiagram',
+    'SysMLInternalBlockDiagram', 'SysMLParametricDiagram',
+    // Wireframe / MindMap
+    'WFWireframeDiagram', 'MMMindmapDiagram',
+    // Cloud
+    'AWSDiagram', 'AzureDiagram', 'GCPDiagram'
+]
+
+const ALLOWED_NODE_TYPES = [
+    // Class diagram
+    'UMLClass', 'UMLInterface', 'UMLSignal', 'UMLDataType', 'UMLPrimitiveType',
+    'UMLEnumeration', 'UMLPackage', 'UMLModel', 'UMLSubsystem', 'UMLNaryAssociationNode',
+    // Use case diagram
+    'UMLActor', 'UMLUseCase', 'UMLUseCaseSubject',
+    // Activity diagram
+    'UMLAction', 'UMLObjectNode', 'UMLCentralBufferNode', 'UMLDataStoreNode',
+    'UMLInitialNode',
+    'UMLActivityFinalNode', 'UMLFlowFinalNode', 'UMLForkNode', 'UMLJoinNode',
+    'UMLMergeNode', 'UMLDecisionNode', 'UMLActivityPartition', 'UMLExpansionRegion',
+    'UMLActivityParameterNode', 'UMLInputPin', 'UMLOutputPin',
+    'UMLInputExpansionNode', 'UMLOutputExpansionNode', 'UMLInterruptibleActivityRegion',
+    'UMLStructuredActivityNode', 'UMLActivityEdgeConnector',
+    // State machine diagram
+    'UMLState', 'UMLSubmachineState', 'UMLPseudostate', 'UMLFinalState',
+    'UMLConnectionPointReference',
+    // Composite structure diagram
+    'UMLPort', 'UMLPart', 'UMLCollaboration', 'UMLCollaborationUse', 'UMLAssociationClass',
+    // Information flow diagram
+    'UMLInformationItem',
+    // Profile diagram
+    'UMLProfile', 'UMLStereotype', 'UMLMetaClass',
+    // Timing diagram
+    'UMLTimingState', 'UMLDurationConstraint', 'UMLTimeTick', 'UMLTimeConstraint',
+    // Interaction overview diagram
+    'UMLInteractionUseInOverview', 'UMLInteractionInOverview',
+    // Sequence diagram additional
+    'UMLEndpoint', 'UMLGate', 'UMLContinuation',
+    // Component diagram
+    'UMLComponent', 'UMLArtifact',
+    // Deployment diagram
+    'UMLNode', 'UMLArtifactInstance', 'UMLComponentInstance', 'UMLNodeInstance',
+    // Object diagram
+    'UMLObject',
+    // Communication diagram
+    'UMLLifeline',
+    // Flowchart
+    'FCProcess', 'FCTerminator', 'FCDecision', 'FCDelay', 'FCPredefinedProcess',
+    'FCAlternateProcess', 'FCData', 'FCDocument', 'FCMultiDocument', 'FCPreparation',
+    'FCDisplay', 'FCManualInput', 'FCManualOperation', 'FCCard', 'FCPunchedTape',
+    'FCConnector', 'FCOffPageConnector', 'FCOr', 'FCSummingJunction', 'FCCollate',
+    'FCSort', 'FCMerge', 'FCExtract', 'FCStoredData', 'FCDatabase',
+    'FCDirectAccessStorage', 'FCInternalStorage',
+    // DFD
+    'DFDExternalEntity', 'DFDProcess', 'DFDDataStore',
+    // BPMN
+    'BPMNParticipant', 'BPMNLane',
+    'BPMNCallActivity', 'BPMNTask', 'BPMNSendTask', 'BPMNReceiveTask', 'BPMNServiceTask',
+    'BPMNUserTask', 'BPMNManualTask', 'BPMNBusinessRuleTask', 'BPMNScriptTask',
+    'BPMNSubProcess', 'BPMNAdHocSubProcess', 'BPMNTransaction',
+    'BPMNChoreographyTask', 'BPMNSubChoreography',
+    'BPMNStartEvent', 'BPMNIntermediateThrowEvent', 'BPMNIntermediateCatchEvent',
+    'BPMNBoundaryEvent', 'BPMNEndEvent',
+    'BPMNExclusiveGateway', 'BPMNInclusiveGateway', 'BPMNComplexGateway',
+    'BPMNParallelGateway', 'BPMNEventBasedGateway',
+    'BPMNDataObject', 'BPMNDataStore', 'BPMNDataInput', 'BPMNDataOutput', 'BPMNMessage',
+    'BPMNConversation', 'BPMNSubConversation', 'BPMNCallConversation',
+    'BPMNTextAnnotation', 'BPMNGroup',
+    // C4
+    'C4Person', 'C4SoftwareSystem', 'C4Container', 'C4ContainerDatabase',
+    'C4ContainerWebApp', 'C4ContainerDesktopApp', 'C4ContainerMobileApp', 'C4Component', 'C4Element',
+    // SysML
+    'SysMLStakeholder', 'SysMLView', 'SysMLViewpoint', 'SysMLRequirement',
+    'SysMLBlock', 'SysMLValueType', 'SysMLInterfaceBlock', 'SysMLConstraintBlock',
+    'SysMLPart', 'SysMLReference', 'SysMLValue', 'SysMLPort', 'SysMLConstraintProperty', 'SysMLConstraintParameter',
+    // Wireframe
+    'WFFrame', 'WFMobileFrame', 'WFWebFrame', 'WFDesktopFrame',
+    'WFButton', 'WFText', 'WFRadio', 'WFCheckbox', 'WFSwitch', 'WFLink',
+    'WFTabList', 'WFTab', 'WFInput', 'WFDropdown', 'WFPanel', 'WFImage', 'WFSeparator', 'WFAvatar', 'WFSlider',
+    // MindMap
+    'MMNode',
+    // AWS
+    'AWSElement', 'AWSGroup', 'AWSGenericGroup', 'AWSAvailabilityZone',
+    'AWSSecurityGroup', 'AWSService', 'AWSResource', 'AWSGeneralResource', 'AWSCallout',
+    // Azure
+    'AzureElement', 'AzureGroup', 'AzureService', 'AzureCallout',
+    // GCP
+    'GCPElement', 'GCPUser', 'GCPZone', 'GCPProduct', 'GCPService'
+]
+
+const ALLOWED_RELATION_TYPES = [
+    // Class diagram
+    'UMLAssociation', 'UMLDependency', 'UMLGeneralization', 'UMLInterfaceRealization',
+    'UMLTemplateBinding', 'UMLContainment', 'UMLRealization',
+    // Use case diagram
+    'UMLInclude', 'UMLExtend',
+    // Activity diagram
+    'UMLControlFlow', 'UMLObjectFlow', 'UMLExceptionHandler', 'UMLActivityInterrupt',
+    // State machine diagram
+    'UMLTransition',
+    // Composite structure / Information flow
+    'UMLRoleBinding', 'UMLInformationFlow',
+    // Profile
+    'UMLExtension',
+    // Timing
+    'UMLTimeSegment',
+    // Component diagram
+    'UMLComponentRealization',
+    // Deployment diagram
+    'UMLDeployment', 'UMLCommunicationPath',
+    // Object diagram
+    'UMLLink',
+    // Communication diagram
+    'UMLConnector',
+    // Flowchart
+    'FCFlow',
+    // DFD
+    'DFDDataFlow',
+    // BPMN
+    'BPMNSequenceFlow', 'BPMNMessageFlow', 'BPMNAssociation',
+    'BPMNDataAssociation', 'BPMNMessageLink', 'BPMNConversationLink',
+    // C4
+    'C4Relationship',
+    // SysML
+    'SysMLConform', 'SysMLExpose', 'SysMLCopy', 'SysMLDeriveReqt',
+    'SysMLVerify', 'SysMLSatisfy', 'SysMLRefine', 'SysMLConnector',
+    // MindMap
+    'MMEdge',
+    // AWS
+    'AWSArrow',
+    // Azure
+    'AzureConnector',
+    // GCP
+    'GCPPath'
+]
+
+const ALLOWED_CHILD_TYPES = [
+    'UMLAttribute', 'UMLOperation', 'UMLParameter', 'UMLEnumerationLiteral',
+    'UMLPort', 'UMLReception', 'UMLExtensionPoint', 'UMLSlot',
+    'UMLTemplateParameter', 'UMLRegion', 'UMLConstraint',
+    'UMLInteractionOperand',
+    'SysMLProperty', 'SysMLOperation', 'SysMLFlowProperty',
+    'UMLInputPin', 'UMLOutputPin',
+    // BPMN Event Definitions
+    'BPMNCompensateEventDefinition', 'BPMNCancelEventDefinition',
+    'BPMNErrorEventDefinition', 'BPMNLinkEventDefinition',
+    'BPMNSignalEventDefinition', 'BPMNTimerEventDefinition',
+    'BPMNEscalationEventDefinition', 'BPMNMessageEventDefinition',
+    'BPMNTerminateEventDefinition', 'BPMNConditionalEventDefinition'
+]
+
+const CHILD_TYPE_DEFAULT_FIELDS = {
+    'UMLAttribute': 'attributes',
+    'UMLOperation': 'operations',
+    'UMLParameter': 'parameters',
+    'UMLEnumerationLiteral': 'literals',
+    'UMLPort': 'ports',
+    'UMLReception': 'receptions',
+    'UMLExtensionPoint': 'extensionPoints',
+    'UMLSlot': 'slots',
+    'UMLTemplateParameter': 'templateParameters',
+    'UMLRegion': 'regions',
+    'UMLConstraint': 'constraints',
+    'UMLInteractionOperand': 'operands',
+    'SysMLProperty': 'ownedElements',
+    'SysMLOperation': 'operations',
+    'SysMLFlowProperty': 'ownedElements',
+    'UMLInputPin': 'inputs',
+    'UMLOutputPin': 'outputs',
+    'BPMNCompensateEventDefinition': 'eventDefinitions',
+    'BPMNCancelEventDefinition': 'eventDefinitions',
+    'BPMNErrorEventDefinition': 'eventDefinitions',
+    'BPMNLinkEventDefinition': 'eventDefinitions',
+    'BPMNSignalEventDefinition': 'eventDefinitions',
+    'BPMNTimerEventDefinition': 'eventDefinitions',
+    'BPMNEscalationEventDefinition': 'eventDefinitions',
+    'BPMNMessageEventDefinition': 'eventDefinitions',
+    'BPMNTerminateEventDefinition': 'eventDefinitions',
+    'BPMNConditionalEventDefinition': 'eventDefinitions'
+}
+
+const VALID_PSEUDOSTATE_KINDS = [
+    'initial', 'deepHistory', 'shallowHistory', 'join', 'fork',
+    'junction', 'choice', 'entryPoint', 'exitPoint'
+]
+
+const STYLE_ALLOWED_FIELDS = [
+    'fillColor', 'lineColor', 'fontColor', 'fontFace', 'fontSize',
+    'fontStyle', 'lineStyle', 'showShadow', 'autoResize', 'stereotypeDisplay'
+]
+
+const GENERIC_DIAGRAM_CREATE_FIELDS = ['type', 'name', 'parentId']
+const GENERIC_ELEMENT_CREATE_FIELDS = ['type', 'name', 'x1', 'y1', 'x2', 'y2', 'pseudostateKind', 'attachToViewId']
+const GENERIC_RELATION_CREATE_FIELDS = ['type', 'sourceId', 'targetId', 'name']
+const GENERIC_CHILD_CREATE_FIELDS = ['type', 'name', 'field']
+const LAYOUT_ALLOWED_FIELDS = ['direction', 'separations', 'edgeLineStyle']
+const IMPORT_ALLOWED_FIELDS = ['path', 'parentId']
+const VALID_LAYOUT_DIRECTIONS = ['TB', 'BT', 'LR', 'RL']
+
 // ============================================================
 // Validation Helpers
 // ============================================================
@@ -551,7 +763,23 @@ const FREE_LINE_ALLOWED_FIELDS = ['x1', 'y1', 'x2', 'y2']
 const VIEW_UPDATE_FIELDS = ['left', 'top', 'width', 'height']
 const GENERIC_ELEMENT_UPDATE_FIELDS = ['name', 'documentation']
 const EXPORT_ALLOWED_FIELDS = ['path', 'format']
-const VALID_EXPORT_FORMATS = ['png', 'jpeg', 'svg']
+const VALID_EXPORT_FORMATS = ['png', 'jpeg', 'svg', 'pdf']
+
+// --- Shape (view-only) Constants ---
+const ALLOWED_SHAPE_TYPES = ['Text', 'TextBox', 'Rect', 'RoundRect', 'Ellipse', 'Hyperlink', 'Image', 'UMLFrame']
+const SHAPE_CREATE_FIELDS = ['type', 'text', 'url', 'imageFile', 'x1', 'y1', 'x2', 'y2']
+const SHAPE_UPDATE_FIELDS = ['text', 'url', 'imageFile']
+const SHAPE_VIEW_TYPE_MAP = {
+    'UMLTextView': 'Text',
+    'UMLTextBoxView': 'TextBox',
+    'RectangleView': 'Rect',
+    'RoundRectView': 'RoundRect',
+    'EllipseView': 'Ellipse',
+    'HyperlinkView': 'Hyperlink',
+    'ImageView': 'Image',
+    'UMLFrameView': 'UMLFrame'
+}
+const SHAPE_VIEW_TYPES = Object.keys(SHAPE_VIEW_TYPE_MAP)
 
 // --- Diagrams ---
 
@@ -787,7 +1015,16 @@ function deleteDataModel(id, reqInfo) {
         return e._parent && e._parent._id === id
     })
     const relationships = app.repository.select('@ERDRelationship').filter(function (r) {
-        return r._parent && r._parent._id === id
+        // ERDRelationship's _parent is set to an Entity, not the DataModel.
+        // Walk up the parent chain to find if this relationship belongs to this data model.
+        let p = r._parent
+        while (p) {
+            if (p._id === id) {
+                return true
+            }
+            p = p._parent
+        }
+        return false
     })
     const diagrams = app.repository.select('@ERDDiagram').filter(function (d) {
         return d._parent && d._parent._id === id
@@ -1809,6 +2046,9 @@ function createRelationship(body, reqInfo) {
     }
 
     const view = app.factory.createModelAndView(options)
+    if (!view || !view.model) {
+        return { success: false, error: 'Failed to create relationship. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+    }
     const rel = view.model
 
     // Set end1 properties
@@ -2402,7 +2642,8 @@ const SEQ_DIAGRAM_ALLOWED_FIELDS = ['parentId', 'name', 'width', 'height', 'docu
 const SEQ_DIAGRAM_UPDATE_FIELDS = ['name', 'documentation']
 const LIFELINE_ALLOWED_FIELDS = ['name', 'documentation', 'diagramId', 'x', 'y', 'height']
 const LIFELINE_UPDATE_FIELDS = ['name', 'documentation']
-const MESSAGE_ALLOWED_FIELDS = ['name', 'messageSort', 'source', 'target', 'diagramId', 'y', 'activationHeight', 'documentation']
+const MESSAGE_ALLOWED_FIELDS = ['name', 'messageSort', 'source', 'target', 'diagramId', 'y', 'x', 'activationHeight', 'documentation', 'messageType']
+const VALID_MESSAGE_TYPES = ['UMLMessage', 'UMLFoundMessage', 'UMLLostMessage']
 const MESSAGE_UPDATE_FIELDS = ['name', 'messageSort', 'documentation']
 const COMBINED_FRAGMENT_ALLOWED_FIELDS = ['name', 'interactionOperator', 'diagramId', 'x', 'y', 'width', 'height', 'documentation']
 const COMBINED_FRAGMENT_UPDATE_FIELDS = ['name', 'interactionOperator', 'documentation']
@@ -2462,7 +2703,10 @@ function createInteraction(body, reqInfo) {
 
     // StarUML requires UMLInteraction to be under UMLCollaboration for proper diagram support.
     // Auto-create a UMLCollaboration under Project if one doesn't exist.
-    let collaboration = app.repository.select('@UMLCollaboration')[0]
+    // Scope to collaborations under this project to avoid using unrelated ones.
+    let collaboration = app.repository.select('@UMLCollaboration').filter(function (c) {
+        return c._parent && c._parent._id === project._id
+    })[0]
     if (!collaboration) {
         collaboration = app.factory.createModel({
             id: 'UMLCollaboration',
@@ -2543,6 +2787,14 @@ function deleteInteraction(id, reqInfo) {
     }
     const name = interaction.name
 
+    // Auto-cleanup UMLEndpoints (auto-created by FoundMessage/LostMessage)
+    const endpoints = (interaction.participants || []).filter(function (p) {
+        return p instanceof type.UMLEndpoint
+    })
+    if (endpoints.length > 0) {
+        app.engine.deleteElements(endpoints, [])
+    }
+
     // Safety check: block deletion if lifelines, messages, fragments, or diagrams exist
     const lifelines = (interaction.participants || [])
     const messages = (interaction.messages || [])
@@ -2558,7 +2810,17 @@ function deleteInteraction(id, reqInfo) {
         )
     }
 
+    const parent = interaction._parent
     app.engine.deleteElements([interaction], [])
+
+    // Clean up auto-created UMLCollaboration if it became empty
+    if (parent && parent instanceof type.UMLCollaboration && parent._parent) {
+        const remaining = (parent.ownedElements || []).length
+        if (remaining === 0) {
+            app.engine.deleteElements([parent], [])
+        }
+    }
+
     return {
         success: true,
         message: 'Deleted interaction "' + name + '"',
@@ -2934,10 +3196,12 @@ function createMessage(interactionId, body, reqInfo) {
         checkUnknownFields(body, MESSAGE_ALLOWED_FIELDS),
         checkFieldType(body, 'name', 'string'),
         checkFieldType(body, 'messageSort', 'string'),
+        checkFieldType(body, 'messageType', 'string'),
         checkFieldType(body, 'source', 'string'),
         checkFieldType(body, 'target', 'string'),
         checkFieldType(body, 'diagramId', 'string'),
         checkFieldType(body, 'y', 'number'),
+        checkFieldType(body, 'x', 'number'),
         checkFieldType(body, 'activationHeight', 'number'),
         checkFieldType(body, 'documentation', 'string')
     ])
@@ -2945,15 +3209,31 @@ function createMessage(interactionId, body, reqInfo) {
         return validationError(err, reqInfo, body)
     }
 
+    const msgType = body.messageType || 'UMLMessage'
+    if (VALID_MESSAGE_TYPES.indexOf(msgType) === -1) {
+        return validationError('Invalid messageType "' + msgType + '". Allowed values: ' + VALID_MESSAGE_TYPES.join(', '), reqInfo, body)
+    }
+
     if (body.messageSort !== undefined && VALID_MESSAGE_SORTS.indexOf(body.messageSort) === -1) {
         return validationError('Invalid messageSort "' + body.messageSort + '". Allowed values: ' + VALID_MESSAGE_SORTS.join(', '), reqInfo, body)
     }
 
-    if (!body.source) {
-        return validationError('Field "source" is required (lifeline ID)', reqInfo, body)
-    }
-    if (!body.target) {
-        return validationError('Field "target" is required (lifeline ID)', reqInfo, body)
+    // Validate required fields based on messageType
+    if (msgType === 'UMLFoundMessage') {
+        if (!body.target) {
+            return validationError('Field "target" is required for UMLFoundMessage (target lifeline ID)', reqInfo, body)
+        }
+    } else if (msgType === 'UMLLostMessage') {
+        if (!body.source) {
+            return validationError('Field "source" is required for UMLLostMessage (source lifeline ID)', reqInfo, body)
+        }
+    } else {
+        if (!body.source) {
+            return validationError('Field "source" is required (lifeline ID)', reqInfo, body)
+        }
+        if (!body.target) {
+            return validationError('Field "target" is required (lifeline ID)', reqInfo, body)
+        }
     }
     if (!body.diagramId) {
         return validationError('Field "diagramId" is required for message creation', reqInfo, body)
@@ -2964,40 +3244,15 @@ function createMessage(interactionId, body, reqInfo) {
         return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
     }
 
-    const sourceLifeline = findById(body.source)
-    if (!sourceLifeline || !(sourceLifeline instanceof type.UMLLifeline)) {
-        return validationError('source must refer to a UMLLifeline. Not found or wrong type: ' + body.source, reqInfo, body)
-    }
-
-    const targetLifeline = findById(body.target)
-    if (!targetLifeline || !(targetLifeline instanceof type.UMLLifeline)) {
-        return validationError('target must refer to a UMLLifeline. Not found or wrong type: ' + body.target, reqInfo, body)
-    }
-
     const diagram = findById(body.diagramId)
     if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
         return validationError('diagramId must refer to a UMLSequenceDiagram. Not found or wrong type: ' + body.diagramId, reqInfo, body)
     }
 
-    // Find lifeline views on the diagram
-    const tailView = findViewOnDiagram(diagram, sourceLifeline._id)
-    const headView = findViewOnDiagram(diagram, targetLifeline._id)
-
-    if (!tailView) {
-        return validationError('source lifeline "' + sourceLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
-    }
-    if (!headView) {
-        return validationError('target lifeline "' + targetLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
-    }
-
     const options = {
-        id: 'UMLMessage',
+        id: msgType,
         parent: interaction,
         diagram: diagram,
-        tailModel: sourceLifeline,
-        headModel: targetLifeline,
-        tailView: tailView,
-        headView: headView,
         modelInitializer: function (m) {
             m.name = body.name || ''
             if (body.messageSort !== undefined) {
@@ -3009,12 +3264,75 @@ function createMessage(interactionId, body, reqInfo) {
         }
     }
 
-    if (body.y !== undefined) {
-        options.y1 = body.y
-        options.y2 = body.y
+    // Set up source/target based on messageType
+    if (msgType === 'UMLFoundMessage') {
+        // FoundMessage: auto-created endpoint as source, target lifeline required
+        const targetLifeline = findById(body.target)
+        if (!targetLifeline || !(targetLifeline instanceof type.UMLLifeline)) {
+            return validationError('target must refer to a UMLLifeline. Not found or wrong type: ' + body.target, reqInfo, body)
+        }
+        const headView = findViewOnDiagram(diagram, targetLifeline._id)
+        if (!headView) {
+            return validationError('target lifeline "' + targetLifeline.name + '" does not have a view on diagram "' + diagram.name + '"', reqInfo, body)
+        }
+        options.headModel = targetLifeline
+        options.headView = headView
+        // x1,y1 = endpoint position; x2,y2 = head position
+        if (body.x !== undefined) { options.x1 = body.x }
+        if (body.y !== undefined) {
+            options.y1 = body.y
+            options.y2 = body.y
+        }
+    } else if (msgType === 'UMLLostMessage') {
+        // LostMessage: source lifeline required, auto-created endpoint as target
+        const sourceLifeline = findById(body.source)
+        if (!sourceLifeline || !(sourceLifeline instanceof type.UMLLifeline)) {
+            return validationError('source must refer to a UMLLifeline. Not found or wrong type: ' + body.source, reqInfo, body)
+        }
+        const tailView = findViewOnDiagram(diagram, sourceLifeline._id)
+        if (!tailView) {
+            return validationError('source lifeline "' + sourceLifeline.name + '" does not have a view on diagram "' + diagram.name + '"', reqInfo, body)
+        }
+        options.tailModel = sourceLifeline
+        options.tailView = tailView
+        // x2,y2 = endpoint position
+        if (body.x !== undefined) { options.x2 = body.x }
+        if (body.y !== undefined) {
+            options.y1 = body.y
+            options.y2 = body.y
+        }
+    } else {
+        // Regular UMLMessage: both source and target required
+        const sourceLifeline = findById(body.source)
+        if (!sourceLifeline || !(sourceLifeline instanceof type.UMLLifeline)) {
+            return validationError('source must refer to a UMLLifeline. Not found or wrong type: ' + body.source, reqInfo, body)
+        }
+        const targetLifeline = findById(body.target)
+        if (!targetLifeline || !(targetLifeline instanceof type.UMLLifeline)) {
+            return validationError('target must refer to a UMLLifeline. Not found or wrong type: ' + body.target, reqInfo, body)
+        }
+        const tailView = findViewOnDiagram(diagram, sourceLifeline._id)
+        const headView = findViewOnDiagram(diagram, targetLifeline._id)
+        if (!tailView) {
+            return validationError('source lifeline "' + sourceLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
+        }
+        if (!headView) {
+            return validationError('target lifeline "' + targetLifeline.name + '" does not have a view on diagram "' + diagram.name + '". Add the lifeline to the diagram first.', reqInfo, body)
+        }
+        options.tailModel = sourceLifeline
+        options.headModel = targetLifeline
+        options.tailView = tailView
+        options.headView = headView
+        if (body.y !== undefined) {
+            options.y1 = body.y
+            options.y2 = body.y
+        }
     }
 
     const view = app.factory.createModelAndView(options)
+    if (!view || !view.model) {
+        return { success: false, error: 'Failed to create message. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+    }
     const msg = view.model
 
     // Resize activation bar if activationHeight is specified
@@ -3024,7 +3342,7 @@ function createMessage(interactionId, body, reqInfo) {
 
     return {
         success: true,
-        message: 'Created message "' + (msg.name || msg._id) + '" with view on diagram "' + diagram.name + '"',
+        message: 'Created ' + msgType + ' "' + (msg.name || msg._id) + '" with view on diagram "' + diagram.name + '"',
         request: Object.assign({}, reqInfo, { body: body }),
         data: serializeMessage(msg)
     }
@@ -3174,7 +3492,15 @@ function createCombinedFragment(interactionId, body, reqInfo) {
                 }
             }
         }
-        const view = app.factory.createModelAndView(options)
+        let view
+        try {
+            view = app.factory.createModelAndView(options)
+        } catch (e) {
+            return { success: false, error: 'Failed to create combined fragment: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        if (!view || !view.model) {
+            return { success: false, error: 'Failed to create combined fragment view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
         return {
             success: true,
             message: 'Created combined fragment "' + (view.model.name || view.model.interactionOperator) + '" with view on diagram "' + diagram.name + '"',
@@ -3454,13 +3780,6 @@ function createStateInvariant(interactionId, body, reqInfo) {
         return { success: false, error: 'Interaction not found: ' + interactionId, request: Object.assign({}, reqInfo, { body: body }) }
     }
 
-    if (body.covered) {
-        const coveredLifeline = findById(body.covered)
-        if (!coveredLifeline || !(coveredLifeline instanceof type.UMLLifeline)) {
-            return validationError('covered must refer to a UMLLifeline. Not found or wrong type: ' + body.covered, reqInfo, body)
-        }
-    }
-
     if (body.diagramId) {
         const diagram = findById(body.diagramId)
         if (!diagram || !(diagram instanceof type.UMLSequenceDiagram)) {
@@ -3712,7 +4031,15 @@ function createInteractionUse(interactionId, body, reqInfo) {
                 }
             }
         }
-        const view = app.factory.createModelAndView(options)
+        let view
+        try {
+            view = app.factory.createModelAndView(options)
+        } catch (e) {
+            return { success: false, error: 'Failed to create interaction use: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        if (!view || !view.model) {
+            return { success: false, error: 'Failed to create interaction use view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
         return {
             success: true,
             message: 'Created interaction use "' + (view.model.name || view.model._id) + '" with view on diagram',
@@ -3741,6 +4068,10 @@ function createInteractionUse(interactionId, body, reqInfo) {
             }
         }
     })
+
+    if (!iu) {
+        return { success: false, error: 'Failed to create interaction use. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+    }
 
     return {
         success: true,
@@ -3913,7 +4244,9 @@ function exportDiagramImage(id, body, reqInfo) {
         const appPath = app.getAppPath()
         const diagramExport = require(nodePath.join(appPath, 'src', 'engine', 'diagram-export'))
 
-        if (format === 'svg') {
+        if (format === 'pdf') {
+            diagramExport.exportToPDF([diagram], body.path, { showName: true })
+        } else if (format === 'svg') {
             diagramExport.exportToSVG(diagram, body.path)
         } else if (format === 'jpeg') {
             diagramExport.exportToJPEG(diagram, body.path)
@@ -3972,24 +4305,36 @@ function createNote(diagramId, body, reqInfo) {
         return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
     }
 
-    const view = app.factory.createModelAndView({
-        id: 'Note',
-        diagram: diagram,
-        x1: body.x1 !== undefined ? body.x1 : 100,
-        y1: body.y1 !== undefined ? body.y1 : 100,
-        x2: body.x2 !== undefined ? body.x2 : 250,
-        y2: body.y2 !== undefined ? body.y2 : 180
-    })
+    try {
+        const view = app.factory.createModelAndView({
+            id: 'Note',
+            diagram: diagram,
+            x1: body.x1 !== undefined ? body.x1 : 100,
+            y1: body.y1 !== undefined ? body.y1 : 100,
+            x2: body.x2 !== undefined ? body.x2 : 250,
+            y2: body.y2 !== undefined ? body.y2 : 180
+        })
 
-    if (body.text !== undefined) {
-        app.engine.setProperty(view, 'text', body.text)
-    }
+        if (!view) {
+            return { success: false, error: 'Failed to create note. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
 
-    return {
-        success: true,
-        message: 'Created note on diagram "' + (diagram.name || diagramId) + '"',
-        request: Object.assign({}, reqInfo, { body: body }),
-        data: serializeNoteView(view)
+        if (body.text !== undefined) {
+            app.engine.setProperty(view, 'text', body.text)
+        }
+
+        return {
+            success: true,
+            message: 'Created note on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeNoteView(view)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create note: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
     }
 }
 
@@ -4102,12 +4447,20 @@ function createNoteLink(diagramId, body, reqInfo) {
         return validationError('targetId must refer to a view on this diagram. Not found: ' + body.targetId, reqInfo, body)
     }
 
-    const view = app.factory.createModelAndView({
-        id: 'NoteLink',
-        diagram: diagram,
-        tailView: noteView,
-        headView: targetView
-    })
+    let view
+    try {
+        view = app.factory.createModelAndView({
+            id: 'NoteLink',
+            diagram: diagram,
+            tailView: noteView,
+            headView: targetView
+        })
+    } catch (e) {
+        return { success: false, error: 'Failed to create note link: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+    }
+    if (!view) {
+        return { success: false, error: 'Failed to create note link. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+    }
 
     return {
         success: true,
@@ -4166,20 +4519,32 @@ function createFreeLine(diagramId, body, reqInfo) {
         return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
     }
 
-    const view = app.factory.createModelAndView({
-        id: 'FreeLine',
-        diagram: diagram,
-        x1: body.x1 !== undefined ? body.x1 : 100,
-        y1: body.y1 !== undefined ? body.y1 : 100,
-        x2: body.x2 !== undefined ? body.x2 : 300,
-        y2: body.y2 !== undefined ? body.y2 : 200
-    })
+    try {
+        const view = app.factory.createModelAndView({
+            id: 'FreeLine',
+            diagram: diagram,
+            x1: body.x1 !== undefined ? body.x1 : 100,
+            y1: body.y1 !== undefined ? body.y1 : 100,
+            x2: body.x2 !== undefined ? body.x2 : 300,
+            y2: body.y2 !== undefined ? body.y2 : 200
+        })
 
-    return {
-        success: true,
-        message: 'Created free line on diagram "' + (diagram.name || diagramId) + '"',
-        request: Object.assign({}, reqInfo, { body: body }),
-        data: serializeFreeLineView(view)
+        if (!view) {
+            return { success: false, error: 'Failed to create free line. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        return {
+            success: true,
+            message: 'Created free line on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeFreeLineView(view)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create free line: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
     }
 }
 
@@ -4192,6 +4557,182 @@ function deleteFreeLine(id, reqInfo) {
     return {
         success: true,
         message: 'Deleted free line',
+        request: reqInfo,
+        data: { deleted: id }
+    }
+}
+
+// --- Shapes (view-only elements) ---
+
+function serializeShapeView(view) {
+    if (!view) {
+        return null
+    }
+    const result = {
+        _id: view._id,
+        _type: view.constructor.name,
+        shapeType: SHAPE_VIEW_TYPE_MAP[view.constructor.name] || view.constructor.name,
+        left: view.left !== undefined ? view.left : 0,
+        top: view.top !== undefined ? view.top : 0,
+        width: view.width !== undefined ? view.width : 0,
+        height: view.height !== undefined ? view.height : 0
+    }
+    if (view.text !== undefined) {
+        result.text = view.text
+    }
+    if (view.model && view.model.url !== undefined) {
+        result.url = view.model.url
+    }
+    if (view.model && view.model.imageFile !== undefined) {
+        result.imageFile = view.model.imageFile
+    }
+    return result
+}
+
+function getDiagramShapes(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const shapes = diagram.ownedViews.filter(function (v) {
+        return SHAPE_VIEW_TYPES.indexOf(v.constructor.name) !== -1
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + shapes.length + ' shape(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: shapes.map(function (v) { return serializeShapeView(v) })
+    }
+}
+
+function createShape(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, SHAPE_CREATE_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'text', 'string'),
+        checkFieldType(body, 'url', 'string'),
+        checkFieldType(body, 'imageFile', 'string'),
+        checkFieldType(body, 'x1', 'number'),
+        checkFieldType(body, 'y1', 'number'),
+        checkFieldType(body, 'x2', 'number'),
+        checkFieldType(body, 'y2', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required', reqInfo, body)
+    }
+
+    if (ALLOWED_SHAPE_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid shape type "' + body.type + '". Allowed: ' + ALLOWED_SHAPE_TYPES.join(', '), reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    try {
+        const view = app.factory.createModelAndView({
+            id: body.type,
+            diagram: diagram,
+            x1: body.x1 !== undefined ? body.x1 : 100,
+            y1: body.y1 !== undefined ? body.y1 : 100,
+            x2: body.x2 !== undefined ? body.x2 : 200,
+            y2: body.y2 !== undefined ? body.y2 : 150
+        })
+
+        if (body.text !== undefined) {
+            app.engine.setProperty(view, 'text', body.text)
+        }
+        if (body.url !== undefined && view.model) {
+            app.engine.setProperty(view.model, 'url', body.url)
+        }
+        if (body.imageFile !== undefined && view.model) {
+            app.engine.setProperty(view.model, 'imageFile', body.imageFile)
+        }
+
+        return {
+            success: true,
+            message: 'Created shape "' + body.type + '" on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeShapeView(view)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create shape: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function getShape(id, reqInfo) {
+    const view = findById(id)
+    if (!view || SHAPE_VIEW_TYPES.indexOf(view.constructor.name) === -1) {
+        return { success: false, error: 'Shape not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved shape',
+        request: reqInfo,
+        data: serializeShapeView(view)
+    }
+}
+
+function updateShape(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, SHAPE_UPDATE_FIELDS),
+        checkFieldType(body, 'text', 'string'),
+        checkFieldType(body, 'url', 'string'),
+        checkFieldType(body, 'imageFile', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + SHAPE_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const view = findById(id)
+    if (!view || SHAPE_VIEW_TYPES.indexOf(view.constructor.name) === -1) {
+        return { success: false, error: 'Shape not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.text !== undefined) {
+        app.engine.setProperty(view, 'text', body.text)
+        updated.push('text')
+    }
+    if (body.url !== undefined && view.model) {
+        app.engine.setProperty(view.model, 'url', body.url)
+        updated.push('url')
+    }
+    if (body.imageFile !== undefined && view.model) {
+        app.engine.setProperty(view.model, 'imageFile', body.imageFile)
+        updated.push('imageFile')
+    }
+
+    return {
+        success: true,
+        message: 'Updated shape (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeShapeView(view)
+    }
+}
+
+function deleteShape(id, reqInfo) {
+    const view = findById(id)
+    if (!view || SHAPE_VIEW_TYPES.indexOf(view.constructor.name) === -1) {
+        return { success: false, error: 'Shape not found: ' + id, request: reqInfo }
+    }
+    app.engine.deleteElements([], [view])
+    return {
+        success: true,
+        message: 'Deleted shape',
         request: reqInfo,
         data: { deleted: id }
     }
@@ -4489,6 +5030,1657 @@ function generatePostgresqlDDL(body, reqInfo) {
 }
 
 // ============================================================
+// Generic Diagram API
+// ============================================================
+
+function createGenericDiagram(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERIC_DIAGRAM_CREATE_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'parentId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required', reqInfo, body)
+    }
+
+    if (ALLOWED_DIAGRAM_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid diagram type "' + body.type + '". Allowed: ' + ALLOWED_DIAGRAM_TYPES.join(', '), reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    let parent
+    if (body.parentId) {
+        parent = findById(body.parentId)
+        if (!parent) {
+            return validationError('Parent not found: ' + body.parentId, reqInfo, body)
+        }
+    } else {
+        parent = app.project.getProject()
+        if (!parent) {
+            return validationError('No project found. Open a project first.', reqInfo, body)
+        }
+    }
+
+    try {
+        const diagram = app.factory.createDiagram({
+            id: body.type,
+            parent: parent,
+            diagramInitializer: function (d) {
+                if (body.name) {
+                    d.name = body.name
+                }
+            }
+        })
+
+        if (!diagram) {
+            return { success: false, error: 'Failed to create diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        return {
+            success: true,
+            message: 'Created diagram "' + diagram.name + '" (' + body.type + ')',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeGenericDiagramDetail(diagram)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create diagram: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function getGenericDiagram(id, reqInfo) {
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved diagram "' + (diagram.name || id) + '"',
+        request: reqInfo,
+        data: serializeGenericDiagramDetail(diagram)
+    }
+}
+
+function updateGenericDiagram(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, ['name']),
+        checkFieldType(body, 'name', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: name', reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (body.name !== undefined) {
+        app.engine.setProperty(diagram, 'name', body.name)
+    }
+
+    return {
+        success: true,
+        message: 'Updated diagram "' + diagram.name + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeGenericDiagramDetail(diagram)
+    }
+}
+
+// Auto-created container types that should be cleaned up when empty
+const AUTO_CONTAINER_TYPES = [
+    'UMLModel', 'UMLStateMachine', 'UMLActivity',
+    'UMLInteraction', 'UMLCollaboration',
+    'FCFlowchart', 'DFDDataFlowModel',
+    'BPMNProcess', 'BPMNCollaboration',
+    'C4Model',
+    'SysMLRequirement', 'SysMLBlock',
+    'WFWireframe',
+    'MMMindmap',
+    'AWSModel',
+    'AzureModel',
+    'GCPModel'
+]
+
+function isAutoContainer(elem) {
+    return elem && AUTO_CONTAINER_TYPES.indexOf(elem.constructor.name) !== -1
+}
+
+function deleteGenericDiagram(id, reqInfo) {
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: reqInfo }
+    }
+    const name = diagram.name
+    const parent = diagram._parent
+    const viewsToDelete = diagram.ownedViews.slice()
+    const modelsToDelete = [diagram]
+    const modelIdSet = {}
+    modelIdSet[diagram._id] = true
+
+    // Collect model objects referenced by views on this diagram
+    // Only delete if the model has no views on other diagrams
+    viewsToDelete.forEach(function (view) {
+        if (view.model && view.model._id && !modelIdSet[view.model._id]) {
+            const viewsOfModel = app.repository.getViewsOf(view.model) || []
+            const viewsOnOtherDiagrams = viewsOfModel.filter(function (v) {
+                return v._parent && v._parent._id !== diagram._id
+            })
+            if (viewsOnOtherDiagrams.length === 0) {
+                modelIdSet[view.model._id] = true
+                modelsToDelete.push(view.model)
+            }
+        }
+    })
+
+    // If parent is an auto-created container, collect the container chain for deletion
+    // Only delete containers that have no other children besides what we're already deleting
+    if (parent && parent._parent && isAutoContainer(parent)) {
+        let container = parent
+        while (container && container._parent && isAutoContainer(container)) {
+            if (!modelIdSet[container._id]) {
+                const otherChildren = (container.ownedElements || []).filter(function (child) {
+                    return !modelIdSet[child._id]
+                })
+                if (otherChildren.length === 0) {
+                    modelIdSet[container._id] = true
+                    modelsToDelete.push(container)
+                } else {
+                    break
+                }
+            }
+            container = container._parent
+        }
+    }
+
+    app.engine.deleteElements(modelsToDelete, viewsToDelete)
+
+    return {
+        success: true,
+        message: 'Deleted diagram "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+function serializeGenericDiagramDetail(diagram) {
+    if (!diagram) {
+        return null
+    }
+    return {
+        _id: diagram._id,
+        _type: diagram.constructor.name,
+        name: diagram.name || '',
+        _parentId: diagram._parent ? diagram._parent._id : null,
+        ownedViewsCount: diagram.ownedViews ? diagram.ownedViews.length : 0
+    }
+}
+
+function getDiagramElements(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const elements = diagram.ownedViews.map(function (view) {
+        const result = {
+            _id: view._id,
+            _type: view.constructor.name
+        }
+        if (view.model) {
+            result.modelId = view.model._id
+            result.modelType = view.model.constructor.name
+            result.name = view.model.name || ''
+        }
+        if (view.left !== undefined) {
+            result.left = view.left
+        }
+        if (view.top !== undefined) {
+            result.top = view.top
+        }
+        if (view.width !== undefined) {
+            result.width = view.width
+        }
+        if (view.height !== undefined) {
+            result.height = view.height
+        }
+        return result
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + elements.length + ' element(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: elements
+    }
+}
+
+function createDiagramElement(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERIC_ELEMENT_CREATE_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'x1', 'number'),
+        checkFieldType(body, 'y1', 'number'),
+        checkFieldType(body, 'x2', 'number'),
+        checkFieldType(body, 'y2', 'number'),
+        checkFieldType(body, 'pseudostateKind', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required', reqInfo, body)
+    }
+
+    if (ALLOWED_NODE_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid element type "' + body.type + '". Allowed: ' + ALLOWED_NODE_TYPES.join(', '), reqInfo, body)
+    }
+
+    if (body.pseudostateKind !== undefined && VALID_PSEUDOSTATE_KINDS.indexOf(body.pseudostateKind) === -1) {
+        return validationError('Invalid pseudostateKind "' + body.pseudostateKind + '". Allowed: ' + VALID_PSEUDOSTATE_KINDS.join(', '), reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    // Determine parent model based on diagram type
+    let parent = diagram._parent
+    if (!parent) {
+        return validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
+    }
+
+    const x1 = body.x1 !== undefined ? body.x1 : 100
+    const y1 = body.y1 !== undefined ? body.y1 : 100
+    const x2 = body.x2 !== undefined ? body.x2 : 200
+    const y2 = body.y2 !== undefined ? body.y2 : 180
+
+    // Build factory options
+    const factoryOpts = {
+        id: body.type,
+        parent: parent,
+        diagram: diagram,
+        x1: x1,
+        y1: y1,
+        x2: x2,
+        y2: y2
+    }
+
+    // attachToViewId: used for elements that require a tailView (e.g., UMLTimeTick, UMLTimeConstraint)
+    if (body.attachToViewId) {
+        const attachView = app.repository.get(body.attachToViewId)
+        if (!attachView) {
+            return validationError('attachToViewId not found: ' + body.attachToViewId, reqInfo, body)
+        }
+        factoryOpts.tailView = attachView
+        if (attachView.model) {
+            factoryOpts.tailModel = attachView.model
+        }
+    }
+
+    try {
+        const view = app.factory.createModelAndView(factoryOpts)
+
+        const model = view.model || view
+
+        if (body.name && model && typeof model._id === 'string') {
+            app.engine.setProperty(model, 'name', body.name)
+        }
+
+        if (body.pseudostateKind && model && model.constructor.name === 'UMLPseudostate') {
+            app.engine.setProperty(model, 'kind', body.pseudostateKind)
+        }
+
+        const data = {
+            _id: view._id,
+            _type: view.constructor.name
+        }
+        if (model && model._id) {
+            data.modelId = model._id
+            data.modelType = model.constructor.name
+            data.name = model.name || ''
+        }
+        if (view.left !== undefined) {
+            data.left = view.left
+        }
+        if (view.top !== undefined) {
+            data.top = view.top
+        }
+        if (view.width !== undefined) {
+            data.width = view.width
+        }
+        if (view.height !== undefined) {
+            data.height = view.height
+        }
+
+        return {
+            success: true,
+            message: 'Created element "' + (model ? model.name || body.type : body.type) + '" on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: data
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create element: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function createDiagramRelation(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERIC_RELATION_CREATE_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'sourceId', 'string'),
+        checkFieldType(body, 'targetId', 'string'),
+        checkFieldType(body, 'name', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required', reqInfo, body)
+    }
+    if (!body.sourceId) {
+        return validationError('Field "sourceId" is required', reqInfo, body)
+    }
+    if (!body.targetId) {
+        return validationError('Field "targetId" is required', reqInfo, body)
+    }
+
+    if (ALLOWED_RELATION_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid relation type "' + body.type + '". Allowed: ' + ALLOWED_RELATION_TYPES.join(', '), reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const tailView = findViewOnDiagramByAnyId(diagram, body.sourceId)
+    if (!tailView) {
+        return validationError('Source element not found on diagram: ' + body.sourceId, reqInfo, body)
+    }
+
+    const headView = findViewOnDiagramByAnyId(diagram, body.targetId)
+    if (!headView) {
+        return validationError('Target element not found on diagram: ' + body.targetId, reqInfo, body)
+    }
+
+    let parent = diagram._parent
+    if (!parent) {
+        return validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
+    }
+
+    try {
+        const options = {
+            id: body.type,
+            parent: parent,
+            diagram: diagram,
+            tailView: tailView,
+            headView: headView
+        }
+        // Some relations need tailModel/headModel explicitly
+        if (tailView.model) {
+            options.tailModel = tailView.model
+        }
+        if (headView.model) {
+            options.headModel = headView.model
+        }
+        const view = app.factory.createModelAndView(options)
+
+        const model = view.model || view
+
+        if (body.name && model && typeof model._id === 'string') {
+            app.engine.setProperty(model, 'name', body.name)
+        }
+
+        const data = {
+            _id: view._id,
+            _type: view.constructor.name
+        }
+        if (model && model._id) {
+            data.modelId = model._id
+            data.modelType = model.constructor.name
+            data.name = model.name || ''
+        }
+
+        return {
+            success: true,
+            message: 'Created relation "' + (model ? model.name || body.type : body.type) + '" on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: data
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create relation: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function createChildElement(parentId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERIC_CHILD_CREATE_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'field', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required', reqInfo, body)
+    }
+
+    if (ALLOWED_CHILD_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid child type "' + body.type + '". Allowed: ' + ALLOWED_CHILD_TYPES.join(', '), reqInfo, body)
+    }
+
+    const parent = findById(parentId)
+    if (!parent) {
+        return { success: false, error: 'Parent element not found: ' + parentId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const field = body.field || CHILD_TYPE_DEFAULT_FIELDS[body.type] || null
+
+    const options = {
+        id: body.type,
+        parent: parent
+    }
+    if (field) {
+        options.field = field
+    }
+
+    try {
+        const model = app.factory.createModel(options)
+
+        if (body.name && model) {
+            app.engine.setProperty(model, 'name', body.name)
+        }
+
+        return {
+            success: true,
+            message: 'Created child "' + (model ? model.name || body.type : body.type) + '" under "' + (parent.name || parentId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeElement(model)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create child: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function updateViewStyle(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, STYLE_ALLOWED_FIELDS),
+        checkFieldType(body, 'fillColor', 'string'),
+        checkFieldType(body, 'lineColor', 'string'),
+        checkFieldType(body, 'fontColor', 'string'),
+        checkFieldType(body, 'fontFace', 'string'),
+        checkFieldType(body, 'fontSize', 'number'),
+        checkFieldType(body, 'fontStyle', 'number'),
+        checkFieldType(body, 'lineStyle', 'number'),
+        checkFieldType(body, 'showShadow', 'boolean')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + STYLE_ALLOWED_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const view = findById(id)
+    if (!view) {
+        return { success: false, error: 'View not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+
+    if (body.fillColor !== undefined) {
+        app.engine.setProperty(view, 'fillColor', body.fillColor)
+        updated.push('fillColor')
+    }
+    if (body.lineColor !== undefined) {
+        app.engine.setProperty(view, 'lineColor', body.lineColor)
+        updated.push('lineColor')
+    }
+    if (body.fontColor !== undefined) {
+        app.engine.setProperty(view, 'fontColor', body.fontColor)
+        updated.push('fontColor')
+    }
+    if (body.showShadow !== undefined) {
+        app.engine.setProperty(view, 'showShadow', body.showShadow)
+        updated.push('showShadow')
+    }
+    if (body.lineStyle !== undefined) {
+        app.engine.setProperty(view, 'lineStyle', body.lineStyle)
+        updated.push('lineStyle')
+    }
+
+    // Font properties: set together via Font object if any font field is provided
+    if (body.fontFace !== undefined || body.fontSize !== undefined || body.fontStyle !== undefined) {
+        const currentFont = view.font || {}
+        const face = body.fontFace !== undefined ? body.fontFace : (currentFont.face || 'Arial')
+        const size = body.fontSize !== undefined ? body.fontSize : (currentFont.size || 13)
+        const style = body.fontStyle !== undefined ? body.fontStyle : (currentFont.style || 0)
+        app.engine.setProperty(view, 'font', face + ';' + size + ';' + style)
+        if (body.fontFace !== undefined) updated.push('fontFace')
+        if (body.fontSize !== undefined) updated.push('fontSize')
+        if (body.fontStyle !== undefined) updated.push('fontStyle')
+    }
+
+    return {
+        success: true,
+        message: 'Updated style (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeViewInfo(view)
+    }
+}
+
+function undoAction(reqInfo) {
+    try {
+        app.repository.undo()
+        return {
+            success: true,
+            message: 'Undo executed',
+            request: reqInfo
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to undo: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+function redoAction(reqInfo) {
+    try {
+        app.repository.redo()
+        return {
+            success: true,
+            message: 'Redo executed',
+            request: reqInfo
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to redo: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+function searchElements(query, reqInfo) {
+    const allowedParams = ['keyword', 'type']
+    const unknownParams = Object.keys(query).filter(function (k) {
+        return allowedParams.indexOf(k) === -1
+    })
+    if (unknownParams.length > 0) {
+        return validationError('Unknown query parameter(s): ' + unknownParams.join(', ') + '. Allowed: ' + allowedParams.join(', '), reqInfo)
+    }
+
+    if (!query.keyword) {
+        return validationError('Query parameter "keyword" is required', reqInfo)
+    }
+
+    let results = app.repository.search(query.keyword)
+
+    if (query.type) {
+        results = results.filter(function (elem) {
+            return elem.constructor.name === query.type
+        })
+    }
+
+    const data = results.map(function (elem) {
+        return {
+            _id: elem._id,
+            _type: elem.constructor.name,
+            name: elem.name || '',
+            _parentId: elem._parent ? elem._parent._id : null
+        }
+    })
+
+    return {
+        success: true,
+        message: 'Found ' + data.length + ' element(s)',
+        request: reqInfo,
+        data: data
+    }
+}
+
+function layoutDiagram(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, LAYOUT_ALLOWED_FIELDS),
+        checkFieldType(body, 'direction', 'string'),
+        checkFieldType(body, 'separations', 'object'),
+        checkFieldType(body, 'edgeLineStyle', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const direction = body.direction || 'TB'
+    if (VALID_LAYOUT_DIRECTIONS.indexOf(direction) === -1) {
+        return validationError('Invalid direction "' + direction + '". Allowed: ' + VALID_LAYOUT_DIRECTIONS.join(', '), reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const separations = body.separations || { node: 20, edge: 10, rank: 50 }
+    const edgeLineStyle = body.edgeLineStyle !== undefined ? body.edgeLineStyle : 1
+
+    try {
+        const editor = app.diagrams.getEditor()
+        app.engine.layoutDiagram(editor, diagram, direction, separations, edgeLineStyle)
+
+        return {
+            success: true,
+            message: 'Layout applied to diagram "' + (diagram.name || diagramId) + '" (direction: ' + direction + ')',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeGenericDiagramDetail(diagram)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to layout diagram: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+function importProject(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, IMPORT_ALLOWED_FIELDS),
+        checkFieldType(body, 'path', 'string'),
+        checkFieldType(body, 'parentId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+
+    const pathErr = checkNonEmptyString(body, 'path')
+    if (pathErr) {
+        return validationError(pathErr, reqInfo, body)
+    }
+
+    if (body.path.charAt(0) !== '/' && !/^[a-zA-Z]:[/\\]/.test(body.path)) {
+        return validationError('Field "path" must be an absolute path', reqInfo, body)
+    }
+
+    let parent
+    if (body.parentId) {
+        parent = findById(body.parentId)
+        if (!parent) {
+            return validationError('Parent not found: ' + body.parentId, reqInfo, body)
+        }
+    } else {
+        parent = app.project.getProject()
+        if (!parent) {
+            return validationError('No project found. Open a project first.', reqInfo, body)
+        }
+    }
+
+    try {
+        app.project.importFromFile(parent, body.path)
+        return {
+            success: true,
+            message: 'Imported from "' + body.path + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { path: body.path }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to import: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// ============================================================
+// Phase 3: New API Endpoints
+// ============================================================
+
+// --- 3B. Export All Diagrams ---
+
+const EXPORT_ALL_ALLOWED_FIELDS = ['path', 'format']
+
+function exportAllDiagrams(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, EXPORT_ALL_ALLOWED_FIELDS),
+        checkFieldType(body, 'path', 'string'),
+        checkFieldType(body, 'format', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+
+    const pathErr = checkNonEmptyString(body, 'path')
+    if (pathErr) {
+        return validationError(pathErr, reqInfo, body)
+    }
+
+    if (body.path.charAt(0) !== '/' && !/^[a-zA-Z]:[/\\]/.test(body.path)) {
+        return validationError('Field "path" must be an absolute path', reqInfo, body)
+    }
+
+    const format = (body.format || 'png').toLowerCase()
+    if (VALID_EXPORT_FORMATS.indexOf(format) === -1) {
+        return validationError('Invalid format "' + body.format + '". Allowed: ' + VALID_EXPORT_FORMATS.join(', '), reqInfo, body)
+    }
+
+    const diagrams = app.repository.select('@Diagram')
+    if (diagrams.length === 0) {
+        return validationError('No diagrams found in project', reqInfo, body)
+    }
+
+    try {
+        const nodePath = require('path')
+        const appPath = app.getAppPath()
+        const diagramExport = require(nodePath.join(appPath, 'src', 'engine', 'diagram-export'))
+
+        const exported = []
+        diagrams.forEach(function (diagram) {
+            const fileName = (diagram.name || diagram._id).replace(/[/\\:*?"<>|]/g, '_')
+            const filePath = nodePath.join(body.path, fileName + '.' + format)
+            if (format === 'pdf') {
+                diagramExport.exportToPDF([diagram], filePath, { showName: true })
+            } else if (format === 'svg') {
+                diagramExport.exportToSVG(diagram, filePath)
+            } else if (format === 'jpeg') {
+                diagramExport.exportToJPEG(diagram, filePath)
+            } else {
+                diagramExport.exportToPNG(diagram, filePath)
+            }
+            exported.push({ name: diagram.name, path: filePath })
+        })
+
+        return {
+            success: true,
+            message: 'Exported ' + exported.length + ' diagram(s) to "' + body.path + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { count: exported.length, format: format, files: exported }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to export diagrams: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- 3C. Project Operations ---
+
+function newProject(reqInfo) {
+    try {
+        app.commands.execute('project:new')
+        return {
+            success: true,
+            message: 'Created new project',
+            request: reqInfo
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create new project: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+function closeProject(reqInfo) {
+    try {
+        app.commands.execute('project:close')
+        return {
+            success: true,
+            message: 'Closed project',
+            request: reqInfo
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to close project: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+const FRAGMENT_EXPORT_ALLOWED_FIELDS = ['elementId', 'path']
+
+function exportFragment(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, FRAGMENT_EXPORT_ALLOWED_FIELDS),
+        checkFieldType(body, 'elementId', 'string'),
+        checkFieldType(body, 'path', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.elementId) {
+        return validationError('Field "elementId" is required', reqInfo, body)
+    }
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+
+    if (body.path.charAt(0) !== '/' && !/^[a-zA-Z]:[/\\]/.test(body.path)) {
+        return validationError('Field "path" must be an absolute path', reqInfo, body)
+    }
+
+    const element = findById(body.elementId)
+    if (!element) {
+        return validationError('Element not found: ' + body.elementId, reqInfo, body)
+    }
+
+    try {
+        app.project.exportToFile(element, body.path)
+        return {
+            success: true,
+            message: 'Exported element "' + (element.name || body.elementId) + '" to "' + body.path + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { elementId: body.elementId, path: body.path }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to export fragment: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- 3D. Create View Of Existing Model ---
+
+const CREATE_VIEW_OF_ALLOWED_FIELDS = ['modelId', 'x', 'y']
+
+function createViewOf(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, CREATE_VIEW_OF_ALLOWED_FIELDS),
+        checkFieldType(body, 'modelId', 'string'),
+        checkFieldType(body, 'x', 'number'),
+        checkFieldType(body, 'y', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.modelId) {
+        return validationError('Field "modelId" is required', reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const model = findById(body.modelId)
+    if (!model) {
+        return validationError('Model not found: ' + body.modelId, reqInfo, body)
+    }
+
+    try {
+        const view = app.factory.createViewOf({
+            model: model,
+            diagram: diagram,
+            x: body.x !== undefined ? body.x : 100,
+            y: body.y !== undefined ? body.y : 100
+        })
+
+        return {
+            success: true,
+            message: 'Created view of "' + (model.name || body.modelId) + '" on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeViewInfo(view)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create view: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- 3E. Element Relationships ---
+
+function getElementRelationships(id, reqInfo) {
+    const element = findById(id)
+    if (!element) {
+        return { success: false, error: 'Element not found: ' + id, request: reqInfo }
+    }
+
+    try {
+        const rels = app.repository.getRelationshipsOf(element)
+        const data = rels.map(function (rel) {
+            const result = {
+                _id: rel._id,
+                _type: rel.constructor.name,
+                name: rel.name || ''
+            }
+            if (rel.source) {
+                result.sourceId = rel.source._id
+            } else if (rel.end1 && rel.end1.reference) {
+                result.sourceId = rel.end1.reference._id
+            }
+            if (rel.target) {
+                result.targetId = rel.target._id
+            } else if (rel.end2 && rel.end2.reference) {
+                result.targetId = rel.end2.reference._id
+            }
+            return result
+        })
+
+        return {
+            success: true,
+            message: 'Retrieved ' + data.length + ' relationship(s) for "' + (element.name || id) + '"',
+            request: reqInfo,
+            data: data
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to get relationships: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+// --- 3F. Model Views ---
+
+function getElementViews(id, reqInfo) {
+    const element = findById(id)
+    if (!element) {
+        return { success: false, error: 'Element not found: ' + id, request: reqInfo }
+    }
+
+    try {
+        const views = app.repository.getViewsOf(element)
+        const data = views.map(function (view) {
+            const result = {
+                viewId: view._id,
+                viewType: view.constructor.name
+            }
+            if (view._parent) {
+                result.diagramId = view._parent._id
+                result.diagramName = view._parent.name || ''
+            }
+            return result
+        })
+
+        return {
+            success: true,
+            message: 'Retrieved ' + data.length + ' view(s) for "' + (element.name || id) + '"',
+            request: reqInfo,
+            data: data
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to get views: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+// --- 3G. Edge Reconnect ---
+
+const RECONNECT_ALLOWED_FIELDS = ['newSourceId', 'newTargetId']
+
+function reconnectEdge(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, RECONNECT_ALLOWED_FIELDS),
+        checkFieldType(body, 'newSourceId', 'string'),
+        checkFieldType(body, 'newTargetId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.newSourceId && !body.newTargetId) {
+        return validationError('At least one of "newSourceId" or "newTargetId" is required', reqInfo, body)
+    }
+
+    const view = findById(id)
+    if (!view) {
+        return { success: false, error: 'View not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const diagram = view._parent
+    if (!diagram || !diagram.ownedViews) {
+        return validationError('View is not on a diagram', reqInfo, body)
+    }
+
+    try {
+        const currentTailView = view.tail
+        const currentHeadView = view.head
+        const newTailView = body.newSourceId ? findViewOnDiagramByAnyId(diagram, body.newSourceId) : currentTailView
+        const newHeadView = body.newTargetId ? findViewOnDiagramByAnyId(diagram, body.newTargetId) : currentHeadView
+
+        if (body.newSourceId && !newTailView) {
+            return validationError('New source not found on diagram: ' + body.newSourceId, reqInfo, body)
+        }
+        if (body.newTargetId && !newHeadView) {
+            return validationError('New target not found on diagram: ' + body.newTargetId, reqInfo, body)
+        }
+
+        const newTailModel = newTailView.model || null
+        const newHeadModel = newHeadView.model || null
+
+        // Update model references (different relationship types use different properties)
+        if (view.model) {
+            if (body.newSourceId && newTailModel) {
+                if (view.model.end1 && typeof view.model.end1.reference !== 'undefined') {
+                    app.engine.setProperty(view.model.end1, 'reference', newTailModel)
+                } else if (typeof view.model.source !== 'undefined') {
+                    app.engine.setProperty(view.model, 'source', newTailModel)
+                }
+            }
+            if (body.newTargetId && newHeadModel) {
+                if (view.model.end2 && typeof view.model.end2.reference !== 'undefined') {
+                    app.engine.setProperty(view.model.end2, 'reference', newHeadModel)
+                } else if (typeof view.model.target !== 'undefined') {
+                    app.engine.setProperty(view.model, 'target', newHeadModel)
+                }
+            }
+        }
+
+        // Update view connections
+        if (body.newSourceId) {
+            app.engine.setProperty(view, 'tail', newTailView)
+        }
+        if (body.newTargetId) {
+            app.engine.setProperty(view, 'head', newHeadView)
+        }
+
+        return {
+            success: true,
+            message: 'Reconnected edge',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeViewInfo(view)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to reconnect edge: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- 3H. Element Relocate ---
+
+const RELOCATE_ALLOWED_FIELDS = ['newParentId', 'field']
+
+function relocateElement(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, RELOCATE_ALLOWED_FIELDS),
+        checkFieldType(body, 'newParentId', 'string'),
+        checkFieldType(body, 'field', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.newParentId) {
+        return validationError('Field "newParentId" is required', reqInfo, body)
+    }
+
+    const element = findById(id)
+    if (!element) {
+        return { success: false, error: 'Element not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const newParent = findById(body.newParentId)
+    if (!newParent) {
+        return validationError('New parent not found: ' + body.newParentId, reqInfo, body)
+    }
+
+    try {
+        const field = body.field || 'ownedElements'
+        app.engine.relocate(element, newParent, field)
+
+        return {
+            success: true,
+            message: 'Relocated "' + (element.name || id) + '" to "' + (newParent.name || body.newParentId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializeElement(element)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to relocate element: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- 3I. Open Diagram ---
+
+function openDiagram(id, reqInfo) {
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: reqInfo }
+    }
+
+    try {
+        app.modelExplorer.select(diagram)
+        app.diagrams.setCurrentDiagram(diagram)
+        return {
+            success: true,
+            message: 'Opened diagram "' + (diagram.name || id) + '"',
+            request: reqInfo,
+            data: serializeGenericDiagramDetail(diagram)
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to open diagram: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+// --- 3J. Model Validation ---
+
+function validateModel(reqInfo) {
+    try {
+        const results = app.commands.execute('model:validate')
+        const data = []
+        if (Array.isArray(results)) {
+            results.forEach(function (r) {
+                data.push({
+                    elementId: r.element ? r.element._id : null,
+                    elementName: r.element ? r.element.name || '' : '',
+                    message: r.message || '',
+                    severity: r.severity || 'error'
+                })
+            })
+        }
+
+        return {
+            success: true,
+            message: 'Validation completed with ' + data.length + ' result(s)',
+            request: reqInfo,
+            data: data
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to validate: ' + (e.message || String(e)),
+            request: reqInfo
+        }
+    }
+}
+
+// --- 3K. Diagram Zoom ---
+
+const ZOOM_ALLOWED_FIELDS = ['level']
+
+function setDiagramZoom(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, ZOOM_ALLOWED_FIELDS),
+        checkFieldType(body, 'level', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (body.level === undefined) {
+        return validationError('Field "level" is required', reqInfo, body)
+    }
+
+    if (body.level < 0.1 || body.level > 10) {
+        return validationError('Field "level" must be between 0.1 and 10', reqInfo, body)
+    }
+
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    try {
+        // Ensure the target diagram is active before setting zoom
+        app.diagrams.setCurrentDiagram(diagram)
+        app.diagrams.setZoomLevel(body.level)
+        return {
+            success: true,
+            message: 'Set zoom level to ' + body.level + ' on diagram "' + (diagram.name || id) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { level: body.level }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to set zoom level: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- #6. Alignment / Distribution ---
+
+const VALID_ALIGNMENT_ACTIONS = [
+    'align-left', 'align-right', 'align-center',
+    'align-top', 'align-bottom', 'align-middle',
+    'space-equally-horizontally', 'space-equally-vertically',
+    'set-width-equally', 'set-height-equally', 'set-size-equally',
+    'send-to-back', 'bring-to-front'
+]
+const ALIGN_ALLOWED_FIELDS = ['viewIds', 'action']
+
+function alignViews(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, ALIGN_ALLOWED_FIELDS),
+        checkFieldType(body, 'action', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.action) {
+        return validationError('Field "action" is required. Allowed: ' + VALID_ALIGNMENT_ACTIONS.join(', '), reqInfo, body)
+    }
+    if (VALID_ALIGNMENT_ACTIONS.indexOf(body.action) === -1) {
+        return validationError('Invalid action "' + body.action + '". Allowed: ' + VALID_ALIGNMENT_ACTIONS.join(', '), reqInfo, body)
+    }
+    if (!body.viewIds || !Array.isArray(body.viewIds) || body.viewIds.length < 2) {
+        return validationError('Field "viewIds" is required and must be an array of at least 2 view IDs', reqInfo, body)
+    }
+
+    // Resolve views
+    const views = []
+    for (let i = 0; i < body.viewIds.length; i++) {
+        const v = app.repository.get(body.viewIds[i])
+        if (!v) {
+            return validationError('View not found: ' + body.viewIds[i], reqInfo, body)
+        }
+        views.push(v)
+    }
+
+    try {
+        // Set selection to the specified views, execute alignment command, then clear
+        app.selections.deselectAll()
+        app.selections.selectViews(views)
+        app.commands.execute('alignment:' + body.action)
+        app.selections.deselectAll()
+
+        return {
+            success: true,
+            message: 'Executed alignment action "' + body.action + '" on ' + views.length + ' views',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { action: body.action, viewCount: views.length }
+        }
+    } catch (e) {
+        app.selections.deselectAll()
+        return {
+            success: false,
+            error: 'Failed to execute alignment: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- #7. Mermaid Import ---
+
+const MERMAID_ALLOWED_FIELDS = ['code', 'parentId']
+const VALID_MERMAID_TYPES = ['classDiagram', 'sequenceDiagram', 'flowchart', 'erDiagram', 'mindmap', 'requirementDiagram', 'stateDiagram']
+
+function importMermaid(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, MERMAID_ALLOWED_FIELDS),
+        checkFieldType(body, 'code', 'string'),
+        checkFieldType(body, 'parentId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.code || body.code.trim() === '') {
+        return validationError('Field "code" is required (Mermaid syntax text)', reqInfo, body)
+    }
+
+    let base = null
+    if (body.parentId) {
+        base = app.repository.get(body.parentId)
+        if (!base) {
+            return validationError('Parent element not found: ' + body.parentId, reqInfo, body)
+        }
+    } else {
+        base = app.project.getProject()
+    }
+
+    try {
+        app.commands.execute('mermaid:generate-diagram', body.code, base)
+        return {
+            success: true,
+            message: 'Mermaid diagram generated successfully',
+            request: Object.assign({}, reqInfo, { body: { code: body.code.substring(0, 100) + '...' } }),
+            data: { supportedTypes: VALID_MERMAID_TYPES }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to generate Mermaid diagram: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: { code: body.code.substring(0, 100) + '...' } })
+        }
+    }
+}
+
+// --- #8. Diagram Generator ---
+
+const VALID_GENERATOR_TYPES = ['overview', 'overview-expanded', 'type-hierarchy', 'package-structure']
+const GENERATOR_ALLOWED_FIELDS = ['type', 'parentId']
+
+function generateDiagram(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERATOR_ALLOWED_FIELDS),
+        checkFieldType(body, 'type', 'string'),
+        checkFieldType(body, 'parentId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.type) {
+        return validationError('Field "type" is required. Allowed: ' + VALID_GENERATOR_TYPES.join(', '), reqInfo, body)
+    }
+    if (VALID_GENERATOR_TYPES.indexOf(body.type) === -1) {
+        return validationError('Invalid generator type "' + body.type + '". Allowed: ' + VALID_GENERATOR_TYPES.join(', '), reqInfo, body)
+    }
+
+    let base = null
+    if (body.parentId) {
+        base = app.repository.get(body.parentId)
+        if (!base) {
+            return validationError('Parent element not found: ' + body.parentId, reqInfo, body)
+        }
+    } else {
+        base = app.project.getProject()
+    }
+
+    try {
+        app.commands.execute('diagram-generator:' + body.type, base, true)
+        return {
+            success: true,
+            message: 'Generated "' + body.type + '" diagram',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { type: body.type }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to generate diagram: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- #9. Move Up / Move Down (Reorder) ---
+
+const REORDER_ALLOWED_FIELDS = ['direction']
+const VALID_REORDER_DIRECTIONS = ['up', 'down']
+
+function reorderElement(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, REORDER_ALLOWED_FIELDS),
+        checkFieldType(body, 'direction', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.direction) {
+        return validationError('Field "direction" is required. Allowed: ' + VALID_REORDER_DIRECTIONS.join(', '), reqInfo, body)
+    }
+    if (VALID_REORDER_DIRECTIONS.indexOf(body.direction) === -1) {
+        return validationError('Invalid direction "' + body.direction + '". Allowed: ' + VALID_REORDER_DIRECTIONS.join(', '), reqInfo, body)
+    }
+
+    const elem = app.repository.get(id)
+    if (!elem) {
+        return { success: false, error: 'Element not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    if (!elem._parent) {
+        return validationError('Element has no parent and cannot be reordered', reqInfo, body)
+    }
+
+    // Find the parent field containing this element
+    let parentField = null
+    const parent = elem._parent
+    const keys = Object.keys(parent)
+    for (let i = 0; i < keys.length; i++) {
+        const val = parent[keys[i]]
+        if (Array.isArray(val) && val.indexOf(elem) !== -1) {
+            parentField = keys[i]
+            break
+        }
+    }
+
+    if (!parentField) {
+        return validationError('Could not determine parent field for element', reqInfo, body)
+    }
+
+    try {
+        if (body.direction === 'up') {
+            app.engine.moveUp(parent, parentField, elem)
+        } else {
+            app.engine.moveDown(parent, parentField, elem)
+        }
+
+        return {
+            success: true,
+            message: 'Moved element "' + (elem.name || id) + '" ' + body.direction + ' in ' + parentField,
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { _id: elem._id, _type: elem.constructor.name, field: parentField }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to reorder: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- #3. UMLLinkObject ---
+
+const LINK_OBJECT_ALLOWED_FIELDS = ['name', 'sourceId', 'targetId', 'x1', 'y1', 'x2', 'y2']
+
+function createLinkObject(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, LINK_OBJECT_ALLOWED_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'sourceId', 'string'),
+        checkFieldType(body, 'targetId', 'string'),
+        checkFieldType(body, 'x1', 'number'),
+        checkFieldType(body, 'y1', 'number'),
+        checkFieldType(body, 'x2', 'number'),
+        checkFieldType(body, 'y2', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.sourceId || !body.targetId) {
+        return validationError('Fields "sourceId" and "targetId" are required (object model IDs)', reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const sourceModel = app.repository.get(body.sourceId)
+    if (!sourceModel) {
+        return validationError('sourceId not found: ' + body.sourceId, reqInfo, body)
+    }
+    const targetModel = app.repository.get(body.targetId)
+    if (!targetModel) {
+        return validationError('targetId not found: ' + body.targetId, reqInfo, body)
+    }
+
+    const tailView = findViewOnDiagram(diagram, body.sourceId)
+    const headView = findViewOnDiagram(diagram, body.targetId)
+    if (!tailView) {
+        return validationError('sourceId does not have a view on this diagram', reqInfo, body)
+    }
+    if (!headView) {
+        return validationError('targetId does not have a view on this diagram', reqInfo, body)
+    }
+
+    const x1 = body.x1 !== undefined ? body.x1 : 200
+    const y1 = body.y1 !== undefined ? body.y1 : 200
+    const x2 = body.x2 !== undefined ? body.x2 : 300
+    const y2 = body.y2 !== undefined ? body.y2 : 250
+
+    try {
+        const view = app.factory.createModelAndView({
+            id: 'UMLLinkObject',
+            parent: diagram._parent,
+            diagram: diagram,
+            tailView: tailView,
+            headView: headView,
+            tailModel: sourceModel,
+            headModel: targetModel,
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2
+        })
+
+        if (!view) {
+            return { success: false, error: 'Failed to create UMLLinkObject. Factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        const model = view.model || view
+        if (body.name && model && typeof model._id === 'string') {
+            app.engine.setProperty(model, 'name', body.name)
+        }
+
+        return {
+            success: true,
+            message: 'Created UMLLinkObject on diagram "' + (diagram.name || diagramId) + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: {
+                _id: view._id,
+                _type: view.constructor.name,
+                modelId: model ? model._id : undefined,
+                modelType: model ? model.constructor.name : undefined,
+                name: model ? model.name || '' : ''
+            }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to create UMLLinkObject: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// --- #10. HTML / Markdown Export ---
+
+const DOC_EXPORT_ALLOWED_FIELDS = ['path', 'format']
+const VALID_DOC_EXPORT_FORMATS = ['html', 'markdown']
+
+function exportDocument(body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, DOC_EXPORT_ALLOWED_FIELDS),
+        checkFieldType(body, 'path', 'string'),
+        checkFieldType(body, 'format', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+    if (!body.format) {
+        return validationError('Field "format" is required. Allowed: ' + VALID_DOC_EXPORT_FORMATS.join(', '), reqInfo, body)
+    }
+    if (VALID_DOC_EXPORT_FORMATS.indexOf(body.format) === -1) {
+        return validationError('Invalid format "' + body.format + '". Allowed: ' + VALID_DOC_EXPORT_FORMATS.join(', '), reqInfo, body)
+    }
+
+    const path = require('path')
+    if (!path.isAbsolute(body.path)) {
+        return validationError('path must be absolute', reqInfo, body)
+    }
+
+    try {
+        if (body.format === 'html') {
+            app.commands.execute('html-export:export', body.path)
+        } else {
+            app.commands.execute('markdown:export', body.path)
+        }
+
+        return {
+            success: true,
+            message: 'Exported project as ' + body.format + ' to ' + body.path,
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: { format: body.format, path: body.path }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to export: ' + (e.message || String(e)),
+            request: Object.assign({}, reqInfo, { body: body })
+        }
+    }
+}
+
+// ============================================================
 // Router
 // ============================================================
 
@@ -4499,8 +6691,10 @@ function parseUrl(url) {
     if (parts[1]) {
         try {
             parts[1].split('&').forEach(function (param) {
-                const kv = param.split('=')
-                query[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '')
+                const idx = param.indexOf('=')
+                const key = idx === -1 ? param : param.substring(0, idx)
+                const val = idx === -1 ? '' : param.substring(idx + 1)
+                query[decodeURIComponent(key)] = decodeURIComponent(val)
             })
         } catch (e) {
             return { path: path, query: query, error: 'Invalid URL encoding' }
@@ -4518,6 +6712,14 @@ function decodePathParam(value) {
 }
 
 function route(method, url, body) {
+    // Ensure body is a valid object for mutation requests
+    if (body !== null && body !== undefined && typeof body !== 'object') {
+        return { success: false, error: 'Request body must be a JSON object', request: { method: method, path: url } }
+    }
+    if (!body) {
+        body = {}
+    }
+
     const parsed = parseUrl(url)
     if (parsed.error) {
         return { success: false, error: parsed.error, request: { method: method, path: url } }
@@ -4947,6 +7149,77 @@ function route(method, url, body) {
         return openProject(body, reqInfo)
     }
 
+    // POST /api/project/import
+    if (method === 'POST' && path === '/api/project/import') {
+        return importProject(body, reqInfo)
+    }
+
+    // POST /api/project/new
+    if (method === 'POST' && path === '/api/project/new') {
+        return newProject(reqInfo)
+    }
+
+    // POST /api/project/close
+    if (method === 'POST' && path === '/api/project/close') {
+        return closeProject(reqInfo)
+    }
+
+    // POST /api/project/export
+    if (method === 'POST' && path === '/api/project/export') {
+        return exportFragment(body, reqInfo)
+    }
+
+    // POST /api/project/export-all
+    if (method === 'POST' && path === '/api/project/export-all') {
+        return exportAllDiagrams(body, reqInfo)
+    }
+
+    // POST /api/validate
+    if (method === 'POST' && path === '/api/validate') {
+        return validateModel(reqInfo)
+    }
+
+    // POST /api/undo
+    if (method === 'POST' && path === '/api/undo') {
+        return undoAction(reqInfo)
+    }
+
+    // POST /api/redo
+    if (method === 'POST' && path === '/api/redo') {
+        return redoAction(reqInfo)
+    }
+
+    // GET /api/search
+    if (method === 'GET' && path === '/api/search') {
+        return searchElements(query, reqInfo)
+    }
+
+    // POST /api/views/align
+    if (method === 'POST' && path === '/api/views/align') {
+        return alignViews(body, reqInfo)
+    }
+
+    // POST /api/mermaid/import
+    if (method === 'POST' && path === '/api/mermaid/import') {
+        return importMermaid(body, reqInfo)
+    }
+
+    // POST /api/diagrams/generate
+    if (method === 'POST' && path === '/api/diagrams/generate') {
+        return generateDiagram(body, reqInfo)
+    }
+
+    // PUT /api/elements/:id/reorder
+    match = path.match(/^\/api\/elements\/([^/]+)\/reorder$/)
+    if (match && method === 'PUT') {
+        return reorderElement(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // POST /api/project/export-doc
+    if (method === 'POST' && path === '/api/project/export-doc') {
+        return exportDocument(body, reqInfo)
+    }
+
     // ============ Generic / Cross-diagram Routes ============
 
     // GET /api/diagrams
@@ -4954,10 +7227,38 @@ function route(method, url, body) {
         return getAllDiagrams(query, reqInfo)
     }
 
+    // POST /api/diagrams (create any diagram type)
+    if (method === 'POST' && path === '/api/diagrams') {
+        return createGenericDiagram(body, reqInfo)
+    }
+
     // POST /api/diagrams/:id/export
     match = path.match(/^\/api\/diagrams\/([^/]+)\/export$/)
     if (match && method === 'POST') {
         return exportDiagramImage(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // POST /api/diagrams/:id/layout
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/layout$/)
+    if (match && method === 'POST') {
+        return layoutDiagram(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/diagrams/:id/elements
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/elements$/)
+    if (match) {
+        if (method === 'GET') {
+            return getDiagramElements(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createDiagramElement(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/diagrams/:id/relations
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/relations$/)
+    if (match && method === 'POST') {
+        return createDiagramRelation(decodePathParam(match[1]), body, reqInfo)
     }
 
     // /api/diagrams/:id/notes
@@ -5019,16 +7320,115 @@ function route(method, url, body) {
         return deleteFreeLine(decodePathParam(match[1]), reqInfo)
     }
 
+    // /api/diagrams/:id/shapes
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/shapes$/)
+    if (match) {
+        if (method === 'GET') {
+            return getDiagramShapes(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createShape(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/diagrams/:id/create-view-of
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/create-view-of$/)
+    if (match && method === 'POST') {
+        return createViewOf(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/diagrams/:id/link-object
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/link-object$/)
+    if (match && method === 'POST') {
+        return createLinkObject(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/diagrams/:id/open
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/open$/)
+    if (match && method === 'POST') {
+        return openDiagram(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/diagrams/:id/zoom
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/zoom$/)
+    if (match && method === 'PUT') {
+        return setDiagramZoom(decodePathParam(match[1]), body, reqInfo)
+    }
+
     // /api/diagrams/:id/views
     match = path.match(/^\/api\/diagrams\/([^/]+)\/views$/)
     if (match && method === 'GET') {
         return getDiagramViews(decodePathParam(match[1]), reqInfo)
     }
 
+    // /api/diagrams/:id (generic GET/PUT/DELETE)
+    match = path.match(/^\/api\/diagrams\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getGenericDiagram(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateGenericDiagram(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteGenericDiagram(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/shapes/:id
+    match = path.match(/^\/api\/shapes\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getShape(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateShape(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteShape(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/views/:id/reconnect
+    match = path.match(/^\/api\/views\/([^/]+)\/reconnect$/)
+    if (match && method === 'PUT') {
+        return reconnectEdge(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/views/:id/style
+    match = path.match(/^\/api\/views\/([^/]+)\/style$/)
+    if (match && method === 'PUT') {
+        return updateViewStyle(decodePathParam(match[1]), body, reqInfo)
+    }
+
     // /api/views/:id
     match = path.match(/^\/api\/views\/([^/]+)$/)
     if (match && method === 'PUT') {
         return updateView(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/elements/:id/relationships
+    match = path.match(/^\/api\/elements\/([^/]+)\/relationships$/)
+    if (match && method === 'GET') {
+        return getElementRelationships(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/elements/:id/views
+    match = path.match(/^\/api\/elements\/([^/]+)\/views$/)
+    if (match && method === 'GET') {
+        return getElementViews(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/elements/:id/relocate
+    match = path.match(/^\/api\/elements\/([^/]+)\/relocate$/)
+    if (match && method === 'PUT') {
+        return relocateElement(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/elements/:id/children
+    match = path.match(/^\/api\/elements\/([^/]+)\/children$/)
+    if (match && method === 'POST') {
+        return createChildElement(decodePathParam(match[1]), body, reqInfo)
     }
 
     // /api/elements/:id
@@ -5058,6 +7458,15 @@ function route(method, url, body) {
                 allowedTagKinds: TAG_KIND_LABELS,
                 allowedMessageSorts: VALID_MESSAGE_SORTS,
                 allowedInteractionOperators: VALID_INTERACTION_OPERATORS,
+                allowedDiagramTypes: ALLOWED_DIAGRAM_TYPES,
+                allowedNodeTypes: ALLOWED_NODE_TYPES,
+                allowedRelationTypes: ALLOWED_RELATION_TYPES,
+                allowedChildTypes: ALLOWED_CHILD_TYPES,
+                allowedShapeTypes: ALLOWED_SHAPE_TYPES,
+                allowedAlignmentActions: VALID_ALIGNMENT_ACTIONS,
+                allowedMermaidTypes: VALID_MERMAID_TYPES,
+                allowedGeneratorTypes: VALID_GENERATOR_TYPES,
+                allowedMessageTypes: VALID_MESSAGE_TYPES,
                 endpoints: [
                     'GET  /api/status',
                     'GET  /api/erd/diagrams',
@@ -5103,8 +7512,23 @@ function route(method, url, body) {
                     'GET  /api/elements/:id',
                     'PUT  /api/elements/:id',
                     'DELETE /api/elements/:id',
+                    'GET  /api/elements/:id/relationships',
+                    'GET  /api/elements/:id/views',
+                    'PUT  /api/elements/:id/relocate',
                     'GET  /api/diagrams',
+                    'POST /api/diagrams',
+                    'GET  /api/diagrams/:id',
+                    'PUT  /api/diagrams/:id',
+                    'DELETE /api/diagrams/:id',
+                    'GET  /api/diagrams/:id/elements',
+                    'POST /api/diagrams/:id/elements',
+                    'POST /api/diagrams/:id/relations',
                     'POST /api/diagrams/:id/export',
+                    'POST /api/diagrams/:id/layout',
+                    'POST /api/diagrams/:id/create-view-of',
+                    'POST /api/diagrams/:id/link-object',
+                    'POST /api/diagrams/:id/open',
+                    'PUT  /api/diagrams/:id/zoom',
                     'GET  /api/diagrams/:id/notes',
                     'POST /api/diagrams/:id/notes',
                     'GET  /api/notes/:id',
@@ -5116,11 +7540,33 @@ function route(method, url, body) {
                     'GET  /api/diagrams/:id/free-lines',
                     'POST /api/diagrams/:id/free-lines',
                     'DELETE /api/free-lines/:id',
+                    'GET  /api/diagrams/:id/shapes',
+                    'POST /api/diagrams/:id/shapes',
+                    'GET  /api/shapes/:id',
+                    'PUT  /api/shapes/:id',
+                    'DELETE /api/shapes/:id',
                     'GET  /api/diagrams/:id/views',
                     'PUT  /api/views/:id',
+                    'PUT  /api/views/:id/style',
+                    'PUT  /api/views/:id/reconnect',
+                    'POST /api/elements/:id/children',
                     'POST /api/erd/postgresql/ddl',
                     'POST /api/project/save',
                     'POST /api/project/open',
+                    'POST /api/project/import',
+                    'POST /api/project/new',
+                    'POST /api/project/close',
+                    'POST /api/project/export',
+                    'POST /api/project/export-all',
+                    'POST /api/validate',
+                    'POST /api/undo',
+                    'POST /api/redo',
+                    'GET  /api/search',
+                    'POST /api/views/align',
+                    'POST /api/mermaid/import',
+                    'POST /api/diagrams/generate',
+                    'PUT  /api/elements/:id/reorder',
+                    'POST /api/project/export-doc',
                     'GET  /api/seq/interactions',
                     'POST /api/seq/interactions',
                     'GET  /api/seq/interactions/:id',

@@ -1,10 +1,10 @@
 {
   "name": "staruml-controller",
   "title": "StarUML Controller",
-  "description": "Remote control StarUML ER diagrams via HTTP server",
-  "homepage": "https://github.com/staruml-controller",
-  "version": "1.0.0",
-  "keywords": ["erd", "http", "server", "remote", "controller"],
+  "description": "Remote control StarUML diagrams (ERD, UML, BPMN, C4, SysML, and more) via HTTP REST API",
+  "homepage": "https://github.com/pontasan/staruml-controller",
+  "version": "1.1.0",
+  "keywords": ["erd", "uml", "bpmn", "c4", "sysml", "http", "server", "remote", "controller", "rest-api", "automation"],
   "author": {
     "name": "StarUML Controller"
   },

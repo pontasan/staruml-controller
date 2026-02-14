@@ -1,8 +1,10 @@
 # StarUML Controller
 
-A [StarUML](https://staruml.io/) extension that exposes ER diagram and sequence diagram operations via an HTTP REST API.
+A [StarUML](https://staruml.io/) extension that exposes full diagram CRUD operations for all StarUML diagram types via an HTTP REST API.
 
-Designed for integration with AI tools such as Claude Code (via MCP) to programmatically read and edit ER diagrams and sequence diagrams.
+Supports UML (class, sequence, use case, activity, state machine, component, deployment, object, communication, composite structure, timing, interaction overview, information flow, profile), BPMN, C4, SysML, Wireframe, MindMap, AWS, Azure, GCP, Flowchart, DFD, and ERD.
+
+Designed for integration with AI tools such as Claude Code (via MCP) to programmatically create and edit any StarUML diagram.
 
 <p align="center">
   <img src="images/image1.gif" alt="AI generating a Web Shopping ER diagram in StarUML via REST API" width="800">
@@ -34,15 +36,27 @@ Designed for integration with AI tools such as Claude Code (via MCP) to programm
 
 ## Features
 
+- **All diagram types** - UML, BPMN, C4, SysML, Wireframe, MindMap, AWS, Azure, GCP, Flowchart, DFD via generic endpoints
+- **All element types** - create any node element on any diagram (UMLClass, BPMNTask, C4Person, SysMLRequirement, WFButton, MMNode, AWSService, etc.)
+- **All relation types** - UMLAssociation, BPMNSequenceFlow, C4Relationship, SysMLDeriveReqt, MMEdge, AWSArrow, etc.
 - **Full CRUD for ERD elements** - data models, diagrams, entities, columns, tags, relationships, sequences, and indexes
 - **Full CRUD for sequence diagram elements** - interactions, sequence diagrams, lifelines, messages, combined fragments, operands, state invariants, and interaction uses
-- **Diagram-aware entity/lifeline creation** - place entities or lifelines on specific diagrams with coordinates
-- **Relationship/message creation with diagram views** - create relationships or messages between elements displayed on a diagram
+- **Shapes** - create and manage view-only elements (Text, TextBox, Rect, RoundRect, Ellipse, Hyperlink, Image, etc.)
+- **Notes, note links, and free lines** - annotate any diagram
+- **View manipulation** - move/resize views, update styles (fillColor, lineColor, fontColor, fontSize, autoResize, stereotypeDisplay, etc.), reconnect edges, align/distribute views
+- **Child elements** - create attributes, operations, enumeration literals, pins, etc. under parent elements
+- **Diagram export** - export diagrams to PNG, JPEG, SVG, or PDF; bulk export all diagrams; export project as HTML/Markdown
+- **Auto layout** - automatic diagram layout with configurable direction and spacing
+- **Undo / Redo** - undo and redo operations programmatically
+- **Search** - search elements by keyword with optional type filter
+- **Model validation** - validate model integrity
 - **Input validation** - unknown fields rejected, type checking, required field enforcement, column type whitelist
 - **Referential integrity** - DELETE blocked when other elements reference the target; self-reference prevention
 - **Structured responses** - every response includes `success`, `message`/`error`, `request` context, and `data`
-- **PostgreSQL DDL generation** - generate DDL from ER diagrams with schema prefix, DROP SEQUENCE, FK auto-indexes, DEFAULT values (based on [staruml-postgresql](https://github.com/adrianandrei-ca/staruml-postgresql))
-- **Project save/load** - save and open `.mdj` project files programmatically
+- **PostgreSQL DDL generation** - generate DDL from ER diagrams with schema prefix, FK auto-indexes, DEFAULT values (based on [staruml-postgresql](https://github.com/adrianandrei-ca/staruml-postgresql))
+- **Mermaid import** - generate StarUML diagrams from Mermaid syntax (class, sequence, flowchart, ER, mindmap, requirement, state)
+- **Diagram generation** - auto-generate overview, type hierarchy, or package structure diagrams from model
+- **Project management** - save, open, new, close, import/export model fragments
 - **CORS enabled** - accessible from any origin
 
 ## Installation
@@ -93,11 +107,51 @@ Select **Tools > StarUML Controller > Stop Server** from the menu bar.
 | Endpoint | Method | Description |
 |---|---|---|
 | `/api/status` | GET | Health check and endpoint list |
-| `/api/elements/:id` | GET | Get any element by ID |
+| `/api/elements/:id` | GET / PUT / DELETE | Get, update, or delete any element |
 | `/api/elements/:id/tags` | GET / POST | List or create tags |
 | `/api/tags/:id` | GET / PUT / DELETE | Get, update, or delete tag |
-| `/api/project/save` | POST | Save project to a file path |
-| `/api/project/open` | POST | Open project from a file path |
+| `/api/elements/:id/children` | POST | Create child element (attribute, operation, etc.) |
+| `/api/elements/:id/relationships` | GET | Get all relationships of an element |
+| `/api/elements/:id/views` | GET | Get all views of an element |
+| `/api/elements/:id/relocate` | PUT | Move element to a different parent |
+| `/api/elements/:id/reorder` | PUT | Reorder element within parent (up/down) |
+| `/api/diagrams` | GET / POST | List or create diagrams |
+| `/api/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/diagrams/:id/elements` | GET / POST | List or create node elements |
+| `/api/diagrams/:id/relations` | POST | Create relations |
+| `/api/diagrams/:id/export` | POST | Export diagram (PNG/JPEG/SVG/PDF) |
+| `/api/diagrams/:id/layout` | POST | Auto-layout diagram |
+| `/api/diagrams/:id/open` | POST | Open diagram in editor |
+| `/api/diagrams/:id/zoom` | PUT | Set zoom level |
+| `/api/diagrams/:id/create-view-of` | POST | Create view of existing model on diagram |
+| `/api/diagrams/:id/link-object` | POST | Create UMLLinkObject on object diagram |
+| `/api/diagrams/:id/notes` | GET / POST | List or create notes |
+| `/api/notes/:id` | GET / PUT / DELETE | Get, update, or delete note |
+| `/api/diagrams/:id/note-links` | GET / POST | List or create note links |
+| `/api/note-links/:id` | DELETE | Delete note link |
+| `/api/diagrams/:id/free-lines` | GET / POST | List or create free lines |
+| `/api/free-lines/:id` | DELETE | Delete free line |
+| `/api/diagrams/:id/shapes` | GET / POST | List or create shapes |
+| `/api/shapes/:id` | GET / PUT / DELETE | Get, update, or delete shape |
+| `/api/diagrams/:id/views` | GET | List all views on diagram |
+| `/api/views/:id` | PUT | Move/resize view |
+| `/api/views/:id/style` | PUT | Update view style (fillColor, lineColor, autoResize, etc.) |
+| `/api/views/:id/reconnect` | PUT | Reconnect edge to different source/target |
+| `/api/views/align` | POST | Align/distribute views |
+| `/api/project/save` | POST | Save project |
+| `/api/project/open` | POST | Open project |
+| `/api/project/new` | POST | Create new project |
+| `/api/project/close` | POST | Close project |
+| `/api/project/import` | POST | Import model fragment |
+| `/api/project/export` | POST | Export model fragment |
+| `/api/project/export-all` | POST | Export all diagrams as images |
+| `/api/project/export-doc` | POST | Export project as HTML/Markdown |
+| `/api/undo` | POST | Undo last operation |
+| `/api/redo` | POST | Redo last undone operation |
+| `/api/search` | GET | Search elements by keyword |
+| `/api/validate` | POST | Validate model integrity |
+| `/api/mermaid/import` | POST | Generate diagram from Mermaid syntax |
+| `/api/diagrams/generate` | POST | Auto-generate diagram from model |
 
 ### ERD
 
@@ -206,6 +260,31 @@ curl -X POST http://localhost:12345/api/project/save \
 # Delete entity (blocked if referenced by other elements)
 curl -X DELETE http://localhost:12345/api/erd/entities/ENTITY_ID
 
+# --- Generic Diagrams ---
+
+# Create a BPMN diagram
+curl -X POST http://localhost:12345/api/diagrams \
+  -H "Content-Type: application/json" \
+  -d '{"type": "BPMNDiagram", "name": "My Process"}'
+
+# Create a node element on a diagram
+curl -X POST http://localhost:12345/api/diagrams/DIAGRAM_ID/elements \
+  -H "Content-Type: application/json" \
+  -d '{"type": "BPMNTask", "name": "Review Order"}'
+
+# Create a relation between elements
+curl -X POST http://localhost:12345/api/diagrams/DIAGRAM_ID/relations \
+  -H "Content-Type: application/json" \
+  -d '{"type": "BPMNSequenceFlow", "sourceId": "ELEMENT1_ID", "targetId": "ELEMENT2_ID"}'
+
+# Export diagram as PNG
+curl -X POST http://localhost:12345/api/diagrams/DIAGRAM_ID/export \
+  -H "Content-Type: application/json" \
+  -d '{"format": "png", "path": "/tmp/diagram.png"}'
+
+# Search elements
+curl "http://localhost:12345/api/search?keyword=User&type=UMLClass"
+
 # --- Sequence Diagram ---
 
 # Create an interaction
@@ -258,7 +337,7 @@ staruml-controller/
 │   ├── image4.jpg     # Tools menu screenshot
 │   └── image5.jpg     # Port number dialog screenshot
 ├── test/
-│   └── test_all_endpoints.sh  # Integration test script (92 tests)
+│   └── test_all_endpoints.sh  # Integration test script
 ├── package.json       # Extension metadata
 └── README.md
 ```
