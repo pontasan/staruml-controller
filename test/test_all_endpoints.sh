@@ -275,28 +275,97 @@ check "76.seq_update_interaction_use" "$(curl -s -X PUT $BASE/api/seq/interactio
 check "77.seq_delete_interaction_use" "$(curl -s -X DELETE $BASE/api/seq/interaction-uses/$(enc $IU_ID))"
 
 # =============================
+# Generic: All Diagrams (2)
+# =============================
+check "78.gen_list_all_diagrams" "$(curl -s $BASE/api/diagrams)"
+check "79.gen_list_diagrams_filtered" "$(curl -s "$BASE/api/diagrams?type=ERDDiagram")"
+
+# =============================
+# Generic: Notes CRUD (5)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/notes -H "Content-Type: application/json" -d '{"text":"Test note","x1":50,"y1":50,"x2":200,"y2":120}')
+check "80.gen_create_note" "$R"
+NOTE_ID=$(getid "$R")
+
+check "81.gen_list_notes" "$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/notes)"
+check "82.gen_get_note" "$(curl -s $BASE/api/notes/$(enc $NOTE_ID))"
+check "83.gen_update_note" "$(curl -s -X PUT $BASE/api/notes/$(enc $NOTE_ID) -H "Content-Type: application/json" -d '{"text":"Updated note"}')"
+
+# =============================
+# Generic: Views - list + move/resize (2)
+# =============================
+R=$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/views)
+check "84.gen_list_views" "$R"
+# Get first entity view ID for note-link target and view-update tests
+ENTITY_VIEW_ID=$(echo "$R" | python3 -c "import sys,json; views=json.load(sys.stdin)['data']; print(next(v['_id'] for v in views if v['_type']=='ERDEntityView'))" 2>/dev/null)
+
+check "85.gen_update_view" "$(curl -s -X PUT $BASE/api/views/$(enc $ENTITY_VIEW_ID) -H "Content-Type: application/json" -d '{"left":60,"top":60}')"
+
+# =============================
+# Generic: Note Links (3)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/note-links -H "Content-Type: application/json" \
+  -d "{\"noteId\":\"$NOTE_ID\",\"targetId\":\"$ENTITY_VIEW_ID\"}")
+check "86.gen_create_note_link" "$R"
+NL_ID=$(getid "$R")
+
+check "87.gen_list_note_links" "$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/note-links)"
+check "88.gen_delete_note_link" "$(curl -s -X DELETE $BASE/api/note-links/$(enc $NL_ID))"
+
+# =============================
+# Generic: Free Lines (3)
+# =============================
+R=$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/free-lines -H "Content-Type: application/json" -d '{"x1":10,"y1":10,"x2":200,"y2":100}')
+check "89.gen_create_free_line" "$R"
+FL_ID=$(getid "$R")
+
+check "90.gen_list_free_lines" "$(curl -s $BASE/api/diagrams/$(enc $DG_ID)/free-lines)"
+check "91.gen_delete_free_line" "$(curl -s -X DELETE $BASE/api/free-lines/$(enc $FL_ID))"
+
+# =============================
+# Generic: Diagram Export (2)
+# =============================
+check "92.gen_export_png" "$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H "Content-Type: application/json" -d '{"path":"/tmp/test_export.png","format":"png"}')"
+check "93.gen_export_svg" "$(curl -s -X POST $BASE/api/diagrams/$(enc $DG_ID)/export -H "Content-Type: application/json" -d '{"path":"/tmp/test_export.svg","format":"svg"}')"
+
+# =============================
+# Generic: Element Update + Delete (3)
+# =============================
+check "94.gen_update_element" "$(curl -s -X PUT $BASE/api/elements/$(enc $E1_ID) -H "Content-Type: application/json" -d '{"documentation":"Updated via generic"}')"
+
+# Create a tag then delete it via generic endpoint to verify delegation
+R=$(curl -s -X POST $BASE/api/elements/$(enc $E1_ID)/tags -H "Content-Type: application/json" -d '{"name":"tmp_tag","kind":0,"value":"tmp"}')
+TMP_TAG_ID=$(getid "$R")
+check "95.gen_delete_element(tag)" "$(curl -s -X DELETE $BASE/api/elements/$(enc $TMP_TAG_ID))"
+
+# =============================
+# Generic: Delete Note (cleanup) (1)
+# =============================
+check "96.gen_delete_note" "$(curl -s -X DELETE $BASE/api/notes/$(enc $NOTE_ID))"
+
+# =============================
 # Cleanup: Delete all test data (reverse dependency order)
 # =============================
-check "78.seq_delete_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $MSG_ID))"
-check "79.seq_delete_combined_fragment" "$(curl -s -X DELETE $BASE/api/seq/combined-fragments/$(enc $CF_ID))"
-check "80.seq_delete_lifeline(Client)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL1_ID))"
-check "81.seq_delete_lifeline(Server)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL2_ID))"
-check "82.seq_delete_diagram" "$(curl -s -X DELETE $BASE/api/seq/diagrams/$(enc $SD_ID))"
-check "83.seq_delete_interaction" "$(curl -s -X DELETE $BASE/api/seq/interactions/$(enc $INT_ID))"
+check "97.seq_delete_message" "$(curl -s -X DELETE $BASE/api/seq/messages/$(enc $MSG_ID))"
+check "98.seq_delete_combined_fragment" "$(curl -s -X DELETE $BASE/api/seq/combined-fragments/$(enc $CF_ID))"
+check "99.seq_delete_lifeline(Client)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL1_ID))"
+check "100.seq_delete_lifeline(Server)" "$(curl -s -X DELETE $BASE/api/seq/lifelines/$(enc $LL2_ID))"
+check "101.seq_delete_diagram" "$(curl -s -X DELETE $BASE/api/seq/diagrams/$(enc $SD_ID))"
+check "102.seq_delete_interaction" "$(curl -s -X DELETE $BASE/api/seq/interactions/$(enc $INT_ID))"
 
-check "84.erd_delete_relationship" "$(curl -s -X DELETE $BASE/api/erd/relationships/$(enc $REL_ID))"
-check "85.erd_delete_column(id)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C1_ID))"
-check "86.erd_delete_column(email)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C2_ID))"
-check "87.erd_delete_entity(users)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E1_ID))"
-check "88.erd_delete_entity(orders)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E2_ID))"
-check "89.erd_delete_diagram" "$(curl -s -X DELETE $BASE/api/erd/diagrams/$(enc $DG_ID))"
-check "90.erd_delete_data_model" "$(curl -s -X DELETE $BASE/api/erd/data-models/$(enc $DM_ID))"
+check "103.erd_delete_relationship" "$(curl -s -X DELETE $BASE/api/erd/relationships/$(enc $REL_ID))"
+check "104.erd_delete_column(id)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C1_ID))"
+check "105.erd_delete_column(email)" "$(curl -s -X DELETE $BASE/api/erd/columns/$(enc $C2_ID))"
+check "106.erd_delete_entity(users)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E1_ID))"
+check "107.erd_delete_entity(orders)" "$(curl -s -X DELETE $BASE/api/erd/entities/$(enc $E2_ID))"
+check "108.erd_delete_diagram" "$(curl -s -X DELETE $BASE/api/erd/diagrams/$(enc $DG_ID))"
+check "109.erd_delete_data_model" "$(curl -s -X DELETE $BASE/api/erd/data-models/$(enc $DM_ID))"
 
 # =============================
 # Project: save, open (2)
 # =============================
-check "91.save_project" "$(curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
-check "92.open_project" "$(curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
+check "110.save_project" "$(curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
+check "111.open_project" "$(curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
 
 # =============================
 # Results

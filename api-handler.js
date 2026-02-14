@@ -325,6 +325,99 @@ function serializeDiagram(diagram) {
     return result
 }
 
+function serializeGenericDiagram(diagram) {
+    if (!diagram) {
+        return null
+    }
+    return {
+        _id: diagram._id,
+        _type: diagram.constructor.name,
+        name: diagram.name || '',
+        _parentId: diagram._parent ? diagram._parent._id : null
+    }
+}
+
+function serializeNoteView(view) {
+    if (!view) {
+        return null
+    }
+    return {
+        _id: view._id,
+        _type: view.constructor.name,
+        text: view.text || '',
+        left: view.left !== undefined ? view.left : 0,
+        top: view.top !== undefined ? view.top : 0,
+        width: view.width !== undefined ? view.width : 0,
+        height: view.height !== undefined ? view.height : 0
+    }
+}
+
+function serializeNoteLinkView(view) {
+    if (!view) {
+        return null
+    }
+    return {
+        _id: view._id,
+        _type: view.constructor.name,
+        noteId: view.tail ? view.tail._id : null,
+        targetId: view.head ? view.head._id : null
+    }
+}
+
+function serializeFreeLineView(view) {
+    if (!view) {
+        return null
+    }
+    const result = {
+        _id: view._id,
+        _type: view.constructor.name
+    }
+    // Points is a StarUML Points collection: view.points.points is the internal array
+    if (view.points) {
+        let pts = null
+        if (typeof view.points.count === 'function' && view.points.count() >= 2) {
+            const p1 = view.points.getPoint(0)
+            const p2 = view.points.getPoint(view.points.count() - 1)
+            pts = { p1: p1, p2: p2 }
+        } else if (view.points.points && view.points.points.length >= 2) {
+            pts = { p1: view.points.points[0], p2: view.points.points[view.points.points.length - 1] }
+        }
+        if (pts) {
+            result.x1 = pts.p1.x
+            result.y1 = pts.p1.y
+            result.x2 = pts.p2.x
+            result.y2 = pts.p2.y
+        }
+    }
+    return result
+}
+
+function serializeViewInfo(view) {
+    if (!view) {
+        return null
+    }
+    const result = {
+        _id: view._id,
+        _type: view.constructor.name
+    }
+    if (view.model) {
+        result.modelId = view.model._id
+    }
+    if (view.left !== undefined) {
+        result.left = view.left
+    }
+    if (view.top !== undefined) {
+        result.top = view.top
+    }
+    if (view.width !== undefined) {
+        result.width = view.width
+    }
+    if (view.height !== undefined) {
+        result.height = view.height
+    }
+    return result
+}
+
 // ============================================================
 // Helpers
 // ============================================================
@@ -449,6 +542,16 @@ const DIAGRAM_ALLOWED_FIELDS = ['parentId', 'name']
 const DIAGRAM_UPDATE_FIELDS = ['name']
 const PROJECT_SAVE_ALLOWED_FIELDS = ['path']
 const PROJECT_OPEN_ALLOWED_FIELDS = ['path']
+
+// --- Generic / Cross-diagram Constants ---
+const NOTE_ALLOWED_FIELDS = ['text', 'x1', 'y1', 'x2', 'y2']
+const NOTE_UPDATE_FIELDS = ['text']
+const NOTE_LINK_ALLOWED_FIELDS = ['noteId', 'targetId']
+const FREE_LINE_ALLOWED_FIELDS = ['x1', 'y1', 'x2', 'y2']
+const VIEW_UPDATE_FIELDS = ['left', 'top', 'width', 'height']
+const GENERIC_ELEMENT_UPDATE_FIELDS = ['name', 'documentation']
+const EXPORT_ALLOWED_FIELDS = ['path', 'format']
+const VALID_EXPORT_FORMATS = ['png', 'jpeg', 'svg']
 
 // --- Diagrams ---
 
@@ -2225,6 +2328,25 @@ function findViewOnDiagram(diagram, modelId) {
 }
 
 /**
+ * Find a view on a diagram by view _id or model _id.
+ */
+function findViewOnDiagramByAnyId(diagram, id) {
+    if (!diagram || !diagram.ownedViews) {
+        return null
+    }
+    for (let i = 0; i < diagram.ownedViews.length; i++) {
+        const view = diagram.ownedViews[i]
+        if (view._id === id) {
+            return view
+        }
+        if (view.model && view.model._id === id) {
+            return view
+        }
+    }
+    return null
+}
+
+/**
  * Find messages that reference the given lifeline as source or target.
  */
 function findMessagesReferencingLifeline(lifelineId) {
@@ -3718,6 +3840,552 @@ function deleteInteractionUse(id, reqInfo) {
 
 // --- Generic Element ---
 
+// ============================================================
+// Generic / Cross-diagram Handlers
+// ============================================================
+
+// --- All Diagrams ---
+
+function getAllDiagrams(query, reqInfo) {
+    const allowedParams = ['type']
+    const unknownParams = Object.keys(query).filter(function (k) {
+        return allowedParams.indexOf(k) === -1
+    })
+    if (unknownParams.length > 0) {
+        return validationError('Unknown query parameter(s): ' + unknownParams.join(', ') + '. Allowed: ' + allowedParams.join(', '), reqInfo)
+    }
+
+    let diagrams = app.repository.select('@Diagram')
+
+    if (query.type) {
+        diagrams = diagrams.filter(function (d) {
+            return d.constructor.name === query.type
+        })
+    }
+
+    return {
+        success: true,
+        message: 'Retrieved ' + diagrams.length + ' diagram(s)',
+        request: reqInfo,
+        data: diagrams.map(function (d) { return serializeGenericDiagram(d) })
+    }
+}
+
+// --- Diagram Image Export ---
+
+function exportDiagramImage(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, EXPORT_ALLOWED_FIELDS),
+        checkFieldType(body, 'path', 'string'),
+        checkFieldType(body, 'format', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.path) {
+        return validationError('Field "path" is required', reqInfo, body)
+    }
+
+    const pathErr = checkNonEmptyString(body, 'path')
+    if (pathErr) {
+        return validationError(pathErr, reqInfo, body)
+    }
+
+    if (body.path.charAt(0) !== '/' && !/^[a-zA-Z]:[/\\]/.test(body.path)) {
+        return validationError('Field "path" must be an absolute path', reqInfo, body)
+    }
+
+    const format = (body.format || 'png').toLowerCase()
+    if (VALID_EXPORT_FORMATS.indexOf(format) === -1) {
+        return validationError('Invalid format "' + body.format + '". Allowed: ' + VALID_EXPORT_FORMATS.join(', '), reqInfo, body)
+    }
+
+    const diagram = findById(id)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const reqInfoWithBody = Object.assign({}, reqInfo, { body: body })
+
+    try {
+        const nodePath = require('path')
+        const appPath = app.getAppPath()
+        const diagramExport = require(nodePath.join(appPath, 'src', 'engine', 'diagram-export'))
+
+        if (format === 'svg') {
+            diagramExport.exportToSVG(diagram, body.path)
+        } else if (format === 'jpeg') {
+            diagramExport.exportToJPEG(diagram, body.path)
+        } else {
+            diagramExport.exportToPNG(diagram, body.path)
+        }
+
+        return {
+            success: true,
+            message: 'Exported diagram "' + (diagram.name || id) + '" as ' + format + ' to "' + body.path + '"',
+            request: reqInfoWithBody,
+            data: { path: body.path, format: format }
+        }
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to export diagram: ' + (e.message || String(e)),
+            request: reqInfoWithBody
+        }
+    }
+}
+
+// --- Notes ---
+
+function getDiagramNotes(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const notes = diagram.ownedViews.filter(function (v) {
+        return v.constructor.name === 'UMLNoteView'
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + notes.length + ' note(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: notes.map(function (v) { return serializeNoteView(v) })
+    }
+}
+
+function createNote(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, NOTE_ALLOWED_FIELDS),
+        checkFieldType(body, 'text', 'string'),
+        checkFieldType(body, 'x1', 'number'),
+        checkFieldType(body, 'y1', 'number'),
+        checkFieldType(body, 'x2', 'number'),
+        checkFieldType(body, 'y2', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const view = app.factory.createModelAndView({
+        id: 'Note',
+        diagram: diagram,
+        x1: body.x1 !== undefined ? body.x1 : 100,
+        y1: body.y1 !== undefined ? body.y1 : 100,
+        x2: body.x2 !== undefined ? body.x2 : 250,
+        y2: body.y2 !== undefined ? body.y2 : 180
+    })
+
+    if (body.text !== undefined) {
+        app.engine.setProperty(view, 'text', body.text)
+    }
+
+    return {
+        success: true,
+        message: 'Created note on diagram "' + (diagram.name || diagramId) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeNoteView(view)
+    }
+}
+
+function getNote(id, reqInfo) {
+    const view = findById(id)
+    if (!view || view.constructor.name !== 'UMLNoteView') {
+        return { success: false, error: 'Note not found: ' + id, request: reqInfo }
+    }
+    return {
+        success: true,
+        message: 'Retrieved note',
+        request: reqInfo,
+        data: serializeNoteView(view)
+    }
+}
+
+function updateNote(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, NOTE_UPDATE_FIELDS),
+        checkFieldType(body, 'text', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + NOTE_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const view = findById(id)
+    if (!view || view.constructor.name !== 'UMLNoteView') {
+        return { success: false, error: 'Note not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.text !== undefined) {
+        app.engine.setProperty(view, 'text', body.text)
+        updated.push('text')
+    }
+
+    return {
+        success: true,
+        message: 'Updated note (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeNoteView(view)
+    }
+}
+
+function deleteNote(id, reqInfo) {
+    const view = findById(id)
+    if (!view || view.constructor.name !== 'UMLNoteView') {
+        return { success: false, error: 'Note not found: ' + id, request: reqInfo }
+    }
+    app.engine.deleteElements([], [view])
+    return {
+        success: true,
+        message: 'Deleted note',
+        request: reqInfo,
+        data: { deleted: id }
+    }
+}
+
+// --- Note Links ---
+
+function getDiagramNoteLinks(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const links = diagram.ownedViews.filter(function (v) {
+        return v.constructor.name === 'UMLNoteLinkView'
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + links.length + ' note link(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: links.map(function (v) { return serializeNoteLinkView(v) })
+    }
+}
+
+function createNoteLink(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, NOTE_LINK_ALLOWED_FIELDS),
+        checkFieldType(body, 'noteId', 'string'),
+        checkFieldType(body, 'targetId', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (!body.noteId) {
+        return validationError('Field "noteId" is required', reqInfo, body)
+    }
+    if (!body.targetId) {
+        return validationError('Field "targetId" is required', reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const noteView = findViewOnDiagramByAnyId(diagram, body.noteId)
+    if (!noteView || noteView.constructor.name !== 'UMLNoteView') {
+        return validationError('noteId must refer to a UMLNoteView on this diagram. Not found: ' + body.noteId, reqInfo, body)
+    }
+
+    const targetView = findViewOnDiagramByAnyId(diagram, body.targetId)
+    if (!targetView) {
+        return validationError('targetId must refer to a view on this diagram. Not found: ' + body.targetId, reqInfo, body)
+    }
+
+    const view = app.factory.createModelAndView({
+        id: 'NoteLink',
+        diagram: diagram,
+        tailView: noteView,
+        headView: targetView
+    })
+
+    return {
+        success: true,
+        message: 'Created note link on diagram "' + (diagram.name || diagramId) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeNoteLinkView(view)
+    }
+}
+
+function deleteNoteLink(id, reqInfo) {
+    const view = findById(id)
+    if (!view || view.constructor.name !== 'UMLNoteLinkView') {
+        return { success: false, error: 'Note link not found: ' + id, request: reqInfo }
+    }
+    app.engine.deleteElements([], [view])
+    return {
+        success: true,
+        message: 'Deleted note link',
+        request: reqInfo,
+        data: { deleted: id }
+    }
+}
+
+// --- Free Lines ---
+
+function getDiagramFreeLines(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const lines = diagram.ownedViews.filter(function (v) {
+        return v.constructor.name === 'FreelineEdgeView'
+    })
+    return {
+        success: true,
+        message: 'Retrieved ' + lines.length + ' free line(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: lines.map(function (v) { return serializeFreeLineView(v) })
+    }
+}
+
+function createFreeLine(diagramId, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, FREE_LINE_ALLOWED_FIELDS),
+        checkFieldType(body, 'x1', 'number'),
+        checkFieldType(body, 'y1', 'number'),
+        checkFieldType(body, 'x2', 'number'),
+        checkFieldType(body, 'y2', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const view = app.factory.createModelAndView({
+        id: 'FreeLine',
+        diagram: diagram,
+        x1: body.x1 !== undefined ? body.x1 : 100,
+        y1: body.y1 !== undefined ? body.y1 : 100,
+        x2: body.x2 !== undefined ? body.x2 : 300,
+        y2: body.y2 !== undefined ? body.y2 : 200
+    })
+
+    return {
+        success: true,
+        message: 'Created free line on diagram "' + (diagram.name || diagramId) + '"',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeFreeLineView(view)
+    }
+}
+
+function deleteFreeLine(id, reqInfo) {
+    const view = findById(id)
+    if (!view || view.constructor.name !== 'FreelineEdgeView') {
+        return { success: false, error: 'Free line not found: ' + id, request: reqInfo }
+    }
+    app.engine.deleteElements([], [view])
+    return {
+        success: true,
+        message: 'Deleted free line',
+        request: reqInfo,
+        data: { deleted: id }
+    }
+}
+
+// --- Views (Move/Resize) ---
+
+function getDiagramViews(diagramId, reqInfo) {
+    const diagram = findById(diagramId)
+    if (!diagram || !diagram.ownedViews) {
+        return { success: false, error: 'Diagram not found: ' + diagramId, request: reqInfo }
+    }
+    const views = diagram.ownedViews
+    return {
+        success: true,
+        message: 'Retrieved ' + views.length + ' view(s) from diagram "' + (diagram.name || diagramId) + '"',
+        request: reqInfo,
+        data: views.map(function (v) { return serializeViewInfo(v) })
+    }
+}
+
+function updateView(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, VIEW_UPDATE_FIELDS),
+        checkFieldType(body, 'left', 'number'),
+        checkFieldType(body, 'top', 'number'),
+        checkFieldType(body, 'width', 'number'),
+        checkFieldType(body, 'height', 'number')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + VIEW_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    const view = findById(id)
+    if (!view) {
+        return { success: false, error: 'View not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.left !== undefined) {
+        app.engine.setProperty(view, 'left', body.left)
+        updated.push('left')
+    }
+    if (body.top !== undefined) {
+        app.engine.setProperty(view, 'top', body.top)
+        updated.push('top')
+    }
+    if (body.width !== undefined) {
+        app.engine.setProperty(view, 'width', body.width)
+        updated.push('width')
+    }
+    if (body.height !== undefined) {
+        app.engine.setProperty(view, 'height', body.height)
+        updated.push('height')
+    }
+
+    return {
+        success: true,
+        message: 'Updated view (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeViewInfo(view)
+    }
+}
+
+// --- Generic Element Update/Delete ---
+
+function updateGenericElement(id, body, reqInfo) {
+    const err = validate([
+        checkUnknownFields(body, GENERIC_ELEMENT_UPDATE_FIELDS),
+        checkFieldType(body, 'name', 'string'),
+        checkFieldType(body, 'documentation', 'string')
+    ])
+    if (err) {
+        return validationError(err, reqInfo, body)
+    }
+
+    if (Object.keys(body).length === 0) {
+        return validationError('At least one field must be provided. Allowed fields: ' + GENERIC_ELEMENT_UPDATE_FIELDS.join(', '), reqInfo, body)
+    }
+
+    if (body.name !== undefined) {
+        const nameErr = checkNonEmptyString(body, 'name')
+        if (nameErr) {
+            return validationError(nameErr, reqInfo, body)
+        }
+    }
+
+    const elem = findById(id)
+    if (!elem) {
+        return { success: false, error: 'Element not found: ' + id, request: Object.assign({}, reqInfo, { body: body }) }
+    }
+
+    const updated = []
+    if (body.name !== undefined) {
+        app.engine.setProperty(elem, 'name', body.name)
+        updated.push('name')
+    }
+    if (body.documentation !== undefined) {
+        app.engine.setProperty(elem, 'documentation', body.documentation)
+        updated.push('documentation')
+    }
+
+    return {
+        success: true,
+        message: 'Updated element "' + (elem.name || id) + '" (fields: ' + updated.join(', ') + ')',
+        request: Object.assign({}, reqInfo, { body: body }),
+        data: serializeElement(elem)
+    }
+}
+
+function deleteGenericElement(id, reqInfo) {
+    const elem = findById(id)
+    if (!elem) {
+        return { success: false, error: 'Element not found: ' + id, request: reqInfo }
+    }
+
+    // Delegate to type-specific delete functions that have referential integrity checks
+    if (elem instanceof type.ERDEntity) {
+        return deleteEntity(id, reqInfo)
+    }
+    if (elem instanceof type.ERDColumn) {
+        return deleteColumn(id, reqInfo)
+    }
+    if (elem instanceof type.ERDDataModel) {
+        return deleteDataModel(id, reqInfo)
+    }
+    if (elem instanceof type.ERDRelationship) {
+        return deleteRelationship(id, reqInfo)
+    }
+    if (elem instanceof type.UMLInteraction) {
+        return deleteInteraction(id, reqInfo)
+    }
+    if (elem instanceof type.UMLLifeline) {
+        return deleteLifeline(id, reqInfo)
+    }
+    if (elem instanceof type.UMLMessage) {
+        return deleteMessage(id, reqInfo)
+    }
+    if (elem instanceof type.UMLCombinedFragment) {
+        return deleteCombinedFragment(id, reqInfo)
+    }
+    if (elem instanceof type.UMLInteractionOperand) {
+        return deleteOperand(id, reqInfo)
+    }
+    if (elem instanceof type.UMLStateInvariant) {
+        return deleteStateInvariant(id, reqInfo)
+    }
+    if (elem instanceof type.UMLInteractionUse) {
+        return deleteInteractionUse(id, reqInfo)
+    }
+    if (elem instanceof type.Tag) {
+        return deleteTag(id, reqInfo)
+    }
+
+    const name = elem.name || id
+
+    // Collect associated views for deletion
+    const views = []
+    if (elem.ownedViews) {
+        // Element is a diagram; include its owned views for deletion
+        elem.ownedViews.forEach(function (v) {
+            views.push(v)
+        })
+    } else {
+        // Find views that reference this element across all diagrams
+        const allDiagrams = app.repository.select('@Diagram')
+        allDiagrams.forEach(function (d) {
+            if (d.ownedViews) {
+                d.ownedViews.forEach(function (v) {
+                    if (v.model && v.model._id === id) {
+                        views.push(v)
+                    }
+                })
+            }
+        })
+    }
+
+    app.engine.deleteElements([elem], views)
+    return {
+        success: true,
+        message: 'Deleted element "' + name + '"',
+        request: reqInfo,
+        data: { deleted: id, name: name }
+    }
+}
+
+// ============================================================
+// Element Lookup (generic)
+// ============================================================
+
 function getElement(id, reqInfo) {
     const elem = findById(id)
     if (!elem) {
@@ -4279,10 +4947,102 @@ function route(method, url, body) {
         return openProject(body, reqInfo)
     }
 
+    // ============ Generic / Cross-diagram Routes ============
+
+    // GET /api/diagrams
+    if (method === 'GET' && path === '/api/diagrams') {
+        return getAllDiagrams(query, reqInfo)
+    }
+
+    // POST /api/diagrams/:id/export
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/export$/)
+    if (match && method === 'POST') {
+        return exportDiagramImage(decodePathParam(match[1]), body, reqInfo)
+    }
+
+    // /api/diagrams/:id/notes
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/notes$/)
+    if (match) {
+        if (method === 'GET') {
+            return getDiagramNotes(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createNote(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/notes/:id
+    match = path.match(/^\/api\/notes\/([^/]+)$/)
+    if (match) {
+        if (method === 'GET') {
+            return getNote(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateNote(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteNote(decodePathParam(match[1]), reqInfo)
+        }
+    }
+
+    // /api/diagrams/:id/note-links
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/note-links$/)
+    if (match) {
+        if (method === 'GET') {
+            return getDiagramNoteLinks(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createNoteLink(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/note-links/:id
+    match = path.match(/^\/api\/note-links\/([^/]+)$/)
+    if (match && method === 'DELETE') {
+        return deleteNoteLink(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/diagrams/:id/free-lines
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/free-lines$/)
+    if (match) {
+        if (method === 'GET') {
+            return getDiagramFreeLines(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'POST') {
+            return createFreeLine(decodePathParam(match[1]), body, reqInfo)
+        }
+    }
+
+    // /api/free-lines/:id
+    match = path.match(/^\/api\/free-lines\/([^/]+)$/)
+    if (match && method === 'DELETE') {
+        return deleteFreeLine(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/diagrams/:id/views
+    match = path.match(/^\/api\/diagrams\/([^/]+)\/views$/)
+    if (match && method === 'GET') {
+        return getDiagramViews(decodePathParam(match[1]), reqInfo)
+    }
+
+    // /api/views/:id
+    match = path.match(/^\/api\/views\/([^/]+)$/)
+    if (match && method === 'PUT') {
+        return updateView(decodePathParam(match[1]), body, reqInfo)
+    }
+
     // /api/elements/:id
     match = path.match(/^\/api\/elements\/([^/]+)$/)
-    if (match && method === 'GET') {
-        return getElement(decodePathParam(match[1]), reqInfo)
+    if (match) {
+        if (method === 'GET') {
+            return getElement(decodePathParam(match[1]), reqInfo)
+        }
+        if (method === 'PUT') {
+            return updateGenericElement(decodePathParam(match[1]), body, reqInfo)
+        }
+        if (method === 'DELETE') {
+            return deleteGenericElement(decodePathParam(match[1]), reqInfo)
+        }
     }
 
     // GET /api/status
@@ -4341,6 +5101,23 @@ function route(method, url, body) {
                     'PUT  /api/erd/relationships/:id',
                     'DELETE /api/erd/relationships/:id',
                     'GET  /api/elements/:id',
+                    'PUT  /api/elements/:id',
+                    'DELETE /api/elements/:id',
+                    'GET  /api/diagrams',
+                    'POST /api/diagrams/:id/export',
+                    'GET  /api/diagrams/:id/notes',
+                    'POST /api/diagrams/:id/notes',
+                    'GET  /api/notes/:id',
+                    'PUT  /api/notes/:id',
+                    'DELETE /api/notes/:id',
+                    'GET  /api/diagrams/:id/note-links',
+                    'POST /api/diagrams/:id/note-links',
+                    'DELETE /api/note-links/:id',
+                    'GET  /api/diagrams/:id/free-lines',
+                    'POST /api/diagrams/:id/free-lines',
+                    'DELETE /api/free-lines/:id',
+                    'GET  /api/diagrams/:id/views',
+                    'PUT  /api/views/:id',
                     'POST /api/erd/postgresql/ddl',
                     'POST /api/project/save',
                     'POST /api/project/open',
