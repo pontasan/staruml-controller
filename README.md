@@ -58,10 +58,27 @@ Restart StarUML to load the extension.
 
 ## Usage
 
-1. From the StarUML menu, select **Tools > StarUML Controller > Start Server...**
-2. Enter a port number (default: 12345) and click OK
-3. The HTTP server starts and ER diagrams become accessible via REST API
-4. To stop, select **Tools > StarUML Controller > Stop Server**
+### Starting the Server
+
+1. **Launch StarUML** and open a project (or create a new one)
+
+2. From the menu bar, select **Tools > StarUML Controller > Start Server...**
+
+<p align="center">
+  <img src="images/image4.jpg" alt="Tools menu showing StarUML Controller submenu with Start Server and Stop Server options" width="700">
+</p>
+
+3. A dialog appears asking for the port number. Enter a port (default: `12345`) and click **OK**
+
+<p align="center">
+  <img src="images/image5.jpg" alt="Port number input dialog with default value 12345" width="400">
+</p>
+
+4. The HTTP server starts and all diagrams become accessible via REST API
+
+### Stopping the Server
+
+Select **Tools > StarUML Controller > Stop Server** from the menu bar.
 
 ## API Endpoints
 
