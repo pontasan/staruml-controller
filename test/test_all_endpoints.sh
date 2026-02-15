@@ -1036,6 +1036,405 @@ check "181.erd_delete_data_model" "$(curl -s -X DELETE $BASE/api/erd/data-models
 check "182.save_project" "$(curl -s -X POST $BASE/api/project/save -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
 check "183.open_project" "$(curl -s -X POST $BASE/api/project/open -H "Content-Type: application/json" -d '{"path":"/tmp/test_staruml.mdj"}')"
 
+# ============================================================
+# Family API Tests (factory-generated CRUD endpoints)
+# ============================================================
+
+# --- Class/Package Diagram Family ---
+R=$(curl -s -X POST $BASE/api/class/diagrams -H "Content-Type: application/json" -d '{"name":"TestClassDiag"}')
+check "300.class_create_diagram" "$R"
+FC_CLASS_DID=$(getid "$R")
+check "301.class_list_diagrams" "$(curl -s $BASE/api/class/diagrams)"
+check "302.class_get_diagram" "$(curl -s $BASE/api/class/diagrams/$(enc $FC_CLASS_DID))"
+check "303.class_update_diagram" "$(curl -s -X PUT $BASE/api/class/diagrams/$(enc $FC_CLASS_DID) -H "Content-Type: application/json" -d '{"name":"TestClassDiag_Up"}')"
+
+R=$(curl -s -X POST $BASE/api/class/classes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_CLASS_DID\",\"name\":\"TestClass1\"}")
+check "304.class_create_class" "$R"
+FC_CLS_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "305.class_list_classes" "$(curl -s $BASE/api/class/classes)"
+check "306.class_get_class" "$(curl -s $BASE/api/class/classes/$(enc $FC_CLS_ID))"
+check "307.class_update_class" "$(curl -s -X PUT $BASE/api/class/classes/$(enc $FC_CLS_ID) -H "Content-Type: application/json" -d '{"name":"TestClass1_Up"}')"
+
+R=$(curl -s -X POST $BASE/api/class/classes/$(enc $FC_CLS_ID)/attributes -H "Content-Type: application/json" -d '{"name":"attr1","type":"string"}')
+check "308.class_create_attribute" "$R"
+FC_ATTR_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "309.class_list_attributes" "$(curl -s $BASE/api/class/classes/$(enc $FC_CLS_ID)/attributes)"
+
+R=$(curl -s -X POST $BASE/api/class/classes/$(enc $FC_CLS_ID)/operations -H "Content-Type: application/json" -d '{"name":"op1"}')
+check "310.class_create_operation" "$R"
+FC_OP_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "311.class_list_operations" "$(curl -s $BASE/api/class/classes/$(enc $FC_CLS_ID)/operations)"
+
+R=$(curl -s -X POST $BASE/api/class/interfaces -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_CLASS_DID\",\"name\":\"TestInterface1\"}")
+check "312.class_create_interface" "$R"
+FC_IF_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/class/generalizations -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_CLASS_DID\",\"sourceId\":\"$FC_CLS_ID\",\"targetId\":\"$FC_IF_ID\"}")
+check "313.class_create_generalization" "$R"
+FC_GEN_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "314.class_list_generalizations" "$(curl -s $BASE/api/class/generalizations)"
+check "315.class_get_generalization" "$(curl -s $BASE/api/class/generalizations/$(enc $FC_GEN_ID))"
+
+# Cleanup class diagram
+check "316.class_delete_generalization" "$(curl -s -X DELETE $BASE/api/class/generalizations/$(enc $FC_GEN_ID))"
+check "317.class_delete_interface" "$(curl -s -X DELETE $BASE/api/class/interfaces/$(enc $FC_IF_ID))"
+check "318.class_delete_class" "$(curl -s -X DELETE $BASE/api/class/classes/$(enc $FC_CLS_ID))"
+check "319.class_delete_diagram" "$(curl -s -X DELETE $BASE/api/class/diagrams/$(enc $FC_CLASS_DID))"
+
+# --- Use Case Diagram Family ---
+R=$(curl -s -X POST $BASE/api/usecase/diagrams -H "Content-Type: application/json" -d '{"name":"TestUCDiag"}')
+check "320.uc_create_diagram" "$R"
+FC_UC_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/usecase/actors -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_UC_DID\",\"name\":\"Actor1\"}")
+check "321.uc_create_actor" "$R"
+FC_ACTOR_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/usecase/use-cases -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_UC_DID\",\"name\":\"UseCase1\"}")
+check "322.uc_create_usecase" "$R"
+FC_UC_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/usecase/associations -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_UC_DID\",\"sourceId\":\"$FC_ACTOR_ID\",\"targetId\":\"$FC_UC_ID\"}")
+check "323.uc_create_association" "$R"
+FC_UC_ASSOC_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "324.uc_list_actors" "$(curl -s $BASE/api/usecase/actors)"
+check "325.uc_list_usecases" "$(curl -s $BASE/api/usecase/use-cases)"
+check "326.uc_delete_association" "$(curl -s -X DELETE $BASE/api/usecase/associations/$(enc $FC_UC_ASSOC_ID))"
+check "327.uc_delete_usecase" "$(curl -s -X DELETE $BASE/api/usecase/use-cases/$(enc $FC_UC_ID))"
+check "328.uc_delete_actor" "$(curl -s -X DELETE $BASE/api/usecase/actors/$(enc $FC_ACTOR_ID))"
+check "329.uc_delete_diagram" "$(curl -s -X DELETE $BASE/api/usecase/diagrams/$(enc $FC_UC_DID))"
+
+# --- Activity Diagram Family ---
+R=$(curl -s -X POST $BASE/api/activity/diagrams -H "Content-Type: application/json" -d '{"name":"TestActDiag"}')
+check "330.act_create_diagram" "$R"
+FC_ACT_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/activity/actions -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_ACT_DID\",\"name\":\"Action1\"}")
+check "331.act_create_action" "$R"
+FC_ACTION_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/activity/control-nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_ACT_DID\",\"type\":\"UMLInitialNode\"}")
+check "332.act_create_initial_node" "$R"
+FC_INIT_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/activity/control-flows -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_ACT_DID\",\"sourceId\":\"$FC_INIT_ID\",\"targetId\":\"$FC_ACTION_ID\"}")
+check "333.act_create_control_flow" "$R"
+FC_CF_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "334.act_list_actions" "$(curl -s $BASE/api/activity/actions)"
+check "335.act_delete_control_flow" "$(curl -s -X DELETE $BASE/api/activity/control-flows/$(enc $FC_CF_ID))"
+check "336.act_delete_action" "$(curl -s -X DELETE $BASE/api/activity/actions/$(enc $FC_ACTION_ID))"
+check "337.act_delete_initial_node" "$(curl -s -X DELETE $BASE/api/activity/control-nodes/$(enc $FC_INIT_ID))"
+check "338.act_delete_diagram" "$(curl -s -X DELETE $BASE/api/activity/diagrams/$(enc $FC_ACT_DID))"
+
+# --- State Machine Diagram Family ---
+R=$(curl -s -X POST $BASE/api/statemachine/diagrams -H "Content-Type: application/json" -d '{"name":"TestSMDiag"}')
+check "339.sm_create_diagram" "$R"
+FC_SM_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/statemachine/states -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SM_DID\",\"name\":\"State1\"}")
+check "340.sm_create_state" "$R"
+FC_STATE_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/statemachine/pseudostates -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SM_DID\",\"pseudostateKind\":\"initial\"}")
+check "341.sm_create_pseudostate" "$R"
+FC_PS_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/statemachine/transitions -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SM_DID\",\"sourceId\":\"$FC_PS_ID\",\"targetId\":\"$FC_STATE_ID\"}")
+check "342.sm_create_transition" "$R"
+FC_TRANS_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "343.sm_list_states" "$(curl -s $BASE/api/statemachine/states)"
+check "344.sm_delete_transition" "$(curl -s -X DELETE $BASE/api/statemachine/transitions/$(enc $FC_TRANS_ID))"
+check "345.sm_delete_state" "$(curl -s -X DELETE $BASE/api/statemachine/states/$(enc $FC_STATE_ID))"
+check "346.sm_delete_pseudostate" "$(curl -s -X DELETE $BASE/api/statemachine/pseudostates/$(enc $FC_PS_ID))"
+check "347.sm_delete_diagram" "$(curl -s -X DELETE $BASE/api/statemachine/diagrams/$(enc $FC_SM_DID))"
+
+# --- Component Diagram Family ---
+R=$(curl -s -X POST $BASE/api/component/diagrams -H "Content-Type: application/json" -d '{"name":"TestCompDiag"}')
+check "348.comp_create_diagram" "$R"
+FC_COMP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/component/components -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_COMP_DID\",\"name\":\"Comp1\"}")
+check "349.comp_create_component" "$R"
+FC_COMP_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "350.comp_list_components" "$(curl -s $BASE/api/component/components)"
+check "351.comp_delete_component" "$(curl -s -X DELETE $BASE/api/component/components/$(enc $FC_COMP_ID))"
+check "352.comp_delete_diagram" "$(curl -s -X DELETE $BASE/api/component/diagrams/$(enc $FC_COMP_DID))"
+
+# --- Deployment Diagram Family ---
+R=$(curl -s -X POST $BASE/api/deployment/diagrams -H "Content-Type: application/json" -d '{"name":"TestDeployDiag"}')
+check "353.deploy_create_diagram" "$R"
+FC_DEP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/deployment/nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_DEP_DID\",\"name\":\"Node1\"}")
+check "354.deploy_create_node" "$R"
+FC_NODE_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "355.deploy_list_nodes" "$(curl -s $BASE/api/deployment/nodes)"
+check "356.deploy_delete_node" "$(curl -s -X DELETE $BASE/api/deployment/nodes/$(enc $FC_NODE_ID))"
+check "357.deploy_delete_diagram" "$(curl -s -X DELETE $BASE/api/deployment/diagrams/$(enc $FC_DEP_DID))"
+
+# --- Object Diagram Family ---
+R=$(curl -s -X POST $BASE/api/object/diagrams -H "Content-Type: application/json" -d '{"name":"TestObjDiag"}')
+check "358.obj_create_diagram" "$R"
+FC_OBJ_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/object/objects -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_OBJ_DID\",\"name\":\"Obj1\"}")
+check "359.obj_create_object" "$R"
+FC_OBJ_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+check "360.obj_list_objects" "$(curl -s $BASE/api/object/objects)"
+check "361.obj_delete_object" "$(curl -s -X DELETE $BASE/api/object/objects/$(enc $FC_OBJ_ID))"
+check "362.obj_delete_diagram" "$(curl -s -X DELETE $BASE/api/object/diagrams/$(enc $FC_OBJ_DID))"
+
+# --- Flowchart Family ---
+R=$(curl -s -X POST $BASE/api/flowchart/diagrams -H "Content-Type: application/json" -d '{"name":"TestFCDiag"}')
+check "363.fc_create_diagram" "$R"
+FC_FC_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/flowchart/nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_FC_DID\",\"name\":\"Process1\",\"type\":\"FCProcess\"}")
+check "364.fc_create_process" "$R"
+FC_PROC_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/flowchart/nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_FC_DID\",\"name\":\"End\",\"type\":\"FCTerminator\"}")
+check "365.fc_create_terminator" "$R"
+FC_TERM_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/flowchart/flows -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_FC_DID\",\"sourceId\":\"$FC_PROC_ID\",\"targetId\":\"$FC_TERM_ID\"}")
+check "366.fc_create_flow" "$R"
+FC_FLOW_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "367.fc_list_nodes" "$(curl -s $BASE/api/flowchart/nodes)"
+check "368.fc_list_flows" "$(curl -s $BASE/api/flowchart/flows)"
+check "369.fc_delete_flow" "$(curl -s -X DELETE $BASE/api/flowchart/flows/$(enc $FC_FLOW_ID))"
+check "370.fc_delete_process" "$(curl -s -X DELETE $BASE/api/flowchart/nodes/$(enc $FC_PROC_ID))"
+check "371.fc_delete_terminator" "$(curl -s -X DELETE $BASE/api/flowchart/nodes/$(enc $FC_TERM_ID))"
+check "372.fc_delete_diagram" "$(curl -s -X DELETE $BASE/api/flowchart/diagrams/$(enc $FC_FC_DID))"
+
+# --- DFD Family ---
+R=$(curl -s -X POST $BASE/api/dfd/diagrams -H "Content-Type: application/json" -d '{"name":"TestDFDDiag"}')
+check "373.dfd_create_diagram" "$R"
+FC_DFD_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/dfd/processes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_DFD_DID\",\"name\":\"DFDProc1\"}")
+check "374.dfd_create_process" "$R"
+FC_DFD_P_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/dfd/data-stores -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_DFD_DID\",\"name\":\"Store1\"}")
+check "375.dfd_create_datastore" "$R"
+FC_DFD_DS_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/dfd/data-flows -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_DFD_DID\",\"sourceId\":\"$FC_DFD_P_ID\",\"targetId\":\"$FC_DFD_DS_ID\"}")
+check "376.dfd_create_dataflow" "$R"
+FC_DFD_DF_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "377.dfd_delete_dataflow" "$(curl -s -X DELETE $BASE/api/dfd/data-flows/$(enc $FC_DFD_DF_ID))"
+check "378.dfd_delete_process" "$(curl -s -X DELETE $BASE/api/dfd/processes/$(enc $FC_DFD_P_ID))"
+check "379.dfd_delete_datastore" "$(curl -s -X DELETE $BASE/api/dfd/data-stores/$(enc $FC_DFD_DS_ID))"
+check "380.dfd_delete_diagram" "$(curl -s -X DELETE $BASE/api/dfd/diagrams/$(enc $FC_DFD_DID))"
+
+# --- MindMap Family ---
+R=$(curl -s -X POST $BASE/api/mindmap/diagrams -H "Content-Type: application/json" -d '{"name":"TestMMDiag"}')
+check "381.mm_create_diagram" "$R"
+FC_MM_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/mindmap/nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_MM_DID\",\"name\":\"Node1\"}")
+check "382.mm_create_node1" "$R"
+FC_MM_N1_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/mindmap/nodes -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_MM_DID\",\"name\":\"Node2\"}")
+check "383.mm_create_node2" "$R"
+FC_MM_N2_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/mindmap/edges -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_MM_DID\",\"sourceId\":\"$FC_MM_N1_ID\",\"targetId\":\"$FC_MM_N2_ID\"}")
+check "384.mm_create_edge" "$R"
+FC_MM_EDGE_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "385.mm_delete_edge" "$(curl -s -X DELETE $BASE/api/mindmap/edges/$(enc $FC_MM_EDGE_ID))"
+check "386.mm_delete_node1" "$(curl -s -X DELETE $BASE/api/mindmap/nodes/$(enc $FC_MM_N1_ID))"
+check "387.mm_delete_node2" "$(curl -s -X DELETE $BASE/api/mindmap/nodes/$(enc $FC_MM_N2_ID))"
+check "388.mm_delete_diagram" "$(curl -s -X DELETE $BASE/api/mindmap/diagrams/$(enc $FC_MM_DID))"
+
+# --- C4 Family ---
+R=$(curl -s -X POST $BASE/api/c4/diagrams -H "Content-Type: application/json" -d '{"name":"TestC4Diag"}')
+check "389.c4_create_diagram" "$R"
+FC_C4_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/c4/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_C4_DID\",\"name\":\"Person1\",\"type\":\"C4Person\"}")
+check "390.c4_create_person" "$R"
+FC_C4_P_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/c4/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_C4_DID\",\"name\":\"System1\",\"type\":\"C4SoftwareSystem\"}")
+check "391.c4_create_system" "$R"
+FC_C4_S_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/c4/relationships -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_C4_DID\",\"sourceId\":\"$FC_C4_P_ID\",\"targetId\":\"$FC_C4_S_ID\",\"name\":\"Uses\"}")
+check "392.c4_create_relationship" "$R"
+FC_C4_REL_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "393.c4_list_elements" "$(curl -s $BASE/api/c4/elements)"
+check "394.c4_list_relationships" "$(curl -s $BASE/api/c4/relationships)"
+check "395.c4_delete_relationship" "$(curl -s -X DELETE $BASE/api/c4/relationships/$(enc $FC_C4_REL_ID))"
+check "396.c4_delete_person" "$(curl -s -X DELETE $BASE/api/c4/elements/$(enc $FC_C4_P_ID))"
+check "397.c4_delete_system" "$(curl -s -X DELETE $BASE/api/c4/elements/$(enc $FC_C4_S_ID))"
+check "398.c4_delete_diagram" "$(curl -s -X DELETE $BASE/api/c4/diagrams/$(enc $FC_C4_DID))"
+
+# --- AWS Family ---
+R=$(curl -s -X POST $BASE/api/aws/diagrams -H "Content-Type: application/json" -d '{"name":"TestAWSDiag"}')
+check "399.aws_create_diagram" "$R"
+FC_AWS_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/aws/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_AWS_DID\",\"name\":\"Svc1\",\"type\":\"AWSService\"}")
+check "400.aws_create_service" "$R"
+FC_AWS_S1_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/aws/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_AWS_DID\",\"name\":\"Svc2\",\"type\":\"AWSService\",\"x1\":300}")
+check "401.aws_create_service2" "$R"
+FC_AWS_S2_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/aws/arrows -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_AWS_DID\",\"sourceId\":\"$FC_AWS_S1_ID\",\"targetId\":\"$FC_AWS_S2_ID\"}")
+check "402.aws_create_arrow" "$R"
+FC_AWS_ARR_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "403.aws_delete_arrow" "$(curl -s -X DELETE $BASE/api/aws/arrows/$(enc $FC_AWS_ARR_ID))"
+check "404.aws_delete_service1" "$(curl -s -X DELETE $BASE/api/aws/elements/$(enc $FC_AWS_S1_ID))"
+check "405.aws_delete_service2" "$(curl -s -X DELETE $BASE/api/aws/elements/$(enc $FC_AWS_S2_ID))"
+check "406.aws_delete_diagram" "$(curl -s -X DELETE $BASE/api/aws/diagrams/$(enc $FC_AWS_DID))"
+
+# --- Azure Family ---
+R=$(curl -s -X POST $BASE/api/azure/diagrams -H "Content-Type: application/json" -d '{"name":"TestAzureDiag"}')
+check "407.azure_create_diagram" "$R"
+FC_AZ_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/azure/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_AZ_DID\",\"name\":\"AzSvc1\",\"type\":\"AzureService\"}")
+check "408.azure_create_service" "$R"
+FC_AZ_S_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "409.azure_list_elements" "$(curl -s $BASE/api/azure/elements)"
+check "410.azure_delete_service" "$(curl -s -X DELETE $BASE/api/azure/elements/$(enc $FC_AZ_S_ID))"
+check "411.azure_delete_diagram" "$(curl -s -X DELETE $BASE/api/azure/diagrams/$(enc $FC_AZ_DID))"
+
+# --- GCP Family ---
+R=$(curl -s -X POST $BASE/api/gcp/diagrams -H "Content-Type: application/json" -d '{"name":"TestGCPDiag"}')
+check "412.gcp_create_diagram" "$R"
+FC_GCP_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/gcp/elements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_GCP_DID\",\"name\":\"GCPProd1\",\"type\":\"GCPProduct\"}")
+check "413.gcp_create_product" "$R"
+FC_GCP_P_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "414.gcp_list_elements" "$(curl -s $BASE/api/gcp/elements)"
+check "415.gcp_delete_product" "$(curl -s -X DELETE $BASE/api/gcp/elements/$(enc $FC_GCP_P_ID))"
+check "416.gcp_delete_diagram" "$(curl -s -X DELETE $BASE/api/gcp/diagrams/$(enc $FC_GCP_DID))"
+
+# --- BPMN Family ---
+R=$(curl -s -X POST $BASE/api/bpmn/diagrams -H "Content-Type: application/json" -d '{"name":"TestBPMNDiag"}')
+check "417.bpmn_create_diagram" "$R"
+FC_BPMN_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/bpmn/tasks -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_BPMN_DID\",\"name\":\"Task1\",\"type\":\"BPMNTask\"}")
+check "418.bpmn_create_task" "$R"
+FC_BPMN_T_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/bpmn/gateways -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_BPMN_DID\",\"type\":\"BPMNExclusiveGateway\"}")
+check "419.bpmn_create_gateway" "$R"
+FC_BPMN_G_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/bpmn/sequence-flows -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_BPMN_DID\",\"sourceId\":\"$FC_BPMN_T_ID\",\"targetId\":\"$FC_BPMN_G_ID\"}")
+check "420.bpmn_create_seqflow" "$R"
+FC_BPMN_SF_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "421.bpmn_list_tasks" "$(curl -s $BASE/api/bpmn/tasks)"
+check "422.bpmn_list_gateways" "$(curl -s $BASE/api/bpmn/gateways)"
+check "423.bpmn_delete_seqflow" "$(curl -s -X DELETE $BASE/api/bpmn/sequence-flows/$(enc $FC_BPMN_SF_ID))"
+check "424.bpmn_delete_task" "$(curl -s -X DELETE $BASE/api/bpmn/tasks/$(enc $FC_BPMN_T_ID))"
+check "425.bpmn_delete_gateway" "$(curl -s -X DELETE $BASE/api/bpmn/gateways/$(enc $FC_BPMN_G_ID))"
+check "426.bpmn_delete_diagram" "$(curl -s -X DELETE $BASE/api/bpmn/diagrams/$(enc $FC_BPMN_DID))"
+
+# --- SysML Family ---
+R=$(curl -s -X POST $BASE/api/sysml/diagrams -H "Content-Type: application/json" -d '{"name":"TestSysMLDiag","type":"SysMLRequirementDiagram"}')
+check "427.sysml_create_diagram" "$R"
+FC_SYSML_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/sysml/requirements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SYSML_DID\",\"name\":\"Req1\"}")
+check "428.sysml_create_req1" "$R"
+FC_SYSML_R1_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/sysml/requirements -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SYSML_DID\",\"name\":\"Req2\",\"x1\":300}")
+check "429.sysml_create_req2" "$R"
+FC_SYSML_R2_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/sysml/derive-reqts -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_SYSML_DID\",\"sourceId\":\"$FC_SYSML_R1_ID\",\"targetId\":\"$FC_SYSML_R2_ID\"}")
+check "430.sysml_create_derive" "$R"
+FC_SYSML_D_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "431.sysml_list_requirements" "$(curl -s $BASE/api/sysml/requirements)"
+check "432.sysml_delete_derive" "$(curl -s -X DELETE $BASE/api/sysml/derive-reqts/$(enc $FC_SYSML_D_ID))"
+check "433.sysml_delete_req1" "$(curl -s -X DELETE $BASE/api/sysml/requirements/$(enc $FC_SYSML_R1_ID))"
+check "434.sysml_delete_req2" "$(curl -s -X DELETE $BASE/api/sysml/requirements/$(enc $FC_SYSML_R2_ID))"
+check "435.sysml_delete_diagram" "$(curl -s -X DELETE $BASE/api/sysml/diagrams/$(enc $FC_SYSML_DID))"
+
+# --- Wireframe Family ---
+R=$(curl -s -X POST $BASE/api/wireframe/diagrams -H "Content-Type: application/json" -d '{"name":"TestWFDiag"}')
+check "436.wf_create_diagram" "$R"
+FC_WF_DID=$(getid "$R")
+
+R=$(curl -s -X POST $BASE/api/wireframe/frames -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_WF_DID\",\"name\":\"Frame1\",\"type\":\"WFFrame\"}")
+check "437.wf_create_frame" "$R"
+FC_WF_F_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+R=$(curl -s -X POST $BASE/api/wireframe/widgets -H "Content-Type: application/json" -d "{\"diagramId\":\"$FC_WF_DID\",\"name\":\"Button1\",\"type\":\"WFButton\"}")
+check "438.wf_create_widget" "$R"
+FC_WF_W_ID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_id'])" 2>/dev/null)
+
+check "439.wf_list_frames" "$(curl -s $BASE/api/wireframe/frames)"
+check "440.wf_list_widgets" "$(curl -s $BASE/api/wireframe/widgets)"
+check "441.wf_delete_widget" "$(curl -s -X DELETE $BASE/api/wireframe/widgets/$(enc $FC_WF_W_ID))"
+check "442.wf_delete_frame" "$(curl -s -X DELETE $BASE/api/wireframe/frames/$(enc $FC_WF_F_ID))"
+check "443.wf_delete_diagram" "$(curl -s -X DELETE $BASE/api/wireframe/diagrams/$(enc $FC_WF_DID))"
+
+# --- Communication Diagram Family ---
+R=$(curl -s -X POST $BASE/api/communication/diagrams -H "Content-Type: application/json" -d '{"name":"TestCommDiag"}')
+check "444.comm_create_diagram" "$R"
+FC_COMM_DID=$(getid "$R")
+check "445.comm_list_diagrams" "$(curl -s $BASE/api/communication/diagrams)"
+check "446.comm_delete_diagram" "$(curl -s -X DELETE $BASE/api/communication/diagrams/$(enc $FC_COMM_DID))"
+
+# --- Information Flow Family ---
+R=$(curl -s -X POST $BASE/api/infoflow/diagrams -H "Content-Type: application/json" -d '{"name":"TestInfoFlowDiag"}')
+check "447.if_create_diagram" "$R"
+FC_IF_DID=$(getid "$R")
+check "448.if_list_diagrams" "$(curl -s $BASE/api/infoflow/diagrams)"
+check "449.if_delete_diagram" "$(curl -s -X DELETE $BASE/api/infoflow/diagrams/$(enc $FC_IF_DID))"
+
+# --- Profile Diagram Family ---
+R=$(curl -s -X POST $BASE/api/profile/diagrams -H "Content-Type: application/json" -d '{"name":"TestProfDiag"}')
+check "450.prof_create_diagram" "$R"
+FC_PROF_DID=$(getid "$R")
+check "451.prof_list_diagrams" "$(curl -s $BASE/api/profile/diagrams)"
+check "452.prof_delete_diagram" "$(curl -s -X DELETE $BASE/api/profile/diagrams/$(enc $FC_PROF_DID))"
+
+# --- Composite Structure Family ---
+R=$(curl -s -X POST $BASE/api/composite/diagrams -H "Content-Type: application/json" -d '{"name":"TestCompositeDiag"}')
+check "453.cs_create_diagram" "$R"
+FC_CS_DID=$(getid "$R")
+check "454.cs_list_diagrams" "$(curl -s $BASE/api/composite/diagrams)"
+check "455.cs_delete_diagram" "$(curl -s -X DELETE $BASE/api/composite/diagrams/$(enc $FC_CS_DID))"
+
+# --- Timing Diagram Family ---
+R=$(curl -s -X POST $BASE/api/timing/diagrams -H "Content-Type: application/json" -d '{"name":"TestTimingDiag"}')
+check "456.timing_create_diagram" "$R"
+FC_TIM_DID=$(getid "$R")
+check "457.timing_list_diagrams" "$(curl -s $BASE/api/timing/diagrams)"
+check "458.timing_delete_diagram" "$(curl -s -X DELETE $BASE/api/timing/diagrams/$(enc $FC_TIM_DID))"
+
+# --- Interaction Overview Family ---
+R=$(curl -s -X POST $BASE/api/overview/diagrams -H "Content-Type: application/json" -d '{"name":"TestOverviewDiag"}')
+check "459.ov_create_diagram" "$R"
+FC_OV_DID=$(getid "$R")
+check "460.ov_list_diagrams" "$(curl -s $BASE/api/overview/diagrams)"
+check "461.ov_delete_diagram" "$(curl -s -X DELETE $BASE/api/overview/diagrams/$(enc $FC_OV_DID))"
+
 # =============================
 # Restore project to pre-test state
 # =============================

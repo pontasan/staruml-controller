@@ -1,0 +1,1127 @@
+/**
+ * CRUD Factory Engine
+ *
+ * Generates REST API handlers from a declarative family configuration.
+ * Each family config describes:
+ *   - prefix: URL prefix (e.g. 'class')
+ *   - diagrams.types: array of StarUML diagram types
+ *   - resources: array of node-type resources with optional children
+ *   - relations: array of edge-type resources
+ *
+ * For each resource, the factory generates:
+ *   GET    /api/{prefix}/{resource}          — list (filterable by diagramId)
+ *   POST   /api/{prefix}/{resource}          — create
+ *   GET    /api/{prefix}/{resource}/:id      — get one
+ *   PUT    /api/{prefix}/{resource}/:id      — update
+ *   DELETE /api/{prefix}/{resource}/:id      — delete
+ *
+ * For child resources:
+ *   GET    /api/{prefix}/{parent}/:id/{children}  — list children
+ *   POST   /api/{prefix}/{parent}/:id/{children}  — create child
+ */
+
+const h = require('./shared-helpers')
+
+// Auto-created container types that should be cleaned up when empty
+const AUTO_CONTAINER_TYPES = [
+    'UMLModel', 'UMLStateMachine', 'UMLActivity',
+    'UMLInteraction', 'UMLCollaboration',
+    'FCFlowchart', 'DFDDataFlowModel',
+    'BPMNProcess', 'BPMNCollaboration',
+    'C4Model',
+    'SysMLRequirement', 'SysMLBlock',
+    'WFWireframe',
+    'MMMindmap',
+    'AWSModel',
+    'AzureModel',
+    'GCPModel'
+]
+
+function isAutoContainer(elem) {
+    return elem && AUTO_CONTAINER_TYPES.indexOf(elem.constructor.name) !== -1
+}
+
+// ============================================================
+// Serialization helpers
+// ============================================================
+
+/**
+ * Default serializer for a node element.
+ */
+function defaultSerializeNode(elem) {
+    if (!elem) return null
+    const result = {
+        _id: elem._id,
+        _type: elem.constructor.name,
+        name: elem.name || ''
+    }
+    if (elem.documentation) {
+        result.documentation = elem.documentation
+    }
+    if (elem._parent) {
+        result._parentId = elem._parent._id
+    }
+    return result
+}
+
+/**
+ * Default serializer for a relation element.
+ */
+function defaultSerializeRelation(elem, config) {
+    if (!elem) return null
+    const result = {
+        _id: elem._id,
+        _type: elem.constructor.name,
+        name: elem.name || ''
+    }
+    if (elem.documentation) {
+        result.documentation = elem.documentation
+    }
+    if (elem._parent) {
+        result._parentId = elem._parent._id
+    }
+
+    // source/target references
+    if (config && config.hasEnds && elem.end1 && elem.end2) {
+        result.end1 = serializeEnd(elem.end1, config.endFields)
+        result.end2 = serializeEnd(elem.end2, config.endFields)
+    } else {
+        // Generic source/target via ownedElements or known fields
+        if (elem.source) {
+            result.sourceId = elem.source._id || null
+            result.sourceName = elem.source.name || ''
+        }
+        if (elem.target) {
+            result.targetId = elem.target._id || null
+            result.targetName = elem.target.name || ''
+        }
+    }
+
+    return result
+}
+
+function serializeEnd(end, endFields) {
+    if (!end) return null
+    const result = {}
+    if (end.reference) {
+        result.reference = end.reference._id
+    }
+    const fields = endFields || ['name', 'navigable', 'aggregation', 'multiplicity']
+    fields.forEach(function (f) {
+        if (end[f] !== undefined) {
+            result[f] = end[f]
+        }
+    })
+    return result
+}
+
+/**
+ * Default serializer for a child element.
+ */
+function defaultSerializeChild(elem) {
+    if (!elem) return null
+    const result = {
+        _id: elem._id,
+        _type: elem.constructor.name,
+        name: elem.name || ''
+    }
+    if (elem.documentation) {
+        result.documentation = elem.documentation
+    }
+    if (elem._parent) {
+        result._parentId = elem._parent._id
+    }
+    // Include common child-specific fields if present
+    if (elem.type !== undefined && typeof elem.type === 'string') {
+        result.type = elem.type
+    }
+    if (elem.defaultValue !== undefined) {
+        result.defaultValue = elem.defaultValue
+    }
+    if (elem.visibility !== undefined) {
+        result.visibility = elem.visibility
+    }
+    if (elem.isStatic !== undefined) {
+        result.isStatic = elem.isStatic
+    }
+    return result
+}
+
+// ============================================================
+// Handler generators
+// ============================================================
+
+/**
+ * Build all route handlers for a family config.
+ * Returns an array of { method, pattern, handler } objects.
+ */
+function createFamilyHandlers(config) {
+    const routes = []
+    const prefix = '/api/' + config.prefix
+
+    // --- Diagram routes ---
+    if (config.diagrams) {
+        routes.push({
+            method: 'GET',
+            pattern: prefix + '/diagrams',
+            handler: makeListDiagrams(config)
+        })
+        routes.push({
+            method: 'POST',
+            pattern: prefix + '/diagrams',
+            handler: makeCreateDiagram(config)
+        })
+        routes.push({
+            method: 'GET',
+            pattern: prefix + '/diagrams/:id',
+            handler: makeGetDiagram(config)
+        })
+        routes.push({
+            method: 'PUT',
+            pattern: prefix + '/diagrams/:id',
+            handler: makeUpdateDiagram(config)
+        })
+        routes.push({
+            method: 'DELETE',
+            pattern: prefix + '/diagrams/:id',
+            handler: makeDeleteDiagram(config)
+        })
+    }
+
+    // --- Resource routes (nodes) ---
+    if (config.resources) {
+        config.resources.forEach(function (res) {
+            routes.push({
+                method: 'GET',
+                pattern: prefix + '/' + res.name,
+                handler: makeListResource(config, res)
+            })
+            routes.push({
+                method: 'POST',
+                pattern: prefix + '/' + res.name,
+                handler: makeCreateResource(config, res)
+            })
+            routes.push({
+                method: 'GET',
+                pattern: prefix + '/' + res.name + '/:id',
+                handler: makeGetResource(config, res)
+            })
+            routes.push({
+                method: 'PUT',
+                pattern: prefix + '/' + res.name + '/:id',
+                handler: makeUpdateResource(config, res)
+            })
+            routes.push({
+                method: 'DELETE',
+                pattern: prefix + '/' + res.name + '/:id',
+                handler: makeDeleteResource(config, res)
+            })
+
+            // Child routes
+            if (res.children) {
+                res.children.forEach(function (child) {
+                    routes.push({
+                        method: 'GET',
+                        pattern: prefix + '/' + res.name + '/:id/' + child.name,
+                        handler: makeListChildren(config, res, child)
+                    })
+                    routes.push({
+                        method: 'POST',
+                        pattern: prefix + '/' + res.name + '/:id/' + child.name,
+                        handler: makeCreateChild(config, res, child)
+                    })
+                })
+            }
+        })
+    }
+
+    // --- Relation routes (edges) ---
+    if (config.relations) {
+        config.relations.forEach(function (rel) {
+            routes.push({
+                method: 'GET',
+                pattern: prefix + '/' + rel.name,
+                handler: makeListRelation(config, rel)
+            })
+            routes.push({
+                method: 'POST',
+                pattern: prefix + '/' + rel.name,
+                handler: makeCreateRelation(config, rel)
+            })
+            routes.push({
+                method: 'GET',
+                pattern: prefix + '/' + rel.name + '/:id',
+                handler: makeGetRelation(config, rel)
+            })
+            routes.push({
+                method: 'PUT',
+                pattern: prefix + '/' + rel.name + '/:id',
+                handler: makeUpdateRelation(config, rel)
+            })
+            routes.push({
+                method: 'DELETE',
+                pattern: prefix + '/' + rel.name + '/:id',
+                handler: makeDeleteRelation(config, rel)
+            })
+        })
+    }
+
+    return routes
+}
+
+// ============================================================
+// Diagram handlers
+// ============================================================
+
+function makeListDiagrams(config) {
+    return function (params, query, body, reqInfo) {
+        let diagrams = []
+        config.diagrams.types.forEach(function (t) {
+            const found = app.repository.select('@' + t)
+            diagrams = diagrams.concat(found)
+        })
+        return {
+            success: true,
+            message: 'Retrieved ' + diagrams.length + ' diagram(s)',
+            request: reqInfo,
+            data: diagrams.map(function (d) { return h.serializeGenericDiagramDetail(d) })
+        }
+    }
+}
+
+function makeCreateDiagram(config) {
+    const allowedFields = ['name', 'parentId']
+    // If multiple diagram types, allow 'type' field
+    if (config.diagrams.types.length > 1) {
+        allowedFields.push('type')
+    }
+    return function (params, query, body, reqInfo) {
+        const err = h.validate([
+            h.checkUnknownFields(body, allowedFields),
+            h.checkFieldType(body, 'name', 'string'),
+            h.checkFieldType(body, 'parentId', 'string'),
+            h.checkFieldType(body, 'type', 'string')
+        ])
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (body.name !== undefined) {
+            const nameErr = h.checkNonEmptyString(body, 'name')
+            if (nameErr) return h.validationError(nameErr, reqInfo, body)
+        }
+
+        // Determine diagram type
+        let diagramType
+        if (config.diagrams.types.length === 1) {
+            diagramType = config.diagrams.types[0]
+        } else if (body.type) {
+            if (config.diagrams.types.indexOf(body.type) === -1) {
+                return h.validationError(
+                    'Invalid diagram type "' + body.type + '". Allowed: ' + config.diagrams.types.join(', '),
+                    reqInfo, body
+                )
+            }
+            diagramType = body.type
+        } else {
+            diagramType = config.diagrams.types[0]
+        }
+
+        let parent
+        if (body.parentId) {
+            parent = h.findById(body.parentId)
+            if (!parent) return h.validationError('Parent not found: ' + body.parentId, reqInfo, body)
+        } else {
+            parent = app.project.getProject()
+            if (!parent) return h.validationError('No project found. Open a project first.', reqInfo, body)
+        }
+
+        try {
+            const diagram = app.factory.createDiagram({
+                id: diagramType,
+                parent: parent,
+                diagramInitializer: function (d) {
+                    if (body.name) {
+                        d.name = body.name
+                    }
+                }
+            })
+            if (!diagram) {
+                return { success: false, error: 'Failed to create diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
+            }
+            return {
+                success: true,
+                message: 'Created diagram "' + diagram.name + '" (' + diagramType + ')',
+                request: Object.assign({}, reqInfo, { body: body }),
+                data: h.serializeGenericDiagramDetail(diagram)
+            }
+        } catch (e) {
+            return { success: false, error: 'Failed to create diagram: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+    }
+}
+
+function makeGetDiagram(config) {
+    return function (params, query, body, reqInfo) {
+        const diagram = h.findById(params.id)
+        if (!diagram || !diagram.ownedViews) {
+            return { success: false, error: 'Diagram not found: ' + params.id, request: reqInfo }
+        }
+        // Verify it's one of this family's types
+        const typeName = diagram.constructor.name
+        if (config.diagrams.types.indexOf(typeName) === -1) {
+            return { success: false, error: 'Diagram not found: ' + params.id, request: reqInfo }
+        }
+        return {
+            success: true,
+            message: 'Retrieved diagram "' + (diagram.name || params.id) + '"',
+            request: reqInfo,
+            data: h.serializeGenericDiagramDetail(diagram)
+        }
+    }
+}
+
+function makeUpdateDiagram(config) {
+    return function (params, query, body, reqInfo) {
+        const err = h.validate([
+            h.checkUnknownFields(body, ['name']),
+            h.checkFieldType(body, 'name', 'string')
+        ])
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (Object.keys(body).length === 0) {
+            return h.validationError('At least one field must be provided. Allowed fields: name', reqInfo, body)
+        }
+
+        if (body.name !== undefined) {
+            const nameErr = h.checkNonEmptyString(body, 'name')
+            if (nameErr) return h.validationError(nameErr, reqInfo, body)
+        }
+
+        const diagram = h.findById(params.id)
+        if (!diagram || !diagram.ownedViews) {
+            return { success: false, error: 'Diagram not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        if (body.name !== undefined) {
+            app.engine.setProperty(diagram, 'name', body.name)
+        }
+
+        return {
+            success: true,
+            message: 'Updated diagram "' + diagram.name + '"',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: h.serializeGenericDiagramDetail(diagram)
+        }
+    }
+}
+
+function makeDeleteDiagram(config) {
+    return function (params, query, body, reqInfo) {
+        const diagram = h.findById(params.id)
+        if (!diagram || !diagram.ownedViews) {
+            return { success: false, error: 'Diagram not found: ' + params.id, request: reqInfo }
+        }
+        const name = diagram.name
+        const parent = diagram._parent
+        const viewsToDelete = diagram.ownedViews.slice()
+        const modelsToDelete = [diagram]
+        const modelIdSet = {}
+        modelIdSet[diagram._id] = true
+
+        viewsToDelete.forEach(function (view) {
+            if (view.model && view.model._id && !modelIdSet[view.model._id]) {
+                const viewsOfModel = app.repository.getViewsOf(view.model) || []
+                const viewsOnOtherDiagrams = viewsOfModel.filter(function (v) {
+                    return v._parent && v._parent._id !== diagram._id
+                })
+                if (viewsOnOtherDiagrams.length === 0) {
+                    modelIdSet[view.model._id] = true
+                    modelsToDelete.push(view.model)
+                }
+            }
+        })
+
+        if (parent && parent._parent && isAutoContainer(parent)) {
+            let container = parent
+            while (container && container._parent && isAutoContainer(container)) {
+                if (!modelIdSet[container._id]) {
+                    const otherChildren = (container.ownedElements || []).filter(function (child) {
+                        return !modelIdSet[child._id]
+                    })
+                    if (otherChildren.length === 0) {
+                        modelIdSet[container._id] = true
+                        modelsToDelete.push(container)
+                    } else {
+                        break
+                    }
+                }
+                container = container._parent
+            }
+        }
+
+        app.engine.deleteElements(modelsToDelete, viewsToDelete)
+
+        return {
+            success: true,
+            message: 'Deleted diagram "' + name + '"',
+            request: reqInfo,
+            data: { deleted: params.id, name: name }
+        }
+    }
+}
+
+// ============================================================
+// Resource (node) handlers
+// ============================================================
+
+function makeListResource(config, res) {
+    return function (params, query, body, reqInfo) {
+        let elements = []
+        res.types.forEach(function (t) {
+            const found = app.repository.select('@' + t)
+            elements = elements.concat(found)
+        })
+
+        // Filter by diagramId if provided
+        if (query && query.diagramId) {
+            const diagram = h.findById(query.diagramId)
+            if (!diagram || !diagram.ownedViews) {
+                return { success: false, error: 'Diagram not found: ' + query.diagramId, request: reqInfo }
+            }
+            const modelIdsOnDiagram = {}
+            diagram.ownedViews.forEach(function (v) {
+                if (v.model) {
+                    modelIdsOnDiagram[v.model._id] = true
+                }
+            })
+            elements = elements.filter(function (e) {
+                return modelIdsOnDiagram[e._id]
+            })
+        }
+
+        const serializer = res.serialize || defaultSerializeNode
+        return {
+            success: true,
+            message: 'Retrieved ' + elements.length + ' ' + res.name,
+            request: reqInfo,
+            data: elements.map(function (e) { return serializer(e) })
+        }
+    }
+}
+
+function makeCreateResource(config, res) {
+    const allowedFields = ['diagramId', 'name', 'x1', 'y1', 'x2', 'y2']
+    // If multiple types, allow 'type' field
+    if (res.types.length > 1) {
+        allowedFields.push('type')
+    }
+    // Add extra create fields from config
+    if (res.createFields) {
+        res.createFields.forEach(function (f) {
+            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+        })
+    }
+
+    return function (params, query, body, reqInfo) {
+        const checks = [
+            h.checkUnknownFields(body, allowedFields),
+            h.checkFieldType(body, 'diagramId', 'string'),
+            h.checkFieldType(body, 'name', 'string'),
+            h.checkFieldType(body, 'x1', 'number'),
+            h.checkFieldType(body, 'y1', 'number'),
+            h.checkFieldType(body, 'x2', 'number'),
+            h.checkFieldType(body, 'y2', 'number'),
+            h.checkFieldType(body, 'type', 'string')
+        ]
+        const err = h.validate(checks)
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (!body.diagramId) {
+            return h.validationError('Field "diagramId" is required', reqInfo, body)
+        }
+
+        const diagram = h.findById(body.diagramId)
+        if (!diagram || !diagram.ownedViews) {
+            return { success: false, error: 'Diagram not found: ' + body.diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        // Determine element type
+        let elemType
+        if (res.types.length === 1) {
+            elemType = res.types[0]
+        } else if (body.type) {
+            if (res.types.indexOf(body.type) === -1) {
+                return h.validationError(
+                    'Invalid type "' + body.type + '". Allowed: ' + res.types.join(', '),
+                    reqInfo, body
+                )
+            }
+            elemType = body.type
+        } else {
+            elemType = res.types[0]
+        }
+
+        let parent = diagram._parent
+        if (!parent) {
+            return h.validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
+        }
+
+        const x1 = body.x1 !== undefined ? body.x1 : 100
+        const y1 = body.y1 !== undefined ? body.y1 : 100
+        const x2 = body.x2 !== undefined ? body.x2 : 200
+        const y2 = body.y2 !== undefined ? body.y2 : 180
+
+        const factoryOpts = {
+            id: elemType,
+            parent: parent,
+            diagram: diagram,
+            x1: x1, y1: y1, x2: x2, y2: y2
+        }
+
+        try {
+            const view = app.factory.createModelAndView(factoryOpts)
+            const model = view.model || view
+
+            if (body.name && model && typeof model._id === 'string') {
+                app.engine.setProperty(model, 'name', body.name)
+            }
+
+            // Apply extra fields via setProperty
+            if (res.createFields) {
+                res.createFields.forEach(function (f) {
+                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'type') {
+                        if (model && typeof model._id === 'string') {
+                            app.engine.setProperty(model, f, body[f])
+                        }
+                    }
+                })
+            }
+
+            const serializer = res.serialize || defaultSerializeNode
+            return {
+                success: true,
+                message: 'Created ' + res.name.replace(/-/g, ' ') + ' "' + (model ? model.name || elemType : elemType) + '"',
+                request: Object.assign({}, reqInfo, { body: body }),
+                data: serializer(model)
+            }
+        } catch (e) {
+            return { success: false, error: 'Failed to create element: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+    }
+}
+
+function makeGetResource(config, res) {
+    return function (params, query, body, reqInfo) {
+        const elem = h.findById(params.id)
+        if (!elem) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+        // Verify type
+        if (res.types.indexOf(elem.constructor.name) === -1) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+        const serializer = res.serialize || defaultSerializeNode
+        return {
+            success: true,
+            message: 'Retrieved ' + res.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '"',
+            request: reqInfo,
+            data: serializer(elem)
+        }
+    }
+}
+
+function makeUpdateResource(config, res) {
+    const updateFields = res.updateFields || ['name', 'documentation']
+    return function (params, query, body, reqInfo) {
+        const checks = [h.checkUnknownFields(body, updateFields)]
+        updateFields.forEach(function (f) {
+            if (f === 'name' || f === 'documentation') {
+                checks.push(h.checkFieldType(body, f, 'string'))
+            }
+        })
+        const err = h.validate(checks)
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (Object.keys(body).length === 0) {
+            return h.validationError('At least one field must be provided. Allowed fields: ' + updateFields.join(', '), reqInfo, body)
+        }
+
+        if (body.name !== undefined) {
+            const nameErr = h.checkNonEmptyString(body, 'name')
+            if (nameErr) return h.validationError(nameErr, reqInfo, body)
+        }
+
+        const elem = h.findById(params.id)
+        if (!elem) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        if (res.types.indexOf(elem.constructor.name) === -1) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        const updated = []
+        updateFields.forEach(function (f) {
+            if (body[f] !== undefined) {
+                app.engine.setProperty(elem, f, body[f])
+                updated.push(f)
+            }
+        })
+
+        const serializer = res.serialize || defaultSerializeNode
+        return {
+            success: true,
+            message: 'Updated ' + res.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '" (fields: ' + updated.join(', ') + ')',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: serializer(elem)
+        }
+    }
+}
+
+function makeDeleteResource(config, res) {
+    return function (params, query, body, reqInfo) {
+        const elem = h.findById(params.id)
+        if (!elem) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+        if (res.types.indexOf(elem.constructor.name) === -1) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+
+        const name = elem.name || params.id
+
+        // Find associated views across all diagrams
+        const views = []
+        const allDiagrams = app.repository.select('@Diagram')
+        allDiagrams.forEach(function (d) {
+            if (d.ownedViews) {
+                d.ownedViews.forEach(function (v) {
+                    if (v.model && v.model._id === params.id) {
+                        views.push(v)
+                    }
+                })
+            }
+        })
+
+        app.engine.deleteElements([elem], views)
+        return {
+            success: true,
+            message: 'Deleted ' + res.name.replace(/-/g, ' ') + ' "' + name + '"',
+            request: reqInfo,
+            data: { deleted: params.id, name: name }
+        }
+    }
+}
+
+// ============================================================
+// Child handlers
+// ============================================================
+
+function makeListChildren(config, res, child) {
+    return function (params, query, body, reqInfo) {
+        const parent = h.findById(params.id)
+        if (!parent) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+        if (res.types.indexOf(parent.constructor.name) === -1) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+
+        const field = child.field
+        const children = parent[field] || []
+        const serializer = child.serialize || defaultSerializeChild
+        return {
+            success: true,
+            message: 'Retrieved ' + children.length + ' ' + child.name,
+            request: reqInfo,
+            data: children.map(function (c) { return serializer(c) })
+        }
+    }
+}
+
+function makeCreateChild(config, res, child) {
+    const allowedFields = ['name']
+    if (child.createFields) {
+        child.createFields.forEach(function (f) {
+            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+        })
+    }
+
+    return function (params, query, body, reqInfo) {
+        const err = h.validate([
+            h.checkUnknownFields(body, allowedFields),
+            h.checkFieldType(body, 'name', 'string')
+        ])
+        if (err) return h.validationError(err, reqInfo, body)
+
+        const parent = h.findById(params.id)
+        if (!parent) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+        if (res.types.indexOf(parent.constructor.name) === -1) {
+            return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        try {
+            const options = {
+                id: child.type,
+                parent: parent,
+                field: child.field
+            }
+
+            const model = app.factory.createModel(options)
+
+            if (body.name && model) {
+                app.engine.setProperty(model, 'name', body.name)
+            }
+
+            // Apply extra fields
+            if (child.createFields) {
+                child.createFields.forEach(function (f) {
+                    if (body[f] !== undefined && f !== 'name') {
+                        app.engine.setProperty(model, f, body[f])
+                    }
+                })
+            }
+
+            const serializer = child.serialize || defaultSerializeChild
+            return {
+                success: true,
+                message: 'Created ' + child.name.replace(/-/g, ' ') + ' "' + (model.name || child.type) + '"',
+                request: Object.assign({}, reqInfo, { body: body }),
+                data: serializer(model)
+            }
+        } catch (e) {
+            return { success: false, error: 'Failed to create ' + child.name.replace(/-/g, ' ') + ': ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+    }
+}
+
+// ============================================================
+// Relation handlers
+// ============================================================
+
+function makeListRelation(config, rel) {
+    return function (params, query, body, reqInfo) {
+        const elements = app.repository.select('@' + rel.type)
+
+        let filtered = elements
+        // Filter by diagramId if provided
+        if (query && query.diagramId) {
+            const diagram = h.findById(query.diagramId)
+            if (!diagram || !diagram.ownedViews) {
+                return { success: false, error: 'Diagram not found: ' + query.diagramId, request: reqInfo }
+            }
+            const modelIdsOnDiagram = {}
+            diagram.ownedViews.forEach(function (v) {
+                if (v.model) {
+                    modelIdsOnDiagram[v.model._id] = true
+                }
+            })
+            filtered = elements.filter(function (e) {
+                return modelIdsOnDiagram[e._id]
+            })
+        }
+
+        return {
+            success: true,
+            message: 'Retrieved ' + filtered.length + ' ' + rel.name,
+            request: reqInfo,
+            data: filtered.map(function (e) { return defaultSerializeRelation(e, rel) })
+        }
+    }
+}
+
+function makeCreateRelation(config, rel) {
+    const allowedFields = ['diagramId', 'sourceId', 'targetId', 'name']
+    // Add end1/end2 fields if applicable
+    if (rel.hasEnds) {
+        allowedFields.push('end1')
+        allowedFields.push('end2')
+    }
+    if (rel.createFields) {
+        rel.createFields.forEach(function (f) {
+            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+        })
+    }
+
+    return function (params, query, body, reqInfo) {
+        const err = h.validate([
+            h.checkUnknownFields(body, allowedFields),
+            h.checkFieldType(body, 'diagramId', 'string'),
+            h.checkFieldType(body, 'sourceId', 'string'),
+            h.checkFieldType(body, 'targetId', 'string'),
+            h.checkFieldType(body, 'name', 'string')
+        ])
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (!body.diagramId) {
+            return h.validationError('Field "diagramId" is required', reqInfo, body)
+        }
+        if (!body.sourceId) {
+            return h.validationError('Field "sourceId" is required', reqInfo, body)
+        }
+        if (!body.targetId) {
+            return h.validationError('Field "targetId" is required', reqInfo, body)
+        }
+
+        const diagram = h.findById(body.diagramId)
+        if (!diagram || !diagram.ownedViews) {
+            return { success: false, error: 'Diagram not found: ' + body.diagramId, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        const tailView = h.findViewOnDiagramByAnyId(diagram, body.sourceId)
+        if (!tailView) {
+            return h.validationError('Source element not found on diagram: ' + body.sourceId, reqInfo, body)
+        }
+
+        const headView = h.findViewOnDiagramByAnyId(diagram, body.targetId)
+        if (!headView) {
+            return h.validationError('Target element not found on diagram: ' + body.targetId, reqInfo, body)
+        }
+
+        let parent = diagram._parent
+        if (!parent) {
+            return h.validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
+        }
+
+        try {
+            const options = {
+                id: rel.type,
+                parent: parent,
+                diagram: diagram,
+                tailView: tailView,
+                headView: headView
+            }
+            if (tailView.model) options.tailModel = tailView.model
+            if (headView.model) options.headModel = headView.model
+
+            const view = app.factory.createModelAndView(options)
+            const model = view.model || view
+
+            if (body.name && model && typeof model._id === 'string') {
+                app.engine.setProperty(model, 'name', body.name)
+            }
+
+            // Apply end1/end2 updates
+            if (rel.hasEnds && model) {
+                if (body.end1 && model.end1) {
+                    applyEndFields(model.end1, body.end1, rel.endFields)
+                }
+                if (body.end2 && model.end2) {
+                    applyEndFields(model.end2, body.end2, rel.endFields)
+                }
+            }
+
+            // Apply extra fields
+            if (rel.createFields) {
+                rel.createFields.forEach(function (f) {
+                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'sourceId' && f !== 'targetId' && f !== 'end1' && f !== 'end2') {
+                        if (model && typeof model._id === 'string') {
+                            app.engine.setProperty(model, f, body[f])
+                        }
+                    }
+                })
+            }
+
+            return {
+                success: true,
+                message: 'Created ' + rel.name.replace(/-/g, ' ') + ' "' + (model ? model.name || rel.type : rel.type) + '"',
+                request: Object.assign({}, reqInfo, { body: body }),
+                data: defaultSerializeRelation(model, rel)
+            }
+        } catch (e) {
+            return { success: false, error: 'Failed to create relation: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
+        }
+    }
+}
+
+function applyEndFields(end, values, endFields) {
+    const fields = endFields || ['name', 'navigable', 'aggregation', 'multiplicity']
+    fields.forEach(function (f) {
+        if (values[f] !== undefined) {
+            app.engine.setProperty(end, f, values[f])
+        }
+    })
+}
+
+function makeGetRelation(config, rel) {
+    return function (params, query, body, reqInfo) {
+        const elem = h.findById(params.id)
+        if (!elem || elem.constructor.name !== rel.type) {
+            return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+        return {
+            success: true,
+            message: 'Retrieved ' + rel.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '"',
+            request: reqInfo,
+            data: defaultSerializeRelation(elem, rel)
+        }
+    }
+}
+
+function makeUpdateRelation(config, rel) {
+    const updateFields = rel.updateFields || ['name', 'documentation']
+    // Add end1/end2 if applicable
+    const allFields = updateFields.slice()
+    if (rel.hasEnds) {
+        if (allFields.indexOf('end1') === -1) allFields.push('end1')
+        if (allFields.indexOf('end2') === -1) allFields.push('end2')
+    }
+
+    return function (params, query, body, reqInfo) {
+        const err = h.validate([
+            h.checkUnknownFields(body, allFields)
+        ])
+        if (err) return h.validationError(err, reqInfo, body)
+
+        if (Object.keys(body).length === 0) {
+            return h.validationError('At least one field must be provided. Allowed fields: ' + allFields.join(', '), reqInfo, body)
+        }
+
+        const elem = h.findById(params.id)
+        if (!elem || elem.constructor.name !== rel.type) {
+            return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
+        }
+
+        const updated = []
+        updateFields.forEach(function (f) {
+            if (body[f] !== undefined && f !== 'end1' && f !== 'end2') {
+                app.engine.setProperty(elem, f, body[f])
+                updated.push(f)
+            }
+        })
+
+        if (rel.hasEnds) {
+            if (body.end1 && elem.end1) {
+                applyEndFields(elem.end1, body.end1, rel.endFields)
+                updated.push('end1')
+            }
+            if (body.end2 && elem.end2) {
+                applyEndFields(elem.end2, body.end2, rel.endFields)
+                updated.push('end2')
+            }
+        }
+
+        return {
+            success: true,
+            message: 'Updated ' + rel.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '" (fields: ' + updated.join(', ') + ')',
+            request: Object.assign({}, reqInfo, { body: body }),
+            data: defaultSerializeRelation(elem, rel)
+        }
+    }
+}
+
+function makeDeleteRelation(config, rel) {
+    return function (params, query, body, reqInfo) {
+        const elem = h.findById(params.id)
+        if (!elem || elem.constructor.name !== rel.type) {
+            return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
+        }
+
+        const name = elem.name || params.id
+
+        const views = []
+        const allDiagrams = app.repository.select('@Diagram')
+        allDiagrams.forEach(function (d) {
+            if (d.ownedViews) {
+                d.ownedViews.forEach(function (v) {
+                    if (v.model && v.model._id === params.id) {
+                        views.push(v)
+                    }
+                })
+            }
+        })
+
+        app.engine.deleteElements([elem], views)
+        return {
+            success: true,
+            message: 'Deleted ' + rel.name.replace(/-/g, ' ') + ' "' + name + '"',
+            request: reqInfo,
+            data: { deleted: params.id, name: name }
+        }
+    }
+}
+
+// ============================================================
+// Router builder
+// ============================================================
+
+/**
+ * Build a routing function from a family config.
+ * Returns a function(method, path, body, reqInfo) that either returns
+ * a response object or null (if the route doesn't match).
+ */
+function createRouter(config) {
+    const routes = createFamilyHandlers(config)
+    const compiledRoutes = routes.map(function (r) {
+        return {
+            method: r.method,
+            regex: patternToRegex(r.pattern),
+            paramNames: extractParamNames(r.pattern),
+            handler: r.handler,
+            pattern: r.pattern
+        }
+    })
+
+    return function routeFamily(method, path, query, body, reqInfo) {
+        for (let i = 0; i < compiledRoutes.length; i++) {
+            const route = compiledRoutes[i]
+            if (route.method !== method) continue
+            const match = path.match(route.regex)
+            if (match) {
+                const params = {}
+                for (let j = 0; j < route.paramNames.length; j++) {
+                    try {
+                        params[route.paramNames[j]] = decodeURIComponent(match[j + 1])
+                    } catch (e) {
+                        params[route.paramNames[j]] = match[j + 1]
+                    }
+                }
+                return route.handler(params, query, body, reqInfo)
+            }
+        }
+        return null
+    }
+}
+
+function patternToRegex(pattern) {
+    // Escape special regex chars, then replace :param with capture groups
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const withParams = escaped.replace(/:(\w+)/g, '([^/]+)')
+    return new RegExp('^' + withParams + '$')
+}
+
+function extractParamNames(pattern) {
+    const names = []
+    const re = /:(\w+)/g
+    let m
+    while ((m = re.exec(pattern)) !== null) {
+        names.push(m[1])
+    }
+    return names
+}
+
+/**
+ * Generate endpoint list strings for GET /api/status
+ */
+function getEndpointList(config) {
+    const routes = createFamilyHandlers(config)
+    return routes.map(function (r) {
+        const methodPad = r.method + ' '.repeat(Math.max(0, 6 - r.method.length))
+        return methodPad + ' ' + r.pattern
+    })
+}
+
+// ============================================================
+// Exports
+// ============================================================
+
+module.exports = {
+    createFamilyHandlers: createFamilyHandlers,
+    createRouter: createRouter,
+    getEndpointList: getEndpointList,
+    // Expose for custom serializers in family configs
+    defaultSerializeNode: defaultSerializeNode,
+    defaultSerializeRelation: defaultSerializeRelation,
+    defaultSerializeChild: defaultSerializeChild,
+    serializeEnd: serializeEnd
+}

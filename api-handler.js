@@ -6,6 +6,50 @@
  */
 
 const ddlGenerator = require('./ddl-generator')
+const crudFactory = require('./handlers/crud-factory')
+
+// ============================================================
+// Family Configs & Routers
+// ============================================================
+
+const familyConfigs = [
+    require('./handlers/family-class'),
+    require('./handlers/family-usecase'),
+    require('./handlers/family-activity'),
+    require('./handlers/family-statemachine'),
+    require('./handlers/family-component'),
+    require('./handlers/family-deployment'),
+    require('./handlers/family-object'),
+    require('./handlers/family-communication'),
+    require('./handlers/family-composite'),
+    require('./handlers/family-infoflow'),
+    require('./handlers/family-profile'),
+    require('./handlers/family-timing'),
+    require('./handlers/family-overview'),
+    require('./handlers/family-flowchart'),
+    require('./handlers/family-dfd'),
+    require('./handlers/family-bpmn'),
+    require('./handlers/family-c4'),
+    require('./handlers/family-sysml'),
+    require('./handlers/family-wireframe'),
+    require('./handlers/family-mindmap'),
+    require('./handlers/family-aws'),
+    require('./handlers/family-azure'),
+    require('./handlers/family-gcp')
+]
+
+const familyRouters = familyConfigs.map(function (config) {
+    return crudFactory.createRouter(config)
+})
+
+// Collect all family endpoints for /api/status
+const familyEndpoints = []
+familyConfigs.forEach(function (config) {
+    const eps = crudFactory.getEndpointList(config)
+    eps.forEach(function (ep) {
+        familyEndpoints.push(ep)
+    })
+})
 
 // ============================================================
 // Constants
@@ -7445,6 +7489,14 @@ function route(method, url, body) {
         }
     }
 
+    // ============ Family API Routes (factory-generated) ============
+    for (let fi = 0; fi < familyRouters.length; fi++) {
+        const familyResult = familyRouters[fi](method, path, query, body, reqInfo)
+        if (familyResult !== null) {
+            return familyResult
+        }
+    }
+
     // GET /api/status
     if (method === 'GET' && (path === '/api/status' || path === '/')) {
         return {
@@ -7607,7 +7659,7 @@ function route(method, url, body) {
                     'GET  /api/seq/interaction-uses/:id',
                     'PUT  /api/seq/interaction-uses/:id',
                     'DELETE /api/seq/interaction-uses/:id'
-                ]
+                ].concat(familyEndpoints)
             }
         }
     }

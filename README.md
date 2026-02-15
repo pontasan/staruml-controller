@@ -32,16 +32,17 @@ Designed for integration with AI tools such as Claude Code (via MCP) to programm
 
 ## Supported Versions
 
-- StarUML v6 and later (`engines.staruml: ">=6.0.0"`)
+- Tested on StarUML v7 (should also work on v6)
 
 ## Features
 
-- **All diagram types** - UML, BPMN, C4, SysML, Wireframe, MindMap, AWS, Azure, GCP, Flowchart, DFD via generic endpoints
+- **All diagram types** - UML, BPMN, C4, SysML, Wireframe, MindMap, AWS, Azure, GCP, Flowchart, DFD via generic and dedicated family APIs
+- **Dedicated family APIs** - 23 diagram families with type-specific CRUD endpoints (Class, Use Case, Activity, State Machine, Component, Deployment, Object, Communication, Composite Structure, Information Flow, Profile, Timing, Interaction Overview, Flowchart, DFD, BPMN, C4, SysML, Wireframe, MindMap, AWS, Azure, GCP)
 - **All element types** - create any node element on any diagram (UMLClass, BPMNTask, C4Person, SysMLRequirement, WFButton, MMNode, AWSService, etc.)
 - **All relation types** - UMLAssociation, BPMNSequenceFlow, C4Relationship, SysMLDeriveReqt, MMEdge, AWSArrow, etc.
 - **Full CRUD for ERD elements** - data models, diagrams, entities, columns, tags, relationships, sequences, and indexes
 - **Full CRUD for sequence diagram elements** - interactions, sequence diagrams, lifelines, messages, combined fragments, operands, state invariants, and interaction uses
-- **Shapes** - create and manage view-only elements (Text, TextBox, Rect, RoundRect, Ellipse, Hyperlink, Image, etc.)
+- **Shapes** - create and manage view-only elements (Text, TextBox, Rect, RoundRect, Ellipse, Hyperlink, Image, UMLFrame)
 - **Notes, note links, and free lines** - annotate any diagram
 - **View manipulation** - move/resize views, update styles (fillColor, lineColor, fontColor, fontSize, autoResize, stereotypeDisplay, etc.), reconnect edges, align/distribute views
 - **Child elements** - create attributes, operations, enumeration literals, pins, etc. under parent elements
@@ -194,7 +195,431 @@ Select **Tools > StarUML Controller > Stop Server** from the menu bar.
 | `/api/seq/interactions/:id/interaction-uses` | GET / POST | List or create interaction uses |
 | `/api/seq/interaction-uses/:id` | GET / PUT / DELETE | Get, update, or delete interaction use |
 
-For full API specifications including request/response formats, validation rules, and error codes, see the [API Documentation](https://pontasan.github.io/staruml-controller/api.html).
+### Diagram Family APIs
+
+Each diagram family below provides dedicated CRUD endpoints with type-specific validation. All families share a common pattern: 5 endpoints for diagrams, 5 per resource, 2 per child, and 5 per relation. See the [API Documentation](https://pontasan.github.io/staruml-controller/api.html) for full details including the common CRUD pattern.
+
+#### Class/Package Diagram (`/api/class/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/class/diagrams` | GET / POST | List or create class/package diagrams |
+| `/api/class/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/class/classes` | GET / POST | List or create classes |
+| `/api/class/classes/:id` | GET / PUT / DELETE | Get, update, or delete class |
+| `/api/class/classes/:id/attributes` | GET / POST | List or create attributes |
+| `/api/class/classes/:id/operations` | GET / POST | List or create operations |
+| `/api/class/classes/:id/receptions` | GET / POST | List or create receptions |
+| `/api/class/classes/:id/template-parameters` | GET / POST | List or create template parameters |
+| `/api/class/interfaces` | GET / POST | List or create interfaces |
+| `/api/class/interfaces/:id` | GET / PUT / DELETE | Get, update, or delete interface |
+| `/api/class/interfaces/:id/attributes` | GET / POST | List or create attributes |
+| `/api/class/interfaces/:id/operations` | GET / POST | List or create operations |
+| `/api/class/enumerations` | GET / POST | List or create enumerations |
+| `/api/class/enumerations/:id` | GET / PUT / DELETE | Get, update, or delete enumeration |
+| `/api/class/enumerations/:id/literals` | GET / POST | List or create enumeration literals |
+| `/api/class/data-types` | GET / POST | List or create data types |
+| `/api/class/data-types/:id` | GET / PUT / DELETE | Get, update, or delete data type |
+| `/api/class/packages` | GET / POST | List or create packages |
+| `/api/class/packages/:id` | GET / PUT / DELETE | Get, update, or delete package |
+| `/api/class/associations` | GET / POST | List or create associations |
+| `/api/class/associations/:id` | GET / PUT / DELETE | Get, update, or delete association |
+| `/api/class/generalizations` | GET / POST | List or create generalizations |
+| `/api/class/generalizations/:id` | GET / PUT / DELETE | Get, update, or delete generalization |
+| `/api/class/dependencies` | GET / POST | List or create dependencies |
+| `/api/class/dependencies/:id` | GET / PUT / DELETE | Get, update, or delete dependency |
+| `/api/class/interface-realizations` | GET / POST | List or create interface realizations |
+| `/api/class/interface-realizations/:id` | GET / PUT / DELETE | Get, update, or delete interface realization |
+| `/api/class/realizations` | GET / POST | List or create realizations |
+| `/api/class/realizations/:id` | GET / PUT / DELETE | Get, update, or delete realization |
+| `/api/class/template-bindings` | GET / POST | List or create template bindings |
+| `/api/class/template-bindings/:id` | GET / PUT / DELETE | Get, update, or delete template binding |
+
+#### Use Case Diagram (`/api/usecase/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/usecase/diagrams` | GET / POST | List or create use case diagrams |
+| `/api/usecase/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/usecase/actors` | GET / POST | List or create actors |
+| `/api/usecase/actors/:id` | GET / PUT / DELETE | Get, update, or delete actor |
+| `/api/usecase/use-cases` | GET / POST | List or create use cases |
+| `/api/usecase/use-cases/:id` | GET / PUT / DELETE | Get, update, or delete use case |
+| `/api/usecase/use-cases/:id/extension-points` | GET / POST | List or create extension points |
+| `/api/usecase/subjects` | GET / POST | List or create subjects |
+| `/api/usecase/subjects/:id` | GET / PUT / DELETE | Get, update, or delete subject |
+| `/api/usecase/associations` | GET / POST | List or create associations |
+| `/api/usecase/associations/:id` | GET / PUT / DELETE | Get, update, or delete association |
+| `/api/usecase/includes` | GET / POST | List or create includes |
+| `/api/usecase/includes/:id` | GET / PUT / DELETE | Get, update, or delete include |
+| `/api/usecase/extends` | GET / POST | List or create extends |
+| `/api/usecase/extends/:id` | GET / PUT / DELETE | Get, update, or delete extend |
+| `/api/usecase/generalizations` | GET / POST | List or create generalizations |
+| `/api/usecase/generalizations/:id` | GET / PUT / DELETE | Get, update, or delete generalization |
+| `/api/usecase/dependencies` | GET / POST | List or create dependencies |
+| `/api/usecase/dependencies/:id` | GET / PUT / DELETE | Get, update, or delete dependency |
+
+#### Activity Diagram (`/api/activity/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/activity/diagrams` | GET / POST | List or create activity diagrams |
+| `/api/activity/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/activity/actions` | GET / POST | List or create actions |
+| `/api/activity/actions/:id` | GET / PUT / DELETE | Get, update, or delete action |
+| `/api/activity/actions/:id/pins` | GET / POST | List or create input pins |
+| `/api/activity/actions/:id/output-pins` | GET / POST | List or create output pins |
+| `/api/activity/control-nodes` | GET / POST | List or create control nodes |
+| `/api/activity/control-nodes/:id` | GET / PUT / DELETE | Get, update, or delete control node |
+| `/api/activity/object-nodes` | GET / POST | List or create object nodes |
+| `/api/activity/object-nodes/:id` | GET / PUT / DELETE | Get, update, or delete object node |
+| `/api/activity/partitions` | GET / POST | List or create partitions |
+| `/api/activity/partitions/:id` | GET / PUT / DELETE | Get, update, or delete partition |
+| `/api/activity/regions` | GET / POST | List or create regions |
+| `/api/activity/regions/:id` | GET / PUT / DELETE | Get, update, or delete region |
+| `/api/activity/control-flows` | GET / POST | List or create control flows |
+| `/api/activity/control-flows/:id` | GET / PUT / DELETE | Get, update, or delete control flow |
+| `/api/activity/object-flows` | GET / POST | List or create object flows |
+| `/api/activity/object-flows/:id` | GET / PUT / DELETE | Get, update, or delete object flow |
+| `/api/activity/exception-handlers` | GET / POST | List or create exception handlers |
+| `/api/activity/exception-handlers/:id` | GET / PUT / DELETE | Get, update, or delete exception handler |
+| `/api/activity/activity-interrupts` | GET / POST | List or create activity interrupts |
+| `/api/activity/activity-interrupts/:id` | GET / PUT / DELETE | Get, update, or delete activity interrupt |
+
+#### State Machine Diagram (`/api/statemachine/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/statemachine/diagrams` | GET / POST | List or create state machine diagrams |
+| `/api/statemachine/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/statemachine/states` | GET / POST | List or create states |
+| `/api/statemachine/states/:id` | GET / PUT / DELETE | Get, update, or delete state |
+| `/api/statemachine/states/:id/regions` | GET / POST | List or create regions |
+| `/api/statemachine/pseudostates` | GET / POST | List or create pseudostates |
+| `/api/statemachine/pseudostates/:id` | GET / PUT / DELETE | Get, update, or delete pseudostate |
+| `/api/statemachine/final-states` | GET / POST | List or create final states |
+| `/api/statemachine/final-states/:id` | GET / PUT / DELETE | Get, update, or delete final state |
+| `/api/statemachine/connection-points` | GET / POST | List or create connection points |
+| `/api/statemachine/connection-points/:id` | GET / PUT / DELETE | Get, update, or delete connection point |
+| `/api/statemachine/transitions` | GET / POST | List or create transitions |
+| `/api/statemachine/transitions/:id` | GET / PUT / DELETE | Get, update, or delete transition |
+
+#### Component Diagram (`/api/component/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/component/diagrams` | GET / POST | List or create component diagrams |
+| `/api/component/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/component/components` | GET / POST | List or create components |
+| `/api/component/components/:id` | GET / PUT / DELETE | Get, update, or delete component |
+| `/api/component/artifacts` | GET / POST | List or create artifacts |
+| `/api/component/artifacts/:id` | GET / PUT / DELETE | Get, update, or delete artifact |
+| `/api/component/component-realizations` | GET / POST | List or create component realizations |
+| `/api/component/component-realizations/:id` | GET / PUT / DELETE | Get, update, or delete component realization |
+| `/api/component/dependencies` | GET / POST | List or create dependencies |
+| `/api/component/dependencies/:id` | GET / PUT / DELETE | Get, update, or delete dependency |
+| `/api/component/generalizations` | GET / POST | List or create generalizations |
+| `/api/component/generalizations/:id` | GET / PUT / DELETE | Get, update, or delete generalization |
+| `/api/component/interface-realizations` | GET / POST | List or create interface realizations |
+| `/api/component/interface-realizations/:id` | GET / PUT / DELETE | Get, update, or delete interface realization |
+
+#### Deployment Diagram (`/api/deployment/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/deployment/diagrams` | GET / POST | List or create deployment diagrams |
+| `/api/deployment/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/deployment/nodes` | GET / POST | List or create nodes |
+| `/api/deployment/nodes/:id` | GET / PUT / DELETE | Get, update, or delete node |
+| `/api/deployment/node-instances` | GET / POST | List or create node instances |
+| `/api/deployment/node-instances/:id` | GET / PUT / DELETE | Get, update, or delete node instance |
+| `/api/deployment/artifact-instances` | GET / POST | List or create artifact instances |
+| `/api/deployment/artifact-instances/:id` | GET / PUT / DELETE | Get, update, or delete artifact instance |
+| `/api/deployment/component-instances` | GET / POST | List or create component instances |
+| `/api/deployment/component-instances/:id` | GET / PUT / DELETE | Get, update, or delete component instance |
+| `/api/deployment/artifacts` | GET / POST | List or create artifacts |
+| `/api/deployment/artifacts/:id` | GET / PUT / DELETE | Get, update, or delete artifact |
+| `/api/deployment/deployments` | GET / POST | List or create deployments |
+| `/api/deployment/deployments/:id` | GET / PUT / DELETE | Get, update, or delete deployment |
+| `/api/deployment/communication-paths` | GET / POST | List or create communication paths |
+| `/api/deployment/communication-paths/:id` | GET / PUT / DELETE | Get, update, or delete communication path |
+| `/api/deployment/dependencies` | GET / POST | List or create dependencies |
+| `/api/deployment/dependencies/:id` | GET / PUT / DELETE | Get, update, or delete dependency |
+
+#### Object Diagram (`/api/object/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/object/diagrams` | GET / POST | List or create object diagrams |
+| `/api/object/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/object/objects` | GET / POST | List or create objects |
+| `/api/object/objects/:id` | GET / PUT / DELETE | Get, update, or delete object |
+| `/api/object/objects/:id/slots` | GET / POST | List or create slots |
+| `/api/object/links` | GET / POST | List or create links |
+| `/api/object/links/:id` | GET / PUT / DELETE | Get, update, or delete link |
+
+#### Communication Diagram (`/api/communication/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/communication/diagrams` | GET / POST | List or create communication diagrams |
+| `/api/communication/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/communication/lifelines` | GET / POST | List or create lifelines |
+| `/api/communication/lifelines/:id` | GET / PUT / DELETE | Get, update, or delete lifeline |
+| `/api/communication/connectors` | GET / POST | List or create connectors |
+| `/api/communication/connectors/:id` | GET / PUT / DELETE | Get, update, or delete connector |
+
+#### Composite Structure Diagram (`/api/composite/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/composite/diagrams` | GET / POST | List or create composite structure diagrams |
+| `/api/composite/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/composite/ports` | GET / POST | List or create ports |
+| `/api/composite/ports/:id` | GET / PUT / DELETE | Get, update, or delete port |
+| `/api/composite/parts` | GET / POST | List or create parts |
+| `/api/composite/parts/:id` | GET / PUT / DELETE | Get, update, or delete part |
+| `/api/composite/collaborations` | GET / POST | List or create collaborations |
+| `/api/composite/collaborations/:id` | GET / PUT / DELETE | Get, update, or delete collaboration |
+| `/api/composite/collaboration-uses` | GET / POST | List or create collaboration uses |
+| `/api/composite/collaboration-uses/:id` | GET / PUT / DELETE | Get, update, or delete collaboration use |
+| `/api/composite/association-classes` | GET / POST | List or create association classes |
+| `/api/composite/association-classes/:id` | GET / PUT / DELETE | Get, update, or delete association class |
+| `/api/composite/role-bindings` | GET / POST | List or create role bindings |
+| `/api/composite/role-bindings/:id` | GET / PUT / DELETE | Get, update, or delete role binding |
+| `/api/composite/dependencies` | GET / POST | List or create dependencies |
+| `/api/composite/dependencies/:id` | GET / PUT / DELETE | Get, update, or delete dependency |
+| `/api/composite/realizations` | GET / POST | List or create realizations |
+| `/api/composite/realizations/:id` | GET / PUT / DELETE | Get, update, or delete realization |
+
+#### Information Flow Diagram (`/api/infoflow/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/infoflow/diagrams` | GET / POST | List or create information flow diagrams |
+| `/api/infoflow/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/infoflow/info-items` | GET / POST | List or create information items |
+| `/api/infoflow/info-items/:id` | GET / PUT / DELETE | Get, update, or delete information item |
+| `/api/infoflow/information-flows` | GET / POST | List or create information flows |
+| `/api/infoflow/information-flows/:id` | GET / PUT / DELETE | Get, update, or delete information flow |
+
+#### Profile Diagram (`/api/profile/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/profile/diagrams` | GET / POST | List or create profile diagrams |
+| `/api/profile/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/profile/profiles` | GET / POST | List or create profiles |
+| `/api/profile/profiles/:id` | GET / PUT / DELETE | Get, update, or delete profile |
+| `/api/profile/stereotypes` | GET / POST | List or create stereotypes |
+| `/api/profile/stereotypes/:id` | GET / PUT / DELETE | Get, update, or delete stereotype |
+| `/api/profile/metaclasses` | GET / POST | List or create metaclasses |
+| `/api/profile/metaclasses/:id` | GET / PUT / DELETE | Get, update, or delete metaclass |
+| `/api/profile/extensions` | GET / POST | List or create extensions |
+| `/api/profile/extensions/:id` | GET / PUT / DELETE | Get, update, or delete extension |
+
+#### Timing Diagram (`/api/timing/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/timing/diagrams` | GET / POST | List or create timing diagrams |
+| `/api/timing/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/timing/timing-states` | GET / POST | List or create timing states |
+| `/api/timing/timing-states/:id` | GET / PUT / DELETE | Get, update, or delete timing state |
+| `/api/timing/duration-constraints` | GET / POST | List or create duration constraints |
+| `/api/timing/duration-constraints/:id` | GET / PUT / DELETE | Get, update, or delete duration constraint |
+| `/api/timing/time-ticks` | GET / POST | List or create time ticks |
+| `/api/timing/time-ticks/:id` | GET / PUT / DELETE | Get, update, or delete time tick |
+| `/api/timing/time-constraints` | GET / POST | List or create time constraints |
+| `/api/timing/time-constraints/:id` | GET / PUT / DELETE | Get, update, or delete time constraint |
+| `/api/timing/time-segments` | GET / POST | List or create time segments |
+| `/api/timing/time-segments/:id` | GET / PUT / DELETE | Get, update, or delete time segment |
+
+#### Interaction Overview Diagram (`/api/overview/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/overview/diagrams` | GET / POST | List or create interaction overview diagrams |
+| `/api/overview/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/overview/interaction-uses` | GET / POST | List or create interaction uses |
+| `/api/overview/interaction-uses/:id` | GET / PUT / DELETE | Get, update, or delete interaction use |
+| `/api/overview/interactions` | GET / POST | List or create interactions |
+| `/api/overview/interactions/:id` | GET / PUT / DELETE | Get, update, or delete interaction |
+| `/api/overview/control-nodes` | GET / POST | List or create control nodes |
+| `/api/overview/control-nodes/:id` | GET / PUT / DELETE | Get, update, or delete control node |
+| `/api/overview/control-flows` | GET / POST | List or create control flows |
+| `/api/overview/control-flows/:id` | GET / PUT / DELETE | Get, update, or delete control flow |
+
+#### Flowchart Diagram (`/api/flowchart/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/flowchart/diagrams` | GET / POST | List or create flowchart diagrams |
+| `/api/flowchart/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/flowchart/nodes` | GET / POST | List or create nodes |
+| `/api/flowchart/nodes/:id` | GET / PUT / DELETE | Get, update, or delete node |
+| `/api/flowchart/flows` | GET / POST | List or create flows |
+| `/api/flowchart/flows/:id` | GET / PUT / DELETE | Get, update, or delete flow |
+
+#### DFD Diagram (`/api/dfd/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/dfd/diagrams` | GET / POST | List or create DFD diagrams |
+| `/api/dfd/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/dfd/external-entities` | GET / POST | List or create external entities |
+| `/api/dfd/external-entities/:id` | GET / PUT / DELETE | Get, update, or delete external entity |
+| `/api/dfd/processes` | GET / POST | List or create processes |
+| `/api/dfd/processes/:id` | GET / PUT / DELETE | Get, update, or delete process |
+| `/api/dfd/data-stores` | GET / POST | List or create data stores |
+| `/api/dfd/data-stores/:id` | GET / PUT / DELETE | Get, update, or delete data store |
+| `/api/dfd/data-flows` | GET / POST | List or create data flows |
+| `/api/dfd/data-flows/:id` | GET / PUT / DELETE | Get, update, or delete data flow |
+
+#### BPMN Diagram (`/api/bpmn/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/bpmn/diagrams` | GET / POST | List or create BPMN diagrams |
+| `/api/bpmn/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/bpmn/participants` | GET / POST | List or create participants |
+| `/api/bpmn/participants/:id` | GET / PUT / DELETE | Get, update, or delete participant |
+| `/api/bpmn/participants/:id/lanes` | GET / POST | List or create lanes |
+| `/api/bpmn/tasks` | GET / POST | List or create tasks |
+| `/api/bpmn/tasks/:id` | GET / PUT / DELETE | Get, update, or delete task |
+| `/api/bpmn/sub-processes` | GET / POST | List or create sub-processes |
+| `/api/bpmn/sub-processes/:id` | GET / PUT / DELETE | Get, update, or delete sub-process |
+| `/api/bpmn/events` | GET / POST | List or create events |
+| `/api/bpmn/events/:id` | GET / PUT / DELETE | Get, update, or delete event |
+| `/api/bpmn/events/:id/event-definitions` | GET / POST | List or create event definitions |
+| `/api/bpmn/gateways` | GET / POST | List or create gateways |
+| `/api/bpmn/gateways/:id` | GET / PUT / DELETE | Get, update, or delete gateway |
+| `/api/bpmn/data-objects` | GET / POST | List or create data objects |
+| `/api/bpmn/data-objects/:id` | GET / PUT / DELETE | Get, update, or delete data object |
+| `/api/bpmn/conversations` | GET / POST | List or create conversations |
+| `/api/bpmn/conversations/:id` | GET / PUT / DELETE | Get, update, or delete conversation |
+| `/api/bpmn/choreographies` | GET / POST | List or create choreographies |
+| `/api/bpmn/choreographies/:id` | GET / PUT / DELETE | Get, update, or delete choreography |
+| `/api/bpmn/annotations` | GET / POST | List or create annotations |
+| `/api/bpmn/annotations/:id` | GET / PUT / DELETE | Get, update, or delete annotation |
+| `/api/bpmn/sequence-flows` | GET / POST | List or create sequence flows |
+| `/api/bpmn/sequence-flows/:id` | GET / PUT / DELETE | Get, update, or delete sequence flow |
+| `/api/bpmn/message-flows` | GET / POST | List or create message flows |
+| `/api/bpmn/message-flows/:id` | GET / PUT / DELETE | Get, update, or delete message flow |
+| `/api/bpmn/associations` | GET / POST | List or create associations |
+| `/api/bpmn/associations/:id` | GET / PUT / DELETE | Get, update, or delete association |
+| `/api/bpmn/data-associations` | GET / POST | List or create data associations |
+| `/api/bpmn/data-associations/:id` | GET / PUT / DELETE | Get, update, or delete data association |
+| `/api/bpmn/message-links` | GET / POST | List or create message links |
+| `/api/bpmn/message-links/:id` | GET / PUT / DELETE | Get, update, or delete message link |
+| `/api/bpmn/conversation-links` | GET / POST | List or create conversation links |
+| `/api/bpmn/conversation-links/:id` | GET / PUT / DELETE | Get, update, or delete conversation link |
+
+#### C4 Diagram (`/api/c4/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/c4/diagrams` | GET / POST | List or create C4 diagrams |
+| `/api/c4/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/c4/elements` | GET / POST | List or create elements |
+| `/api/c4/elements/:id` | GET / PUT / DELETE | Get, update, or delete element |
+| `/api/c4/relationships` | GET / POST | List or create relationships |
+| `/api/c4/relationships/:id` | GET / PUT / DELETE | Get, update, or delete relationship |
+
+#### SysML Diagram (`/api/sysml/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/sysml/diagrams` | GET / POST | List or create SysML diagrams |
+| `/api/sysml/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/sysml/requirements` | GET / POST | List or create requirements |
+| `/api/sysml/requirements/:id` | GET / PUT / DELETE | Get, update, or delete requirement |
+| `/api/sysml/blocks` | GET / POST | List or create blocks |
+| `/api/sysml/blocks/:id` | GET / PUT / DELETE | Get, update, or delete block |
+| `/api/sysml/blocks/:id/properties` | GET / POST | List or create properties |
+| `/api/sysml/blocks/:id/operations` | GET / POST | List or create operations |
+| `/api/sysml/blocks/:id/flow-properties` | GET / POST | List or create flow properties |
+| `/api/sysml/stakeholders` | GET / POST | List or create stakeholders |
+| `/api/sysml/stakeholders/:id` | GET / PUT / DELETE | Get, update, or delete stakeholder |
+| `/api/sysml/viewpoints` | GET / POST | List or create viewpoints |
+| `/api/sysml/viewpoints/:id` | GET / PUT / DELETE | Get, update, or delete viewpoint |
+| `/api/sysml/views` | GET / POST | List or create views |
+| `/api/sysml/views/:id` | GET / PUT / DELETE | Get, update, or delete view |
+| `/api/sysml/parts` | GET / POST | List or create parts |
+| `/api/sysml/parts/:id` | GET / PUT / DELETE | Get, update, or delete part |
+| `/api/sysml/conforms` | GET / POST | List or create conforms |
+| `/api/sysml/conforms/:id` | GET / PUT / DELETE | Get, update, or delete conform |
+| `/api/sysml/exposes` | GET / POST | List or create exposes |
+| `/api/sysml/exposes/:id` | GET / PUT / DELETE | Get, update, or delete expose |
+| `/api/sysml/copies` | GET / POST | List or create copies |
+| `/api/sysml/copies/:id` | GET / PUT / DELETE | Get, update, or delete copy |
+| `/api/sysml/derive-reqts` | GET / POST | List or create derive requirements |
+| `/api/sysml/derive-reqts/:id` | GET / PUT / DELETE | Get, update, or delete derive requirement |
+| `/api/sysml/verifies` | GET / POST | List or create verifies |
+| `/api/sysml/verifies/:id` | GET / PUT / DELETE | Get, update, or delete verify |
+| `/api/sysml/satisfies` | GET / POST | List or create satisfies |
+| `/api/sysml/satisfies/:id` | GET / PUT / DELETE | Get, update, or delete satisfy |
+| `/api/sysml/refines` | GET / POST | List or create refines |
+| `/api/sysml/refines/:id` | GET / PUT / DELETE | Get, update, or delete refine |
+| `/api/sysml/connectors` | GET / POST | List or create connectors |
+| `/api/sysml/connectors/:id` | GET / PUT / DELETE | Get, update, or delete connector |
+
+#### Wireframe Diagram (`/api/wireframe/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/wireframe/diagrams` | GET / POST | List or create wireframe diagrams |
+| `/api/wireframe/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/wireframe/frames` | GET / POST | List or create frames |
+| `/api/wireframe/frames/:id` | GET / PUT / DELETE | Get, update, or delete frame |
+| `/api/wireframe/widgets` | GET / POST | List or create widgets |
+| `/api/wireframe/widgets/:id` | GET / PUT / DELETE | Get, update, or delete widget |
+
+#### MindMap Diagram (`/api/mindmap/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/mindmap/diagrams` | GET / POST | List or create mindmap diagrams |
+| `/api/mindmap/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/mindmap/nodes` | GET / POST | List or create nodes |
+| `/api/mindmap/nodes/:id` | GET / PUT / DELETE | Get, update, or delete node |
+| `/api/mindmap/edges` | GET / POST | List or create edges |
+| `/api/mindmap/edges/:id` | GET / PUT / DELETE | Get, update, or delete edge |
+
+#### AWS Diagram (`/api/aws/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/aws/diagrams` | GET / POST | List or create AWS diagrams |
+| `/api/aws/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/aws/elements` | GET / POST | List or create elements |
+| `/api/aws/elements/:id` | GET / PUT / DELETE | Get, update, or delete element |
+| `/api/aws/arrows` | GET / POST | List or create arrows |
+| `/api/aws/arrows/:id` | GET / PUT / DELETE | Get, update, or delete arrow |
+
+#### Azure Diagram (`/api/azure/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/azure/diagrams` | GET / POST | List or create Azure diagrams |
+| `/api/azure/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/azure/elements` | GET / POST | List or create elements |
+| `/api/azure/elements/:id` | GET / PUT / DELETE | Get, update, or delete element |
+| `/api/azure/connectors` | GET / POST | List or create connectors |
+| `/api/azure/connectors/:id` | GET / PUT / DELETE | Get, update, or delete connector |
+
+#### GCP Diagram (`/api/gcp/`)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/gcp/diagrams` | GET / POST | List or create GCP diagrams |
+| `/api/gcp/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/gcp/elements` | GET / POST | List or create elements |
+| `/api/gcp/elements/:id` | GET / PUT / DELETE | Get, update, or delete element |
+| `/api/gcp/paths` | GET / POST | List or create paths |
+| `/api/gcp/paths/:id` | GET / PUT / DELETE | Get, update, or delete path |
+
+For full API specifications including request/response formats, validation rules, error codes, and the 23 diagram family APIs, see the [API Documentation](https://pontasan.github.io/staruml-controller/api.html).
 
 ## Examples
 
@@ -325,6 +750,13 @@ staruml-controller/
 ├── main.js            # Extension entry point (HTTP server management)
 ├── api-handler.js     # REST API routing and handlers
 ├── ddl-generator.js   # PostgreSQL DDL generation
+├── handlers/
+│   ├── shared-helpers.js   # Shared validation/serialization utilities
+│   ├── crud-factory.js     # CRUD handler factory engine
+│   ├── family-class.js     # Class/Package diagram config
+│   ├── family-usecase.js   # Use Case diagram config
+│   ├── family-activity.js  # Activity diagram config
+│   └── ... (21 more family configs)
 ├── menus/
 │   └── menu.json      # StarUML menu definition
 ├── docs/
