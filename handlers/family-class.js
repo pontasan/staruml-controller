@@ -6,6 +6,12 @@ module.exports = {
         {
             name: 'classes',
             types: ['UMLClass'],
+            updateFields: [
+                'name', 'documentation',
+                { name: 'isAbstract', type: 'boolean' },
+                { name: 'isLeaf', type: 'boolean' },
+                { name: 'isActive', type: 'boolean' }
+            ],
             children: [
                 { name: 'attributes', type: 'UMLAttribute', field: 'attributes', createFields: ['name', 'type', 'visibility', 'isStatic', 'defaultValue'] },
                 { name: 'operations', type: 'UMLOperation', field: 'operations', createFields: ['name', 'visibility', 'isStatic'] },
@@ -22,6 +28,8 @@ module.exports = {
                 }
                 if (elem.documentation) result.documentation = elem.documentation
                 if (elem.isAbstract) result.isAbstract = true
+                if (elem.isLeaf) result.isLeaf = true
+                if (elem.isActive) result.isActive = true
                 result.attributes = (elem.attributes || []).map(function (a) {
                     return { _id: a._id, name: a.name || '', type: a.type || '', visibility: a.visibility, isStatic: a.isStatic || false }
                 })

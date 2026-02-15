@@ -657,21 +657,26 @@ function makeGetResource(config, res) {
     }
 }
 
+function resolveFieldDef(f) {
+    if (typeof f === 'string') return { name: f, type: 'string' }
+    return { name: f.name, type: f.type || 'string' }
+}
+
 function makeUpdateResource(config, res) {
     const updateFields = res.updateFields || ['name', 'documentation']
+    const fieldDefs = updateFields.map(resolveFieldDef)
+    const fieldNames = fieldDefs.map(function (d) { return d.name })
     const checkTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
-        const checks = [h.checkUnknownFields(body, updateFields)]
-        updateFields.forEach(function (f) {
-            if (f === 'name' || f === 'documentation') {
-                checks.push(h.checkFieldType(body, f, 'string'))
-            }
+        const checks = [h.checkUnknownFields(body, fieldNames)]
+        fieldDefs.forEach(function (d) {
+            checks.push(h.checkFieldType(body, d.name, d.type))
         })
         const err = h.validate(checks)
         if (err) return h.validationError(err, reqInfo, body)
 
         if (Object.keys(body).length === 0) {
-            return h.validationError('At least one field must be provided. Allowed fields: ' + updateFields.join(', '), reqInfo, body)
+            return h.validationError('At least one field must be provided. Allowed fields: ' + fieldNames.join(', '), reqInfo, body)
         }
 
         if (body.name !== undefined) {
@@ -688,7 +693,7 @@ function makeUpdateResource(config, res) {
         }
 
         const updated = []
-        updateFields.forEach(function (f) {
+        fieldNames.forEach(function (f) {
             if (body[f] !== undefined) {
                 app.engine.setProperty(elem, f, body[f])
                 updated.push(f)
@@ -768,7 +773,7 @@ function makeListChildren(config, res, child) {
 }
 
 function makeCreateChild(config, res, child) {
-    const allowedFields = ['name']
+    const allowedFields = ['name', 'diagramId']
     if (child.createFields) {
         child.createFields.forEach(function (f) {
             if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
@@ -778,7 +783,8 @@ function makeCreateChild(config, res, child) {
     return function (params, query, body, reqInfo) {
         const err = h.validate([
             h.checkUnknownFields(body, allowedFields),
-            h.checkFieldType(body, 'name', 'string')
+            h.checkFieldType(body, 'name', 'string'),
+            h.checkFieldType(body, 'diagramId', 'string')
         ])
         if (err) return h.validationError(err, reqInfo, body)
 
@@ -797,7 +803,60 @@ function makeCreateChild(config, res, child) {
                 field: child.field
             }
 
-            const model = app.factory.createModel(options)
+            let model = app.factory.createModel(options)
+
+            // Fallback to createModelAndView when createModel returns null
+            // (e.g., UMLInputPin, UMLOutputPin are only registered with registerModelAndViewFn)
+            if (!model) {
+                let diagram = null
+                let parentView = null
+
+                if (body.diagramId) {
+                    diagram = h.findById(body.diagramId)
+                    if (diagram) {
+                        parentView = h.findViewOnDiagram(diagram, parent._id)
+                    }
+                }
+
+                // Auto-detect: find the first diagram that has a view of the parent
+                if (!diagram) {
+                    const allDiagrams = app.repository.select('@Diagram')
+                    for (let i = 0; i < allDiagrams.length; i++) {
+                        const d = allDiagrams[i]
+                        const v = h.findViewOnDiagram(d, parent._id)
+                        if (v) {
+                            diagram = d
+                            parentView = v
+                            break
+                        }
+                    }
+                }
+
+                if (!diagram) {
+                    return {
+                        success: false,
+                        error: 'Cannot create ' + child.name.replace(/-/g, ' ') + ': no diagram found with a view of the parent element. Specify diagramId or create the parent on a diagram first.',
+                        request: Object.assign({}, reqInfo, { body: body })
+                    }
+                }
+
+                const factoryOpts = {
+                    id: child.type,
+                    parent: parent,
+                    diagram: diagram
+                }
+
+                if (parentView) {
+                    factoryOpts.containerView = parentView
+                    factoryOpts.x1 = parentView.left
+                    factoryOpts.y1 = parentView.top
+                    factoryOpts.x2 = parentView.left + 20
+                    factoryOpts.y2 = parentView.top + 20
+                }
+
+                const view = app.factory.createModelAndView(factoryOpts)
+                model = view.model || view
+            }
 
             if (body.name && model) {
                 app.engine.setProperty(model, 'name', body.name)
@@ -990,21 +1049,25 @@ function makeGetRelation(config, rel) {
 
 function makeUpdateRelation(config, rel) {
     const updateFields = rel.updateFields || ['name', 'documentation']
+    const fieldDefs = updateFields.map(resolveFieldDef)
+    const fieldNames = fieldDefs.map(function (d) { return d.name })
     // Add end1/end2 if applicable
-    const allFields = updateFields.slice()
+    const allFieldNames = fieldNames.slice()
     if (rel.hasEnds) {
-        if (allFields.indexOf('end1') === -1) allFields.push('end1')
-        if (allFields.indexOf('end2') === -1) allFields.push('end2')
+        if (allFieldNames.indexOf('end1') === -1) allFieldNames.push('end1')
+        if (allFieldNames.indexOf('end2') === -1) allFieldNames.push('end2')
     }
 
     return function (params, query, body, reqInfo) {
-        const err = h.validate([
-            h.checkUnknownFields(body, allFields)
-        ])
+        const checks = [h.checkUnknownFields(body, allFieldNames)]
+        fieldDefs.forEach(function (d) {
+            checks.push(h.checkFieldType(body, d.name, d.type))
+        })
+        const err = h.validate(checks)
         if (err) return h.validationError(err, reqInfo, body)
 
         if (Object.keys(body).length === 0) {
-            return h.validationError('At least one field must be provided. Allowed fields: ' + allFields.join(', '), reqInfo, body)
+            return h.validationError('At least one field must be provided. Allowed fields: ' + allFieldNames.join(', '), reqInfo, body)
         }
 
         const elem = h.findById(params.id)
@@ -1013,7 +1076,7 @@ function makeUpdateRelation(config, rel) {
         }
 
         const updated = []
-        updateFields.forEach(function (f) {
+        fieldNames.forEach(function (f) {
             if (body[f] !== undefined && f !== 'end1' && f !== 'end2') {
                 app.engine.setProperty(elem, f, body[f])
                 updated.push(f)
