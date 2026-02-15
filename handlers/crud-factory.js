@@ -22,6 +22,16 @@
 
 const h = require('./shared-helpers')
 
+// Toolbox type aliases: types that the GUI toolbox maps to a base type + model-init.
+// StarUML's toolbox "command-arg" overrides the factory id and sets model-init properties.
+// Without this mapping, createModelAndView fails because these alias types have no model class.
+const TOOLBOX_TYPE_ALIASES = {
+    'C4ContainerDatabase':   { id: 'C4Container', 'model-init': { kind: 'database' } },
+    'C4ContainerWebApp':     { id: 'C4Container', 'model-init': { kind: 'client-webapp' } },
+    'C4ContainerDesktopApp': { id: 'C4Container', 'model-init': { kind: 'desktop-app' } },
+    'C4ContainerMobileApp':  { id: 'C4Container', 'model-init': { kind: 'mobile-app' } }
+}
+
 // Auto-created container types that should be cleaned up when empty
 const AUTO_CONTAINER_TYPES = [
     'UMLModel', 'UMLStateMachine', 'UMLActivity',
@@ -567,14 +577,19 @@ function makeCreateResource(config, res) {
             return h.validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
         }
 
-        // Validate that the type has a registered view type
+        // Apply toolbox type alias mapping (e.g. C4ContainerDatabase → C4Container + kind)
+        const alias = TOOLBOX_TYPE_ALIASES[elemType]
+        const factoryId = alias ? alias.id : elemType
+
+        // Validate that the resolved factory type has a registered view type
         if (app.metamodel) {
-            const viewTypeName = app.metamodel.getViewTypeOf(elemType)
+            const viewTypeName = app.metamodel.getViewTypeOf(factoryId)
             if (!viewTypeName || !type[viewTypeName]) {
                 return h.validationError(
                     'Type "' + elemType + '" cannot be created on a diagram (no view type registered). ' +
                     'Allowed: ' + res.types.filter(function (t) {
-                        const vt = app.metamodel.getViewTypeOf(t)
+                        const resolvedType = TOOLBOX_TYPE_ALIASES[t] ? TOOLBOX_TYPE_ALIASES[t].id : t
+                        const vt = app.metamodel.getViewTypeOf(resolvedType)
                         return vt && type[vt]
                     }).join(', '),
                     reqInfo, body
@@ -588,10 +603,13 @@ function makeCreateResource(config, res) {
         const y2 = body.y2 !== undefined ? body.y2 : 180
 
         const factoryOpts = {
-            id: elemType,
+            id: factoryId,
             parent: parent,
             diagram: diagram,
             x1: x1, y1: y1, x2: x2, y2: y2
+        }
+        if (alias && alias['model-init']) {
+            factoryOpts['model-init'] = alias['model-init']
         }
 
         // Resolve tailViewId to a view reference (for elements that must be placed inside a container view)
