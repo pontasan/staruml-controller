@@ -3,8 +3,8 @@ module.exports = {
     label: 'Interaction Overview Diagram',
     diagrams: { types: ['UMLInteractionOverviewDiagram'] },
     resources: [
-        { name: 'interaction-uses', types: ['UMLInteractionUseInOverview'] },
-        { name: 'interactions', types: ['UMLInteractionInOverview'] },
+        { name: 'interaction-uses', types: ['UMLInteractionUseInOverview'], modelTypes: ['UMLAction'] },
+        { name: 'interactions', types: ['UMLInteractionInOverview'], modelTypes: ['UMLAction'] },
         {
             name: 'control-nodes',
             types: [

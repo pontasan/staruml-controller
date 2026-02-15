@@ -3,10 +3,8 @@ module.exports = {
     label: 'Timing Diagram',
     diagrams: { types: ['UMLTimingDiagram'] },
     resources: [
-        { name: 'timing-states', types: ['UMLTimingState'] },
-        { name: 'duration-constraints', types: ['UMLDurationConstraint'] },
-        { name: 'time-ticks', types: ['UMLTimeTick'] },
-        { name: 'time-constraints', types: ['UMLTimeConstraint'] }
+        { name: 'lifelines', types: ['UMLLifeline'] },
+        { name: 'timing-states', types: ['UMLTimingState'], modelTypes: ['UMLConstraint'] }
     ],
     relations: [
         { name: 'time-segments', type: 'UMLTimeSegment' }

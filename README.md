@@ -299,8 +299,6 @@ Each diagram family below provides dedicated CRUD endpoints with type-specific v
 | `/api/statemachine/pseudostates/:id` | GET / PUT / DELETE | Get, update, or delete pseudostate |
 | `/api/statemachine/final-states` | GET / POST | List or create final states |
 | `/api/statemachine/final-states/:id` | GET / PUT / DELETE | Get, update, or delete final state |
-| `/api/statemachine/connection-points` | GET / POST | List or create connection points |
-| `/api/statemachine/connection-points/:id` | GET / PUT / DELETE | Get, update, or delete connection point |
 | `/api/statemachine/transitions` | GET / POST | List or create transitions |
 | `/api/statemachine/transitions/:id` | GET / PUT / DELETE | Get, update, or delete transition |
 
@@ -383,8 +381,6 @@ Each diagram family below provides dedicated CRUD endpoints with type-specific v
 | `/api/composite/collaborations/:id` | GET / PUT / DELETE | Get, update, or delete collaboration |
 | `/api/composite/collaboration-uses` | GET / POST | List or create collaboration uses |
 | `/api/composite/collaboration-uses/:id` | GET / PUT / DELETE | Get, update, or delete collaboration use |
-| `/api/composite/association-classes` | GET / POST | List or create association classes |
-| `/api/composite/association-classes/:id` | GET / PUT / DELETE | Get, update, or delete association class |
 | `/api/composite/role-bindings` | GET / POST | List or create role bindings |
 | `/api/composite/role-bindings/:id` | GET / PUT / DELETE | Get, update, or delete role binding |
 | `/api/composite/dependencies` | GET / POST | List or create dependencies |
@@ -424,14 +420,10 @@ Each diagram family below provides dedicated CRUD endpoints with type-specific v
 |---|---|---|
 | `/api/timing/diagrams` | GET / POST | List or create timing diagrams |
 | `/api/timing/diagrams/:id` | GET / PUT / DELETE | Get, update, or delete diagram |
+| `/api/timing/lifelines` | GET / POST | List or create lifelines |
+| `/api/timing/lifelines/:id` | GET / PUT / DELETE | Get, update, or delete lifeline |
 | `/api/timing/timing-states` | GET / POST | List or create timing states |
 | `/api/timing/timing-states/:id` | GET / PUT / DELETE | Get, update, or delete timing state |
-| `/api/timing/duration-constraints` | GET / POST | List or create duration constraints |
-| `/api/timing/duration-constraints/:id` | GET / PUT / DELETE | Get, update, or delete duration constraint |
-| `/api/timing/time-ticks` | GET / POST | List or create time ticks |
-| `/api/timing/time-ticks/:id` | GET / PUT / DELETE | Get, update, or delete time tick |
-| `/api/timing/time-constraints` | GET / POST | List or create time constraints |
-| `/api/timing/time-constraints/:id` | GET / PUT / DELETE | Get, update, or delete time constraint |
 | `/api/timing/time-segments` | GET / POST | List or create time segments |
 | `/api/timing/time-segments/:id` | GET / PUT / DELETE | Get, update, or delete time segment |
 

@@ -4,10 +4,9 @@ module.exports = {
     diagrams: { types: ['UMLCompositeStructureDiagram'] },
     resources: [
         { name: 'ports', types: ['UMLPort'] },
-        { name: 'parts', types: ['UMLPart'] },
+        { name: 'parts', types: ['UMLPart'], modelTypes: ['UMLAttribute'] },
         { name: 'collaborations', types: ['UMLCollaboration'] },
-        { name: 'collaboration-uses', types: ['UMLCollaborationUse'] },
-        { name: 'association-classes', types: ['UMLAssociationClass'] }
+        { name: 'collaboration-uses', types: ['UMLCollaborationUse'] }
     ],
     relations: [
         { name: 'role-bindings', type: 'UMLRoleBinding' },

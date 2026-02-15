@@ -6,7 +6,7 @@ module.exports = {
         {
             name: 'elements',
             types: [
-                'AWSElement', 'AWSGroup', 'AWSGenericGroup', 'AWSAvailabilityZone',
+                'AWSGroup', 'AWSGenericGroup', 'AWSAvailabilityZone',
                 'AWSSecurityGroup', 'AWSService', 'AWSResource', 'AWSGeneralResource', 'AWSCallout'
             ]
         }

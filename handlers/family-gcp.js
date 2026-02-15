@@ -5,7 +5,7 @@ module.exports = {
     resources: [
         {
             name: 'elements',
-            types: ['GCPElement', 'GCPUser', 'GCPZone', 'GCPProduct', 'GCPService']
+            types: ['GCPUser', 'GCPZone', 'GCPProduct', 'GCPService']
         }
     ],
     relations: [

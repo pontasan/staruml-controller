@@ -1419,6 +1419,19 @@ R=$(curl -s -X POST $BASE/api/composite/diagrams -H "Content-Type: application/j
 check "453.cs_create_diagram" "$R"
 FC_CS_DID=$(getid "$R")
 check "454.cs_list_diagrams" "$(curl -s $BASE/api/composite/diagrams)"
+
+# Create part (model type is UMLAttribute)
+R=$(curl -s -X POST $BASE/api/composite/parts -H "Content-Type: application/json" \
+  -d "{\"diagramId\":\"$FC_CS_DID\",\"name\":\"Part1\"}")
+check "454a.cs_create_part" "$R"
+CS_PART_ID=$(getid "$R")
+check "454b.cs_list_parts" "$(curl -s $BASE/api/composite/parts)"
+
+# Get/Update/Delete part (modelTypes: UMLAttribute)
+check "454c.cs_get_part" "$(curl -s $BASE/api/composite/parts/$(enc $CS_PART_ID))"
+check "454d.cs_update_part" "$(curl -s -X PUT $BASE/api/composite/parts/$(enc $CS_PART_ID) -H "Content-Type: application/json" -d '{"name":"UpdatedPart"}')"
+check "454e.cs_delete_part" "$(curl -s -X DELETE $BASE/api/composite/parts/$(enc $CS_PART_ID))"
+
 check "455.cs_delete_diagram" "$(curl -s -X DELETE $BASE/api/composite/diagrams/$(enc $FC_CS_DID))"
 
 # --- Timing Diagram Family ---
@@ -1426,14 +1439,72 @@ R=$(curl -s -X POST $BASE/api/timing/diagrams -H "Content-Type: application/json
 check "456.timing_create_diagram" "$R"
 FC_TIM_DID=$(getid "$R")
 check "457.timing_list_diagrams" "$(curl -s $BASE/api/timing/diagrams)"
-check "458.timing_delete_diagram" "$(curl -s -X DELETE $BASE/api/timing/diagrams/$(enc $FC_TIM_DID))"
+
+# Find UMLTimingFrameView on the diagram
+R=$(curl -s $BASE/api/diagrams/$(enc $FC_TIM_DID)/views)
+TIM_FRAME_VID=$(echo "$R" | python3 -c "import sys,json; views=json.load(sys.stdin)['data']; print(next(v['_id'] for v in views if v['_type']=='UMLTimingFrameView'))" 2>/dev/null)
+
+# Create lifeline inside the frame (requires tailViewId)
+R=$(curl -s -X POST $BASE/api/timing/lifelines -H "Content-Type: application/json" \
+  -d "{\"diagramId\":\"$FC_TIM_DID\",\"name\":\"LL1\",\"tailViewId\":\"$TIM_FRAME_VID\"}")
+check "458.timing_create_lifeline" "$R"
+TIM_LL_ID=$(getid "$R")
+check "459.timing_list_lifelines" "$(curl -s $BASE/api/timing/lifelines)"
+
+# Find UMLTimingLifelineView on the diagram
+R=$(curl -s $BASE/api/diagrams/$(enc $FC_TIM_DID)/views)
+TIM_LL_VID=$(echo "$R" | python3 -c "import sys,json; views=json.load(sys.stdin)['data']; print(next(v['_id'] for v in views if v['_type']=='UMLTimingLifelineView'))" 2>/dev/null)
+
+# Create timing state inside the lifeline (requires tailViewId)
+R=$(curl -s -X POST $BASE/api/timing/timing-states -H "Content-Type: application/json" \
+  -d "{\"diagramId\":\"$FC_TIM_DID\",\"name\":\"State1\",\"tailViewId\":\"$TIM_LL_VID\"}")
+check "460.timing_create_timing_state" "$R"
+TIM_TS_ID=$(getid "$R")
+check "461.timing_list_timing_states" "$(curl -s $BASE/api/timing/timing-states)"
+
+# Get/Update/Delete timing state (modelTypes: UMLConstraint)
+check "461a.timing_get_timing_state" "$(curl -s $BASE/api/timing/timing-states/$(enc $TIM_TS_ID))"
+check "461b.timing_update_timing_state" "$(curl -s -X PUT $BASE/api/timing/timing-states/$(enc $TIM_TS_ID) -H "Content-Type: application/json" -d '{"name":"UpdatedState"}')"
+check "461c.timing_delete_timing_state" "$(curl -s -X DELETE $BASE/api/timing/timing-states/$(enc $TIM_TS_ID))"
+
+# Get/Update/Delete lifeline
+check "462.timing_get_lifeline" "$(curl -s $BASE/api/timing/lifelines/$(enc $TIM_LL_ID))"
+check "463.timing_update_lifeline" "$(curl -s -X PUT $BASE/api/timing/lifelines/$(enc $TIM_LL_ID) -H "Content-Type: application/json" -d '{"name":"UpdatedLL"}')"
+check "464.timing_delete_lifeline" "$(curl -s -X DELETE $BASE/api/timing/lifelines/$(enc $TIM_LL_ID))"
+
+check "465.timing_delete_diagram" "$(curl -s -X DELETE $BASE/api/timing/diagrams/$(enc $FC_TIM_DID))"
 
 # --- Interaction Overview Family ---
 R=$(curl -s -X POST $BASE/api/overview/diagrams -H "Content-Type: application/json" -d '{"name":"TestOverviewDiag"}')
-check "459.ov_create_diagram" "$R"
+check "466.ov_create_diagram" "$R"
 FC_OV_DID=$(getid "$R")
-check "460.ov_list_diagrams" "$(curl -s $BASE/api/overview/diagrams)"
-check "461.ov_delete_diagram" "$(curl -s -X DELETE $BASE/api/overview/diagrams/$(enc $FC_OV_DID))"
+check "467.ov_list_diagrams" "$(curl -s $BASE/api/overview/diagrams)"
+
+# Create interaction-use (model type is UMLAction)
+R=$(curl -s -X POST $BASE/api/overview/interaction-uses -H "Content-Type: application/json" \
+  -d "{\"diagramId\":\"$FC_OV_DID\",\"name\":\"IU1\"}")
+check "467a.ov_create_interaction_use" "$R"
+OV_IU_ID=$(getid "$R")
+check "467b.ov_list_interaction_uses" "$(curl -s $BASE/api/overview/interaction-uses)"
+
+# Get/Update/Delete interaction-use (modelTypes: UMLAction)
+check "467c.ov_get_interaction_use" "$(curl -s $BASE/api/overview/interaction-uses/$(enc $OV_IU_ID))"
+check "467d.ov_update_interaction_use" "$(curl -s -X PUT $BASE/api/overview/interaction-uses/$(enc $OV_IU_ID) -H "Content-Type: application/json" -d '{"name":"UpdatedIU"}')"
+check "467e.ov_delete_interaction_use" "$(curl -s -X DELETE $BASE/api/overview/interaction-uses/$(enc $OV_IU_ID))"
+
+# Create interaction (model type is UMLAction)
+R=$(curl -s -X POST $BASE/api/overview/interactions -H "Content-Type: application/json" \
+  -d "{\"diagramId\":\"$FC_OV_DID\",\"name\":\"Int1\"}")
+check "467f.ov_create_interaction" "$R"
+OV_INT_ID=$(getid "$R")
+check "467g.ov_list_interactions" "$(curl -s $BASE/api/overview/interactions)"
+
+# Get/Update/Delete interaction (modelTypes: UMLAction)
+check "467h.ov_get_interaction" "$(curl -s $BASE/api/overview/interactions/$(enc $OV_INT_ID))"
+check "467i.ov_update_interaction" "$(curl -s -X PUT $BASE/api/overview/interactions/$(enc $OV_INT_ID) -H "Content-Type: application/json" -d '{"name":"UpdatedInt"}')"
+check "467j.ov_delete_interaction" "$(curl -s -X DELETE $BASE/api/overview/interactions/$(enc $OV_INT_ID))"
+
+check "468.ov_delete_diagram" "$(curl -s -X DELETE $BASE/api/overview/diagrams/$(enc $FC_OV_DID))"
 
 # =============================
 # Restore project to pre-test state

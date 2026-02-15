@@ -474,9 +474,10 @@ function makeDeleteDiagram(config) {
 // ============================================================
 
 function makeListResource(config, res) {
+    const listTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
         let elements = []
-        res.types.forEach(function (t) {
+        listTypes.forEach(function (t) {
             const found = app.repository.select('@' + t)
             elements = elements.concat(found)
         })
@@ -509,7 +510,7 @@ function makeListResource(config, res) {
 }
 
 function makeCreateResource(config, res) {
-    const allowedFields = ['diagramId', 'name', 'x1', 'y1', 'x2', 'y2']
+    const allowedFields = ['diagramId', 'name', 'x1', 'y1', 'x2', 'y2', 'tailViewId']
     // If multiple types, allow 'type' field
     if (res.types.length > 1) {
         allowedFields.push('type')
@@ -530,7 +531,8 @@ function makeCreateResource(config, res) {
             h.checkFieldType(body, 'y1', 'number'),
             h.checkFieldType(body, 'x2', 'number'),
             h.checkFieldType(body, 'y2', 'number'),
-            h.checkFieldType(body, 'type', 'string')
+            h.checkFieldType(body, 'type', 'string'),
+            h.checkFieldType(body, 'tailViewId', 'string')
         ]
         const err = h.validate(checks)
         if (err) return h.validationError(err, reqInfo, body)
@@ -565,6 +567,21 @@ function makeCreateResource(config, res) {
             return h.validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
         }
 
+        // Validate that the type has a registered view type
+        if (app.metamodel) {
+            const viewTypeName = app.metamodel.getViewTypeOf(elemType)
+            if (!viewTypeName || !type[viewTypeName]) {
+                return h.validationError(
+                    'Type "' + elemType + '" cannot be created on a diagram (no view type registered). ' +
+                    'Allowed: ' + res.types.filter(function (t) {
+                        const vt = app.metamodel.getViewTypeOf(t)
+                        return vt && type[vt]
+                    }).join(', '),
+                    reqInfo, body
+                )
+            }
+        }
+
         const x1 = body.x1 !== undefined ? body.x1 : 100
         const y1 = body.y1 !== undefined ? body.y1 : 100
         const x2 = body.x2 !== undefined ? body.x2 : 200
@@ -575,6 +592,16 @@ function makeCreateResource(config, res) {
             parent: parent,
             diagram: diagram,
             x1: x1, y1: y1, x2: x2, y2: y2
+        }
+
+        // Resolve tailViewId to a view reference (for elements that must be placed inside a container view)
+        if (body.tailViewId) {
+            const tailView = h.findViewOnDiagramByAnyId(diagram, body.tailViewId)
+            if (!tailView) {
+                return h.validationError('View not found on diagram: ' + body.tailViewId, reqInfo, body)
+            }
+            factoryOpts.tailView = tailView
+            if (tailView.model) factoryOpts.tailModel = tailView.model
         }
 
         try {
@@ -588,7 +615,7 @@ function makeCreateResource(config, res) {
             // Apply extra fields via setProperty
             if (res.createFields) {
                 res.createFields.forEach(function (f) {
-                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'type') {
+                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'type' && f !== 'tailViewId') {
                         if (model && typeof model._id === 'string') {
                             app.engine.setProperty(model, f, body[f])
                         }
@@ -610,13 +637,14 @@ function makeCreateResource(config, res) {
 }
 
 function makeGetResource(config, res) {
+    const checkTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
         const elem = h.findById(params.id)
         if (!elem) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
         // Verify type
-        if (res.types.indexOf(elem.constructor.name) === -1) {
+        if (checkTypes.indexOf(elem.constructor.name) === -1) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
         const serializer = res.serialize || defaultSerializeNode
@@ -631,6 +659,7 @@ function makeGetResource(config, res) {
 
 function makeUpdateResource(config, res) {
     const updateFields = res.updateFields || ['name', 'documentation']
+    const checkTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
         const checks = [h.checkUnknownFields(body, updateFields)]
         updateFields.forEach(function (f) {
@@ -654,7 +683,7 @@ function makeUpdateResource(config, res) {
         if (!elem) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
         }
-        if (res.types.indexOf(elem.constructor.name) === -1) {
+        if (checkTypes.indexOf(elem.constructor.name) === -1) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
         }
 
@@ -677,12 +706,13 @@ function makeUpdateResource(config, res) {
 }
 
 function makeDeleteResource(config, res) {
+    const checkTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
         const elem = h.findById(params.id)
         if (!elem) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
-        if (res.types.indexOf(elem.constructor.name) === -1) {
+        if (checkTypes.indexOf(elem.constructor.name) === -1) {
             return { success: false, error: res.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
 

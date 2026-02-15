@@ -5,7 +5,7 @@ module.exports = {
     resources: [
         {
             name: 'elements',
-            types: ['AzureElement', 'AzureGroup', 'AzureService', 'AzureCallout']
+            types: ['AzureGroup', 'AzureService', 'AzureCallout']
         }
     ],
     relations: [

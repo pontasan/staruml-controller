@@ -31,8 +31,7 @@ module.exports = {
                 }
             }
         },
-        { name: 'final-states', types: ['UMLFinalState'] },
-        { name: 'connection-points', types: ['UMLConnectionPointReference'] }
+        { name: 'final-states', types: ['UMLFinalState'] }
     ],
     relations: [
         {
