@@ -7,6 +7,7 @@
 
 const ddlGenerator = require('./ddl-generator')
 const crudFactory = require('./handlers/crud-factory')
+const { autoExpandFrame, fitFrameToViews, clearEdgeWaypoints } = require('./handlers/shared-helpers')
 
 // ============================================================
 // Family Configs & Routers
@@ -265,9 +266,9 @@ const CHILD_TYPE_DEFAULT_FIELDS = {
     'UMLRegion': 'regions',
     'UMLConstraint': 'constraints',
     'UMLInteractionOperand': 'operands',
-    'SysMLProperty': 'ownedElements',
+    'SysMLProperty': 'properties',
     'SysMLOperation': 'operations',
-    'SysMLFlowProperty': 'ownedElements',
+    'SysMLFlowProperty': 'flowProperties',
     'UMLInputPin': 'inputs',
     'UMLOutputPin': 'outputs',
     'BPMNCompensateEventDefinition': 'eventDefinitions',
@@ -289,12 +290,17 @@ const VALID_PSEUDOSTATE_KINDS = [
 
 const STYLE_ALLOWED_FIELDS = [
     'fillColor', 'lineColor', 'fontColor', 'fontFace', 'fontSize',
-    'fontStyle', 'lineStyle', 'showShadow', 'autoResize', 'stereotypeDisplay'
+    'fontStyle', 'lineStyle', 'showShadow', 'autoResize', 'stereotypeDisplay',
+    'suppressAttributes', 'suppressOperations', 'suppressReceptions',
+    'suppressProperties'
 ]
 
 const GENERIC_DIAGRAM_CREATE_FIELDS = ['type', 'name', 'parentId']
 const GENERIC_ELEMENT_CREATE_FIELDS = ['type', 'name', 'x1', 'y1', 'x2', 'y2', 'pseudostateKind', 'attachToViewId']
 const GENERIC_RELATION_CREATE_FIELDS = ['type', 'sourceId', 'targetId', 'name']
+// Types whose factory functions expect the diagram itself as parent (not diagram._parent).
+// These factory functions internally resolve the actual parent from the diagram.
+const DIAGRAM_AS_PARENT_TYPES = ['SysMLConstraintParameter']
 const GENERIC_CHILD_CREATE_FIELDS = ['type', 'name', 'field']
 const LAYOUT_ALLOWED_FIELDS = ['direction', 'separations', 'edgeLineStyle']
 const IMPORT_ALLOWED_FIELDS = ['path', 'parentId']
@@ -4367,6 +4373,9 @@ function createNote(diagramId, body, reqInfo) {
             app.engine.setProperty(view, 'text', body.text)
         }
 
+        // Auto-expand frame to contain newly created note
+        autoExpandFrame(diagram)
+
         return {
             success: true,
             message: 'Created note on diagram "' + (diagram.name || diagramId) + '"',
@@ -4577,6 +4586,9 @@ function createFreeLine(diagramId, body, reqInfo) {
             return { success: false, error: 'Failed to create free line. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
         }
 
+        // Auto-expand frame to contain newly created free line
+        autoExpandFrame(diagram)
+
         return {
             success: true,
             message: 'Created free line on diagram "' + (diagram.name || diagramId) + '"',
@@ -4697,6 +4709,9 @@ function createShape(diagramId, body, reqInfo) {
         if (body.imageFile !== undefined && view.model) {
             app.engine.setProperty(view.model, 'imageFile', body.imageFile)
         }
+
+        // Auto-expand frame to contain newly created shape
+        autoExpandFrame(diagram)
 
         return {
             success: true,
@@ -4835,6 +4850,20 @@ function updateView(id, body, reqInfo) {
     if (body.height !== undefined) {
         app.engine.setProperty(view, 'height', body.height)
         updated.push('height')
+    }
+
+    // Re-route connected edges when node position or size changes
+    if (body.left !== undefined || body.top !== undefined || body.width !== undefined || body.height !== undefined) {
+        try {
+            const connectedEdges = app.repository.getEdgeViewsOf(view)
+            if (connectedEdges && connectedEdges.length > 0) {
+                for (let i = 0; i < connectedEdges.length; i++) {
+                    clearEdgeWaypoints(connectedEdges[i])
+                }
+            }
+        } catch (e) {
+            // Edge re-routing is best-effort; don't fail the view update
+        }
     }
 
     return {
@@ -5360,6 +5389,12 @@ function createDiagramElement(diagramId, body, reqInfo) {
         return validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
     }
 
+    // Some factory functions (e.g. SysMLConstraintParameter's parameterFn) expect
+    // the diagram itself as parent, not diagram._parent.
+    if (DIAGRAM_AS_PARENT_TYPES.indexOf(body.type) !== -1) {
+        parent = diagram
+    }
+
     const x1 = body.x1 !== undefined ? body.x1 : 100
     const y1 = body.y1 !== undefined ? body.y1 : 100
     const x2 = body.x2 !== undefined ? body.x2 : 200
@@ -5385,7 +5420,35 @@ function createDiagramElement(diagramId, body, reqInfo) {
         factoryOpts.tailView = attachView
         if (attachView.model) {
             factoryOpts.tailModel = attachView.model
+            // Frame views (UMLFrameView, UMLTimingFrameView, etc.) have model pointing
+            // to the diagram itself. The parent should be diagram._parent (the owning
+            // Interaction/Block/etc.), not the diagram.
+            if (attachView.model === diagram && diagram._parent) {
+                factoryOpts.parent = diagram._parent
+            } else {
+                factoryOpts.parent = attachView.model
+            }
         }
+    }
+
+    // Auto-attach to timing frame when creating elements on a UMLTimingDiagram
+    // without an explicit attachToViewId.
+    if (!body.attachToViewId && diagram.constructor.name === 'UMLTimingDiagram') {
+        const frameView = diagram.ownedViews.filter(function (v) {
+            return v.constructor.name === 'UMLTimingFrameView'
+        })[0]
+        if (frameView) {
+            factoryOpts.tailView = frameView
+            factoryOpts.tailModel = frameView.model
+            factoryOpts.parent = diagram._parent
+        }
+    }
+
+    // Some factory functions (e.g. UMLTimeSegment) access options.editor.canvas.
+    // Provide the current diagram editor if available.
+    const editor = app.diagrams ? app.diagrams.getEditor() : null
+    if (editor) {
+        factoryOpts.editor = editor
     }
 
     try {
@@ -5422,6 +5485,9 @@ function createDiagramElement(diagramId, body, reqInfo) {
         if (view.height !== undefined) {
             data.height = view.height
         }
+
+        // Auto-expand frame to contain newly created element
+        autoExpandFrame(diagram)
 
         return {
             success: true,
@@ -5517,6 +5583,9 @@ function createDiagramRelation(diagramId, body, reqInfo) {
             data.name = model.name || ''
         }
 
+        // Auto-expand frame to contain newly created relation
+        autoExpandFrame(diagram)
+
         return {
             success: true,
             message: 'Created relation "' + (model ? model.name || body.type : body.type) + '" on diagram "' + (diagram.name || diagramId) + '"',
@@ -5598,7 +5667,13 @@ function updateViewStyle(id, body, reqInfo) {
         checkFieldType(body, 'fontSize', 'number'),
         checkFieldType(body, 'fontStyle', 'number'),
         checkFieldType(body, 'lineStyle', 'number'),
-        checkFieldType(body, 'showShadow', 'boolean')
+        checkFieldType(body, 'showShadow', 'boolean'),
+        checkFieldType(body, 'autoResize', 'boolean'),
+        checkFieldType(body, 'stereotypeDisplay', 'string'),
+        checkFieldType(body, 'suppressAttributes', 'boolean'),
+        checkFieldType(body, 'suppressOperations', 'boolean'),
+        checkFieldType(body, 'suppressReceptions', 'boolean'),
+        checkFieldType(body, 'suppressProperties', 'boolean')
     ])
     if (err) {
         return validationError(err, reqInfo, body)
@@ -5646,6 +5721,32 @@ function updateViewStyle(id, body, reqInfo) {
         if (body.fontFace !== undefined) updated.push('fontFace')
         if (body.fontSize !== undefined) updated.push('fontSize')
         if (body.fontStyle !== undefined) updated.push('fontStyle')
+    }
+
+    // Display control properties
+    if (body.autoResize !== undefined) {
+        app.engine.setProperty(view, 'autoResize', body.autoResize)
+        updated.push('autoResize')
+    }
+    if (body.stereotypeDisplay !== undefined) {
+        app.engine.setProperty(view, 'stereotypeDisplay', body.stereotypeDisplay)
+        updated.push('stereotypeDisplay')
+    }
+    if (body.suppressAttributes !== undefined) {
+        app.engine.setProperty(view, 'suppressAttributes', body.suppressAttributes)
+        updated.push('suppressAttributes')
+    }
+    if (body.suppressOperations !== undefined) {
+        app.engine.setProperty(view, 'suppressOperations', body.suppressOperations)
+        updated.push('suppressOperations')
+    }
+    if (body.suppressReceptions !== undefined) {
+        app.engine.setProperty(view, 'suppressReceptions', body.suppressReceptions)
+        updated.push('suppressReceptions')
+    }
+    if (body.suppressProperties !== undefined) {
+        app.engine.setProperty(view, 'suppressProperties', body.suppressProperties)
+        updated.push('suppressProperties')
     }
 
     return {
@@ -5753,8 +5854,18 @@ function layoutDiagram(diagramId, body, reqInfo) {
     const edgeLineStyle = body.edgeLineStyle !== undefined ? body.edgeLineStyle : 1
 
     try {
-        const editor = app.diagrams.getEditor()
-        app.engine.layoutDiagram(editor, diagram, direction, separations, edgeLineStyle)
+        // Timing diagrams have a fixed structure (lifelines → states → waveform
+        // segments) that the generic dagre hierarchical layout cannot handle.
+        // For these diagrams, skip the layout engine and only fit the frame.
+        const isTimingDiagram = diagram.constructor.name === 'UMLTimingDiagram'
+
+        if (!isTimingDiagram) {
+            const editor = app.diagrams.getEditor()
+            app.engine.layoutDiagram(editor, diagram, direction, separations, edgeLineStyle)
+        }
+
+        // Auto-resize frame to contain all views after layout
+        fitFrameToViews(diagram)
 
         return {
             success: true,
@@ -6012,6 +6123,12 @@ function createViewOf(diagramId, body, reqInfo) {
     }
 
     try {
+        // Ensure the target diagram is the active diagram.
+        // StarUML's createViewOf internally uses app.diagrams.getEditor()
+        // which returns the editor for the currently active diagram.
+        // Without this, views get placed on whichever diagram is currently open.
+        app.diagrams.setCurrentDiagram(diagram)
+
         const view = app.factory.createViewOf({
             model: model,
             diagram: diagram,
@@ -6184,6 +6301,9 @@ function reconnectEdge(id, body, reqInfo) {
         if (body.newTargetId) {
             app.engine.setProperty(view, 'head', newHeadView)
         }
+
+        // Clear stale waypoints and re-route edge between new endpoints
+        clearEdgeWaypoints(view)
 
         return {
             success: true,

@@ -136,7 +136,7 @@ Select **Tools > StarUML Controller > Stop Server** from the menu bar.
 | `/api/shapes/:id` | GET / PUT / DELETE | Get, update, or delete shape |
 | `/api/diagrams/:id/views` | GET | List all views on diagram |
 | `/api/views/:id` | PUT | Move/resize view |
-| `/api/views/:id/style` | PUT | Update view style (fillColor, lineColor, autoResize, etc.) |
+| `/api/views/:id/style` | PUT | Update view style (fillColor, lineColor, autoResize, suppressAttributes, suppressOperations, etc.) |
 | `/api/views/:id/reconnect` | PUT | Reconnect edge to different source/target |
 | `/api/views/align` | POST | Align/distribute views |
 | `/api/project/save` | POST | Save project |
@@ -409,6 +409,8 @@ Each diagram family below provides dedicated CRUD endpoints with type-specific v
 | `/api/profile/profiles/:id` | GET / PUT / DELETE | Get, update, or delete profile |
 | `/api/profile/stereotypes` | GET / POST | List or create stereotypes |
 | `/api/profile/stereotypes/:id` | GET / PUT / DELETE | Get, update, or delete stereotype |
+| `/api/profile/stereotypes/:id/attributes` | GET / POST | List or create stereotype attributes |
+| `/api/profile/stereotypes/:id/operations` | GET / POST | List or create stereotype operations |
 | `/api/profile/metaclasses` | GET / POST | List or create metaclasses |
 | `/api/profile/metaclasses/:id` | GET / PUT / DELETE | Get, update, or delete metaclass |
 | `/api/profile/extensions` | GET / POST | List or create extensions |

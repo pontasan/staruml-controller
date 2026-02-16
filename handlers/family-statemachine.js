@@ -18,7 +18,7 @@ module.exports = {
         {
             name: 'pseudostates',
             types: ['UMLPseudostate'],
-            createFields: ['pseudostateKind'],
+            createFields: [{ param: 'pseudostateKind', prop: 'kind' }],
             serialize: function (elem) {
                 if (!elem) return null
                 return {

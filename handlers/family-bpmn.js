@@ -1,3 +1,5 @@
+const { defaultSerializeNode, defaultSerializeRelation } = require('./crud-factory')
+
 module.exports = {
     prefix: 'bpmn',
     label: 'BPMN Diagram',
@@ -16,7 +18,14 @@ module.exports = {
                 'BPMNTask', 'BPMNSendTask', 'BPMNReceiveTask', 'BPMNServiceTask',
                 'BPMNUserTask', 'BPMNManualTask', 'BPMNBusinessRuleTask', 'BPMNScriptTask',
                 'BPMNCallActivity'
-            ]
+            ],
+            createFields: ['script'],
+            updateFields: ['name', 'documentation', 'script'],
+            serialize: function (elem) {
+                const result = defaultSerializeNode(elem)
+                if (elem.script !== undefined) result.script = elem.script || ''
+                return result
+            }
         },
         {
             name: 'sub-processes',
@@ -65,11 +74,28 @@ module.exports = {
         },
         {
             name: 'annotations',
-            types: ['BPMNTextAnnotation', 'BPMNGroup']
+            types: ['BPMNTextAnnotation', 'BPMNGroup'],
+            createFields: ['text'],
+            updateFields: ['name', 'documentation', 'text'],
+            serialize: function (elem) {
+                const result = defaultSerializeNode(elem)
+                if (elem.text !== undefined) result.text = elem.text || ''
+                return result
+            }
         }
     ],
     relations: [
-        { name: 'sequence-flows', type: 'BPMNSequenceFlow' },
+        {
+            name: 'sequence-flows',
+            type: 'BPMNSequenceFlow',
+            createFields: ['condition'],
+            updateFields: ['name', 'documentation', 'condition'],
+            serialize: function (elem) {
+                const result = defaultSerializeRelation(elem)
+                if (elem.condition !== undefined) result.condition = elem.condition || ''
+                return result
+            }
+        },
         { name: 'message-flows', type: 'BPMNMessageFlow' },
         { name: 'associations', type: 'BPMNAssociation' },
         { name: 'data-associations', type: 'BPMNDataAssociation' },

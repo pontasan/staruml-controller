@@ -51,6 +51,42 @@ function isAutoContainer(elem) {
     return elem && AUTO_CONTAINER_TYPES.indexOf(elem.constructor.name) !== -1
 }
 
+/**
+ * Parse a createFields entry.
+ * Supports two formats:
+ *   - String:  'guard'  →  { param: 'guard', prop: 'guard' }
+ *   - Object:  { param: 'pseudostateKind', prop: 'kind' }  →  as-is
+ */
+function parseFieldEntry(f) {
+    if (typeof f === 'string') return { param: f, prop: f }
+    return { param: f.param, prop: f.prop || f.param }
+}
+
+/**
+ * Propagate name to the linked UMLInteraction when the model is a UMLAction.
+ *
+ * In Interaction Overview Diagrams, the view displays the UMLInteraction's name,
+ * not the UMLAction's name. The link chain is:
+ *   Inline:  UMLAction.target → UMLSequenceDiagram → ._parent → UMLInteraction
+ *   Ref:     UMLAction.target → UMLInteractionUse  → .refersTo → UMLInteraction
+ */
+function propagateNameToChildInteraction(model, name) {
+    if (model.constructor.name !== 'UMLAction' || !model.target) return
+    const target = model.target
+    const targetType = target.constructor.name
+    let interaction = null
+    if (targetType === 'UMLSequenceDiagram' && target._parent &&
+        target._parent.constructor.name === 'UMLInteraction') {
+        interaction = target._parent
+    } else if (targetType === 'UMLInteractionUse' && target.refersTo &&
+        target.refersTo.constructor.name === 'UMLInteraction') {
+        interaction = target.refersTo
+    }
+    if (interaction) {
+        app.engine.setProperty(interaction, 'name', name)
+    }
+}
+
 // ============================================================
 // Serialization helpers
 // ============================================================
@@ -520,7 +556,7 @@ function makeListResource(config, res) {
 }
 
 function makeCreateResource(config, res) {
-    const allowedFields = ['diagramId', 'name', 'x1', 'y1', 'x2', 'y2', 'tailViewId']
+    const allowedFields = ['diagramId', 'name', 'x1', 'y1', 'x2', 'y2', 'tailViewId', 'lineColor', 'fillColor', 'fontColor']
     // If multiple types, allow 'type' field
     if (res.types.length > 1) {
         allowedFields.push('type')
@@ -528,7 +564,8 @@ function makeCreateResource(config, res) {
     // Add extra create fields from config
     if (res.createFields) {
         res.createFields.forEach(function (f) {
-            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+            const entry = parseFieldEntry(f)
+            if (allowedFields.indexOf(entry.param) === -1) allowedFields.push(entry.param)
         })
     }
 
@@ -577,6 +614,13 @@ function makeCreateResource(config, res) {
             return h.validationError('Diagram has no parent model', Object.assign({}, reqInfo, { body: body }))
         }
 
+        // Some factory functions (e.g. SysMLConstraintParameter's parameterFn) expect
+        // the diagram itself as parent, not diagram._parent. The factory function
+        // internally resolves the actual parent from the diagram.
+        if (res.diagramAsParent && res.diagramAsParent.indexOf(elemType) !== -1) {
+            parent = diagram
+        }
+
         // Apply toolbox type alias mapping (e.g. C4ContainerDatabase → C4Container + kind)
         const alias = TOOLBOX_TYPE_ALIASES[elemType]
         const factoryId = alias ? alias.id : elemType
@@ -619,7 +663,38 @@ function makeCreateResource(config, res) {
                 return h.validationError('View not found on diagram: ' + body.tailViewId, reqInfo, body)
             }
             factoryOpts.tailView = tailView
-            if (tailView.model) factoryOpts.tailModel = tailView.model
+            if (tailView.model) {
+                factoryOpts.tailModel = tailView.model
+                // Frame views (UMLFrameView, UMLTimingFrameView, etc.) have model pointing
+                // to the diagram itself. The parent should be diagram._parent (the owning
+                // Interaction/Block/etc.), not the diagram.
+                if (tailView.model === diagram && diagram._parent) {
+                    factoryOpts.parent = diagram._parent
+                } else {
+                    factoryOpts.parent = tailView.model
+                }
+            }
+        }
+
+        // Auto-attach to timing frame when creating elements on a UMLTimingDiagram
+        // without an explicit tailViewId. The StarUML factory requires lifelines to be
+        // placed inside the UMLTimingFrameView.
+        if (!body.tailViewId && diagram.constructor.name === 'UMLTimingDiagram') {
+            const frameView = diagram.ownedViews.filter(function (v) {
+                return v.constructor.name === 'UMLTimingFrameView'
+            })[0]
+            if (frameView) {
+                factoryOpts.tailView = frameView
+                factoryOpts.tailModel = frameView.model
+                factoryOpts.parent = diagram._parent
+            }
+        }
+
+        // Some factory functions (e.g. UMLTimeSegment) access options.editor.canvas.
+        // Provide the current diagram editor if available.
+        const editor = app.diagrams ? app.diagrams.getEditor() : null
+        if (editor) {
+            factoryOpts.editor = editor
         }
 
         try {
@@ -628,18 +703,33 @@ function makeCreateResource(config, res) {
 
             if (body.name && model && typeof model._id === 'string') {
                 app.engine.setProperty(model, 'name', body.name)
+                // Propagate name to child UMLInteraction (used by Interaction Overview Diagram).
+                // StarUML creates UMLAction + child UMLInteraction; the view displays the child's name.
+                propagateNameToChildInteraction(model, body.name)
             }
 
             // Apply extra fields via setProperty
             if (res.createFields) {
                 res.createFields.forEach(function (f) {
-                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'type' && f !== 'tailViewId') {
+                    const entry = parseFieldEntry(f)
+                    if (body[entry.param] !== undefined && entry.param !== 'name' && entry.param !== 'diagramId' && entry.param !== 'type' && entry.param !== 'tailViewId') {
                         if (model && typeof model._id === 'string') {
-                            app.engine.setProperty(model, f, body[f])
+                            app.engine.setProperty(model, entry.prop, body[entry.param])
                         }
                     }
                 })
             }
+
+            // Apply style properties to the view (not the model)
+            const styleProps = ['lineColor', 'fillColor', 'fontColor']
+            styleProps.forEach(function (prop) {
+                if (body[prop] !== undefined) {
+                    app.engine.setProperty(view, prop, body[prop])
+                }
+            })
+
+            // Auto-expand frame to contain newly created element
+            h.autoExpandFrame(diagram)
 
             const serializer = res.serialize || defaultSerializeNode
             return {
@@ -676,8 +766,8 @@ function makeGetResource(config, res) {
 }
 
 function resolveFieldDef(f) {
-    if (typeof f === 'string') return { name: f, type: 'string' }
-    return { name: f.name, type: f.type || 'string' }
+    if (typeof f === 'string') return { name: f, type: 'string', prop: f }
+    return { name: f.name, type: f.type || 'string', prop: f.prop || f.name }
 }
 
 function makeUpdateResource(config, res) {
@@ -711,10 +801,14 @@ function makeUpdateResource(config, res) {
         }
 
         const updated = []
-        fieldNames.forEach(function (f) {
-            if (body[f] !== undefined) {
-                app.engine.setProperty(elem, f, body[f])
-                updated.push(f)
+        fieldDefs.forEach(function (d) {
+            if (body[d.name] !== undefined) {
+                app.engine.setProperty(elem, d.prop, body[d.name])
+                updated.push(d.name)
+                // Propagate name to child UMLInteraction (used by Interaction Overview Diagram)
+                if (d.prop === 'name') {
+                    propagateNameToChildInteraction(elem, body[d.name])
+                }
             }
         })
 
@@ -794,7 +888,8 @@ function makeCreateChild(config, res, child) {
     const allowedFields = ['name', 'diagramId']
     if (child.createFields) {
         child.createFields.forEach(function (f) {
-            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+            const entry = parseFieldEntry(f)
+            if (allowedFields.indexOf(entry.param) === -1) allowedFields.push(entry.param)
         })
     }
 
@@ -821,10 +916,17 @@ function makeCreateChild(config, res, child) {
                 field: child.field
             }
 
-            let model = app.factory.createModel(options)
+            let model = null
+            try {
+                model = app.factory.createModel(options)
+            } catch (_ignored) {
+                // Some types (e.g., SysMLOperation, SysMLFlowProperty) are not registered
+                // with createModel and throw "ModelType is not a constructor".
+                // Fall through to createModelAndView fallback below.
+            }
 
-            // Fallback to createModelAndView when createModel returns null
-            // (e.g., UMLInputPin, UMLOutputPin are only registered with registerModelAndViewFn)
+            // Fallback to createModelAndView when createModel returns null or throws
+            // (e.g., UMLInputPin, UMLOutputPin, SysMLOperation, SysMLFlowProperty)
             if (!model) {
                 let diagram = null
                 let parentView = null
@@ -873,6 +975,13 @@ function makeCreateChild(config, res, child) {
                 }
 
                 const view = app.factory.createModelAndView(factoryOpts)
+                if (!view) {
+                    return {
+                        success: false,
+                        error: 'Cannot create ' + child.name.replace(/-/g, ' ') + ': factory returned null for type "' + child.type + '". This type may not support createModelAndView.',
+                        request: Object.assign({}, reqInfo, { body: body })
+                    }
+                }
                 model = view.model || view
             }
 
@@ -883,8 +992,9 @@ function makeCreateChild(config, res, child) {
             // Apply extra fields
             if (child.createFields) {
                 child.createFields.forEach(function (f) {
-                    if (body[f] !== undefined && f !== 'name') {
-                        app.engine.setProperty(model, f, body[f])
+                    const entry = parseFieldEntry(f)
+                    if (body[entry.param] !== undefined && entry.param !== 'name') {
+                        app.engine.setProperty(model, entry.prop, body[entry.param])
                     }
                 })
             }
@@ -907,8 +1017,9 @@ function makeCreateChild(config, res, child) {
 // ============================================================
 
 function makeListRelation(config, rel) {
+    const listType = rel.modelType || rel.type
     return function (params, query, body, reqInfo) {
-        const elements = app.repository.select('@' + rel.type)
+        const elements = app.repository.select('@' + listType)
 
         let filtered = elements
         // Filter by diagramId if provided
@@ -928,17 +1039,18 @@ function makeListRelation(config, rel) {
             })
         }
 
+        const relSerializer = rel.serialize || function (e) { return defaultSerializeRelation(e, rel) }
         return {
             success: true,
             message: 'Retrieved ' + filtered.length + ' ' + rel.name,
             request: reqInfo,
-            data: filtered.map(function (e) { return defaultSerializeRelation(e, rel) })
+            data: filtered.map(function (e) { return relSerializer(e) })
         }
     }
 }
 
 function makeCreateRelation(config, rel) {
-    const allowedFields = ['diagramId', 'sourceId', 'targetId', 'name']
+    const allowedFields = ['diagramId', 'sourceId', 'targetId', 'name', 'x1', 'y1', 'x2', 'y2', 'lineColor', 'fillColor', 'fontColor']
     // Add end1/end2 fields if applicable
     if (rel.hasEnds) {
         allowedFields.push('end1')
@@ -946,7 +1058,8 @@ function makeCreateRelation(config, rel) {
     }
     if (rel.createFields) {
         rel.createFields.forEach(function (f) {
-            if (allowedFields.indexOf(f) === -1) allowedFields.push(f)
+            const entry = parseFieldEntry(f)
+            if (allowedFields.indexOf(entry.param) === -1) allowedFields.push(entry.param)
         })
     }
 
@@ -966,7 +1079,7 @@ function makeCreateRelation(config, rel) {
         if (!body.sourceId) {
             return h.validationError('Field "sourceId" is required', reqInfo, body)
         }
-        if (!body.targetId) {
+        if (!body.targetId && !rel.targetOptional) {
             return h.validationError('Field "targetId" is required', reqInfo, body)
         }
 
@@ -980,9 +1093,12 @@ function makeCreateRelation(config, rel) {
             return h.validationError('Source element not found on diagram: ' + body.sourceId, reqInfo, body)
         }
 
-        const headView = h.findViewOnDiagramByAnyId(diagram, body.targetId)
-        if (!headView) {
-            return h.validationError('Target element not found on diagram: ' + body.targetId, reqInfo, body)
+        let headView = null
+        if (body.targetId) {
+            headView = h.findViewOnDiagramByAnyId(diagram, body.targetId)
+            if (!headView) {
+                return h.validationError('Target element not found on diagram: ' + body.targetId, reqInfo, body)
+            }
         }
 
         let parent = diagram._parent
@@ -999,7 +1115,20 @@ function makeCreateRelation(config, rel) {
                 headView: headView
             }
             if (tailView.model) options.tailModel = tailView.model
-            if (headView.model) options.headModel = headView.model
+            if (headView && headView.model) options.headModel = headView.model
+
+            // Pass coordinates to factory (required by UMLTimeSegment and similar)
+            if (body.x1 !== undefined) options.x1 = body.x1
+            if (body.y1 !== undefined) options.y1 = body.y1
+            if (body.x2 !== undefined) options.x2 = body.x2
+            if (body.y2 !== undefined) options.y2 = body.y2
+
+            // Some factory functions (e.g. UMLTimeSegment) access options.editor.canvas.
+            // Provide the current diagram editor if available.
+            const editor = app.diagrams ? app.diagrams.getEditor() : null
+            if (editor) {
+                options.editor = editor
+            }
 
             const view = app.factory.createModelAndView(options)
             const model = view.model || view
@@ -1021,19 +1150,32 @@ function makeCreateRelation(config, rel) {
             // Apply extra fields
             if (rel.createFields) {
                 rel.createFields.forEach(function (f) {
-                    if (body[f] !== undefined && f !== 'name' && f !== 'diagramId' && f !== 'sourceId' && f !== 'targetId' && f !== 'end1' && f !== 'end2') {
+                    const entry = parseFieldEntry(f)
+                    if (body[entry.param] !== undefined && entry.param !== 'name' && entry.param !== 'diagramId' && entry.param !== 'sourceId' && entry.param !== 'targetId' && entry.param !== 'end1' && entry.param !== 'end2') {
                         if (model && typeof model._id === 'string') {
-                            app.engine.setProperty(model, f, body[f])
+                            app.engine.setProperty(model, entry.prop, body[entry.param])
                         }
                     }
                 })
             }
 
+            // Apply style properties to the view (not the model)
+            const styleProps = ['lineColor', 'fillColor', 'fontColor']
+            styleProps.forEach(function (prop) {
+                if (body[prop] !== undefined) {
+                    app.engine.setProperty(view, prop, body[prop])
+                }
+            })
+
+            // Auto-expand frame to contain newly created relation
+            h.autoExpandFrame(diagram)
+
+            const relSerializer = rel.serialize || function (e) { return defaultSerializeRelation(e, rel) }
             return {
                 success: true,
                 message: 'Created ' + rel.name.replace(/-/g, ' ') + ' "' + (model ? model.name || rel.type : rel.type) + '"',
                 request: Object.assign({}, reqInfo, { body: body }),
-                data: defaultSerializeRelation(model, rel)
+                data: relSerializer(model)
             }
         } catch (e) {
             return { success: false, error: 'Failed to create relation: ' + (e.message || String(e)), request: Object.assign({}, reqInfo, { body: body }) }
@@ -1051,16 +1193,18 @@ function applyEndFields(end, values, endFields) {
 }
 
 function makeGetRelation(config, rel) {
+    const checkType = rel.modelType || rel.type
     return function (params, query, body, reqInfo) {
         const elem = h.findById(params.id)
-        if (!elem || elem.constructor.name !== rel.type) {
+        if (!elem || elem.constructor.name !== checkType) {
             return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
+        const relSerializer = rel.serialize || function (e) { return defaultSerializeRelation(e, rel) }
         return {
             success: true,
             message: 'Retrieved ' + rel.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '"',
             request: reqInfo,
-            data: defaultSerializeRelation(elem, rel)
+            data: relSerializer(elem)
         }
     }
 }
@@ -1069,6 +1213,7 @@ function makeUpdateRelation(config, rel) {
     const updateFields = rel.updateFields || ['name', 'documentation']
     const fieldDefs = updateFields.map(resolveFieldDef)
     const fieldNames = fieldDefs.map(function (d) { return d.name })
+    const checkType = rel.modelType || rel.type
     // Add end1/end2 if applicable
     const allFieldNames = fieldNames.slice()
     if (rel.hasEnds) {
@@ -1089,7 +1234,7 @@ function makeUpdateRelation(config, rel) {
         }
 
         const elem = h.findById(params.id)
-        if (!elem || elem.constructor.name !== rel.type) {
+        if (!elem || elem.constructor.name !== checkType) {
             return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: Object.assign({}, reqInfo, { body: body }) }
         }
 
@@ -1112,19 +1257,21 @@ function makeUpdateRelation(config, rel) {
             }
         }
 
+        const relSerializer = rel.serialize || function (e) { return defaultSerializeRelation(e, rel) }
         return {
             success: true,
             message: 'Updated ' + rel.name.replace(/-/g, ' ') + ' "' + (elem.name || params.id) + '" (fields: ' + updated.join(', ') + ')',
             request: Object.assign({}, reqInfo, { body: body }),
-            data: defaultSerializeRelation(elem, rel)
+            data: relSerializer(elem)
         }
     }
 }
 
 function makeDeleteRelation(config, rel) {
+    const checkType = rel.modelType || rel.type
     return function (params, query, body, reqInfo) {
         const elem = h.findById(params.id)
-        if (!elem || elem.constructor.name !== rel.type) {
+        if (!elem || elem.constructor.name !== checkType) {
             return { success: false, error: rel.name.replace(/-/g, ' ') + ' not found: ' + params.id, request: reqInfo }
         }
 

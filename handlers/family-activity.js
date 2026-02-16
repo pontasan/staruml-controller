@@ -6,6 +6,13 @@ module.exports = {
         {
             name: 'actions',
             types: ['UMLAction'],
+            createFields: ['body'],
+            updateFields: ['name', 'documentation', 'body'],
+            serialize: function (elem) {
+                const result = require('./crud-factory').defaultSerializeNode(elem)
+                if (elem.body !== undefined) result.body = elem.body || ''
+                return result
+            },
             children: [
                 { name: 'pins', type: 'UMLInputPin', field: 'inputs', createFields: ['name'] },
                 { name: 'output-pins', type: 'UMLOutputPin', field: 'outputs', createFields: ['name'] }

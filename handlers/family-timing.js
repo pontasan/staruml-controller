@@ -7,6 +7,6 @@ module.exports = {
         { name: 'timing-states', types: ['UMLTimingState'], modelTypes: ['UMLConstraint'] }
     ],
     relations: [
-        { name: 'time-segments', type: 'UMLTimeSegment' }
+        { name: 'time-segments', type: 'UMLTimeSegment', modelType: 'UMLStateInvariant', targetOptional: true }
     ]
 }

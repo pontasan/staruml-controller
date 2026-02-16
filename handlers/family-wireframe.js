@@ -13,7 +13,14 @@ module.exports = {
                 'WFButton', 'WFText', 'WFRadio', 'WFCheckbox', 'WFSwitch', 'WFLink',
                 'WFTabList', 'WFTab', 'WFInput', 'WFDropdown', 'WFPanel', 'WFImage',
                 'WFSeparator', 'WFAvatar', 'WFSlider'
-            ]
+            ],
+            createFields: [{ param: 'checked', prop: 'checked' }],
+            updateFields: ['name', 'documentation', { name: 'checked', type: 'boolean', prop: 'checked' }],
+            serialize: function (elem) {
+                const result = require('./crud-factory').defaultSerializeNode(elem)
+                if (elem.checked !== undefined) result.checked = !!elem.checked
+                return result
+            }
         }
     ],
     relations: []
