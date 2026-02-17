@@ -523,9 +523,15 @@ function makeListResource(config, res) {
     const listTypes = res.modelTypes || res.types
     return function (params, query, body, reqInfo) {
         let elements = []
+        const seenIds = {}
         listTypes.forEach(function (t) {
             const found = app.repository.select('@' + t)
-            elements = elements.concat(found)
+            found.forEach(function (e) {
+                if (!seenIds[e._id]) {
+                    seenIds[e._id] = true
+                    elements.push(e)
+                }
+            })
         })
 
         // Filter by diagramId if provided

@@ -241,6 +241,26 @@ function getViewBounds(v) {
 }
 
 /**
+ * Find the diagram-level frame view (UMLFrameView, UMLTimingFrameView, etc.).
+ * Wireframe frame views (WFFrameView, WFMobileFrameView, etc.) are content
+ * elements, not diagram-level frames, so they are excluded.
+ *
+ * @param {Object} diagram - The diagram to search
+ * @returns {Object|null} The diagram-level frame view, or null
+ */
+function findDiagramFrame(diagram) {
+    if (!diagram || !diagram.ownedViews) return null
+    for (let i = 0; i < diagram.ownedViews.length; i++) {
+        const name = diagram.ownedViews[i].constructor.name
+        // WF*FrameView are wireframe content frames, not diagram-level frames
+        if (name.endsWith('FrameView') && !name.startsWith('WF')) {
+            return diagram.ownedViews[i]
+        }
+    }
+    return null
+}
+
+/**
  * Auto-expand the UMLFrameView on a diagram to contain all views.
  * Call this after creating elements/relations to prevent views from
  * falling outside the diagram frame.
@@ -255,14 +275,7 @@ function autoExpandFrame(diagram, margin) {
     if (!diagram || !diagram.ownedViews) return
     if (margin === undefined) margin = 30
 
-    // Find the frame view
-    let frame = null
-    for (let i = 0; i < diagram.ownedViews.length; i++) {
-        if (diagram.ownedViews[i].constructor.name.endsWith('FrameView')) {
-            frame = diagram.ownedViews[i]
-            break
-        }
-    }
+    const frame = findDiagramFrame(diagram)
     if (!frame) return
 
     // Calculate content bounds (frame-tracking views → vertical only)
@@ -331,14 +344,7 @@ function fitFrameToViews(diagram, margin) {
     if (!diagram || !diagram.ownedViews) return
     if (margin === undefined) margin = 30
 
-    // Find the frame view
-    let frame = null
-    for (let i = 0; i < diagram.ownedViews.length; i++) {
-        if (diagram.ownedViews[i].constructor.name.endsWith('FrameView')) {
-            frame = diagram.ownedViews[i]
-            break
-        }
-    }
+    const frame = findDiagramFrame(diagram)
     if (!frame) return
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity

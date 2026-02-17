@@ -81,6 +81,15 @@ function startServer(port) {
           res.end(JSON.stringify({ success: false, error: 'Invalid JSON in request body' }))
           return
         }
+        // Unescape common escape sequences in multi-line text fields.
+        // MCP tool parameters pass \n as literal backslash+n (not a newline character),
+        // so we convert them here at the API entry point.
+        if (typeof body.text === 'string') {
+          body.text = body.text.replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+        }
+        if (typeof body.documentation === 'string') {
+          body.documentation = body.documentation.replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+        }
       }
 
       try {
