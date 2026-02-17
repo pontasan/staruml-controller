@@ -352,7 +352,22 @@ strong {
     <div class="nav-item"><span class="toggle">&#9654;</span><a href="#endpoint-summary">Endpoint Summary</a></div>
     <ul class="sub-items">
       <li class="nav-h3">
-        <a href="#general-1">General</a>
+        <a href="#general-status-elements-tags">General — Status, Elements, Tags</a>
+      </li>
+      <li class="nav-h3">
+        <a href="#project">Project</a>
+      </li>
+      <li class="nav-h3">
+        <a href="#utility">Utility</a>
+      </li>
+      <li class="nav-h3">
+        <a href="#diagrams-generic-crud-export-layout">Diagrams — Generic CRUD, Export, Layout</a>
+      </li>
+      <li class="nav-h3">
+        <a href="#notes-annotations">Notes &amp; Annotations</a>
+      </li>
+      <li class="nav-h3">
+        <a href="#views-position-style-alignment">Views — Position, Style, Alignment</a>
       </li>
       <li class="nav-h3">
         <a href="#er-diagram-1">ER Diagram</a>
@@ -435,7 +450,7 @@ strong {
     </ul>
   </li>
   <li class="nav-h2 has-children">
-    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#general-2">General</a></div>
+    <div class="nav-item"><span class="toggle">&#9654;</span><a href="#general-1">General</a></div>
     <ul class="sub-items">
       <li class="nav-h3 has-children">
         <div class="nav-item"><span class="toggle">&#9654;</span><a href="#status">Status</a></div>
@@ -460,10 +475,25 @@ strong {
         </ul>
       </li>
       <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#project">Project</a></div>
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#project-1">Project</a></div>
         <ul class="sub-items">
           <li class="nav-h4"><a href="#post-api-project-save"><span class="nav-action">Save the project to the specified absolute path. No dialog is displayed.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/project/save</span></span></a></li>
           <li class="nav-h4"><a href="#post-api-project-open"><span class="nav-action">Open an existing `.mdj` file from the specified absolute path. No dialog is displayed.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/project/open</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#diagram-views">Diagram Views</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-diagrams-id-views"><span class="nav-action">List all views (visual representations) on the specified diagram with their position and size info.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/diagrams/:id/views</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-views-id"><span class="nav-action">Update a view&#x27;s position and size.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/views/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-views-id-style"><span class="nav-action">Update a view&#x27;s visual style properties. Only the specified fields are updated; unspecified fields retain their current values.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/views/:id/style</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-views-id-reconnect"><span class="nav-action">Reconnect a relation view&#x27;s source or target to a different view.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/views/:id/reconnect</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#view-alignment">View Alignment</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#post-api-views-align"><span class="nav-action">Align multiple views on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/views/align</span></span></a></li>
         </ul>
       </li>
     </ul>
@@ -642,9 +672,9 @@ strong {
         <ul class="sub-items">
           <li class="nav-h4"><a href="#get-api-diagrams-id-shapes"><span class="nav-action">List all shape elements on a diagram.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/diagrams/:id/shapes</span></span></a></li>
           <li class="nav-h4"><a href="#post-api-diagrams-id-shapes"><span class="nav-action">Create a shape on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/diagrams/:id/shapes</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-diagrams-id-shapes-shapeid"><span class="nav-action">Get the details of a specific shape on a diagram.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/diagrams/:id/shapes/:shapeId</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-diagrams-id-shapes-shapeid"><span class="nav-action">Update a shape on a diagram.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/diagrams/:id/shapes/:shapeId</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-diagrams-id-shapes-shapeid"><span class="nav-action">Delete a shape from a diagram.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/diagrams/:id/shapes/:shapeId</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-shapes-id"><span class="nav-action">Get the details of a specific shape.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/shapes/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-shapes-id"><span class="nav-action">Update a shape.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/shapes/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-shapes-id"><span class="nav-action">Delete a shape from a diagram.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/shapes/:id</span></span></a></li>
         </ul>
       </li>
     </ul>
@@ -1052,16 +1082,6 @@ strong {
           <li class="nav-h4"><a href="#delete-api-statemachine-final-states-id"><span class="nav-action">Delete the specified final state and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/statemachine/final-states/:id</span></span></a></li>
         </ul>
       </li>
-      <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#connection-points">Connection Points</a></div>
-        <ul class="sub-items">
-          <li class="nav-h4"><a href="#get-api-statemachine-connection-points"><span class="nav-action">List all connection points.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/statemachine/connection-points</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-statemachine-connection-points"><span class="nav-action">Create a connection point on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/statemachine/connection-points</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-statemachine-connection-points-id"><span class="nav-action">Get the details of the specified connection point.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/statemachine/connection-points/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-statemachine-connection-points-id"><span class="nav-action">Update the specified connection point. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/statemachine/connection-points/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-statemachine-connection-points-id"><span class="nav-action">Delete the specified connection point and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/statemachine/connection-points/:id</span></span></a></li>
-        </ul>
-      </li>
       <li class="nav-h3">
         <a href="#pseudostate-creation">Pseudostate Creation</a>
       </li>
@@ -1373,16 +1393,6 @@ strong {
         </ul>
       </li>
       <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#association-classes">Association Classes</a></div>
-        <ul class="sub-items">
-          <li class="nav-h4"><a href="#get-api-composite-association-classes"><span class="nav-action">List all association classes.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/composite/association-classes</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-composite-association-classes"><span class="nav-action">Create an association class on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/composite/association-classes</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-composite-association-classes-id"><span class="nav-action">Get the details of the specified association class.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/composite/association-classes/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-composite-association-classes-id"><span class="nav-action">Update the specified association class. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/composite/association-classes/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-composite-association-classes-id"><span class="nav-action">Delete the specified association class and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/composite/association-classes/:id</span></span></a></li>
-        </ul>
-      </li>
-      <li class="nav-h3 has-children">
         <div class="nav-item"><span class="toggle">&#9654;</span><a href="#role-bindings">Role Bindings</a></div>
         <ul class="sub-items">
           <li class="nav-h4"><a href="#get-api-composite-role-bindings"><span class="nav-action">List all role bindings.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/composite/role-bindings</span></span></a></li>
@@ -1480,6 +1490,10 @@ strong {
           <li class="nav-h4"><a href="#get-api-profile-stereotypes-id"><span class="nav-action">Get the details of the specified stereotype.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/profile/stereotypes/:id</span></span></a></li>
           <li class="nav-h4"><a href="#put-api-profile-stereotypes-id"><span class="nav-action">Update the specified stereotype. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/profile/stereotypes/:id</span></span></a></li>
           <li class="nav-h4"><a href="#delete-api-profile-stereotypes-id"><span class="nav-action">Delete the specified stereotype and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/profile/stereotypes/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-profile-stereotypes-id-attributes"><span class="nav-action">List attributes (tagged value definitions) of the specified stereotype.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/profile/stereotypes/:id/attributes</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-profile-stereotypes-id-attributes"><span class="nav-action">Create an attribute (tagged value definition) on the specified stereotype.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/profile/stereotypes/:id/attributes</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-profile-stereotypes-id-operations"><span class="nav-action">List operations of the specified stereotype.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/profile/stereotypes/:id/operations</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-profile-stereotypes-id-operations"><span class="nav-action">Create an operation on the specified stereotype.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/profile/stereotypes/:id/operations</span></span></a></li>
         </ul>
       </li>
       <li class="nav-h3 has-children">
@@ -1518,43 +1532,23 @@ strong {
         </ul>
       </li>
       <li class="nav-h3 has-children">
+        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#lifelines-2">Lifelines</a></div>
+        <ul class="sub-items">
+          <li class="nav-h4"><a href="#get-api-timing-lifelines"><span class="nav-action">List all lifelines.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/lifelines</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-timing-lifelines"><span class="nav-action">Create a lifeline on a timing diagram. Requires `tailViewId` pointing to the `UMLTimingFrameView` on the diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/lifelines</span></span></a></li>
+          <li class="nav-h4"><a href="#get-api-timing-lifelines-id"><span class="nav-action">Get the details of the specified lifeline.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/lifelines/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#put-api-timing-lifelines-id"><span class="nav-action">Update the specified lifeline. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/timing/lifelines/:id</span></span></a></li>
+          <li class="nav-h4"><a href="#delete-api-timing-lifelines-id"><span class="nav-action">Delete the specified lifeline and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/timing/lifelines/:id</span></span></a></li>
+        </ul>
+      </li>
+      <li class="nav-h3 has-children">
         <div class="nav-item"><span class="toggle">&#9654;</span><a href="#timing-states">Timing States</a></div>
         <ul class="sub-items">
           <li class="nav-h4"><a href="#get-api-timing-timing-states"><span class="nav-action">List all timing states.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/timing-states</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-timing-timing-states"><span class="nav-action">Create a timing state on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/timing-states</span></span></a></li>
+          <li class="nav-h4"><a href="#post-api-timing-timing-states"><span class="nav-action">Create a timing state on a diagram. Requires `tailViewId` pointing to the `UMLTimingLifelineView` on the diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/timing-states</span></span></a></li>
           <li class="nav-h4"><a href="#get-api-timing-timing-states-id"><span class="nav-action">Get the details of the specified timing state.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/timing-states/:id</span></span></a></li>
           <li class="nav-h4"><a href="#put-api-timing-timing-states-id"><span class="nav-action">Update the specified timing state. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/timing/timing-states/:id</span></span></a></li>
           <li class="nav-h4"><a href="#delete-api-timing-timing-states-id"><span class="nav-action">Delete the specified timing state and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/timing/timing-states/:id</span></span></a></li>
-        </ul>
-      </li>
-      <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#duration-constraints">Duration Constraints</a></div>
-        <ul class="sub-items">
-          <li class="nav-h4"><a href="#get-api-timing-duration-constraints"><span class="nav-action">List all duration constraints.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/duration-constraints</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-timing-duration-constraints"><span class="nav-action">Create a duration constraint on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/duration-constraints</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-timing-duration-constraints-id"><span class="nav-action">Get the details of the specified duration constraint.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/duration-constraints/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-timing-duration-constraints-id"><span class="nav-action">Update the specified duration constraint. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/timing/duration-constraints/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-timing-duration-constraints-id"><span class="nav-action">Delete the specified duration constraint and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/timing/duration-constraints/:id</span></span></a></li>
-        </ul>
-      </li>
-      <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#time-ticks">Time Ticks</a></div>
-        <ul class="sub-items">
-          <li class="nav-h4"><a href="#get-api-timing-time-ticks"><span class="nav-action">List all time ticks.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/time-ticks</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-timing-time-ticks"><span class="nav-action">Create a time tick on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/time-ticks</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-timing-time-ticks-id"><span class="nav-action">Get the details of the specified time tick.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/time-ticks/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-timing-time-ticks-id"><span class="nav-action">Update the specified time tick. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/timing/time-ticks/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-timing-time-ticks-id"><span class="nav-action">Delete the specified time tick and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/timing/time-ticks/:id</span></span></a></li>
-        </ul>
-      </li>
-      <li class="nav-h3 has-children">
-        <div class="nav-item"><span class="toggle">&#9654;</span><a href="#time-constraints">Time Constraints</a></div>
-        <ul class="sub-items">
-          <li class="nav-h4"><a href="#get-api-timing-time-constraints"><span class="nav-action">List all time constraints.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/time-constraints</span></span></a></li>
-          <li class="nav-h4"><a href="#post-api-timing-time-constraints"><span class="nav-action">Create a time constraint on a diagram.</span><span class="nav-endpoint"><span class="method method-post">POST</span> <span class="path">/api/timing/time-constraints</span></span></a></li>
-          <li class="nav-h4"><a href="#get-api-timing-time-constraints-id"><span class="nav-action">Get the details of the specified time constraint.</span><span class="nav-endpoint"><span class="method method-get">GET</span> <span class="path">/api/timing/time-constraints/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#put-api-timing-time-constraints-id"><span class="nav-action">Update the specified time constraint. Only the specified fields are updated.</span><span class="nav-endpoint"><span class="method method-put">PUT</span> <span class="path">/api/timing/time-constraints/:id</span></span></a></li>
-          <li class="nav-h4"><a href="#delete-api-timing-time-constraints-id"><span class="nav-action">Delete the specified time constraint and its views from all diagrams.</span><span class="nav-endpoint"><span class="method method-delete">DELETE</span> <span class="path">/api/timing/time-constraints/:id</span></span></a></li>
         </ul>
       </li>
       <li class="nav-h3 has-children">
@@ -2528,7 +2522,7 @@ The server automatically URL-decodes path parameters.</p>
 </table>
 <hr />
 <h2 id="endpoint-summary">Endpoint Summary</h2>
-<h3 id="general-1">General</h3>
+<h3 id="general-status-elements-tags">General — Status, Elements, Tags</h3>
 <table>
 <thead>
 <tr>
@@ -2547,6 +2541,16 @@ The server automatically URL-decodes path parameters.</p>
 <td>/api/elements/:id</td>
 <td>GET</td>
 <td>Get any element by ID</td>
+</tr>
+<tr>
+<td>/api/elements/:id</td>
+<td>PUT</td>
+<td>Update any element&#x27;s name and documentation</td>
+</tr>
+<tr>
+<td>/api/elements/:id</td>
+<td>DELETE</td>
+<td>Delete any element by ID</td>
 </tr>
 <tr>
 <td>/api/elements/:id/tags</td>
@@ -2574,6 +2578,43 @@ The server automatically URL-decodes path parameters.</p>
 <td>Delete a tag</td>
 </tr>
 <tr>
+<td>/api/elements/:id/relationships</td>
+<td>GET</td>
+<td>List all relationships of an element</td>
+</tr>
+<tr>
+<td>/api/elements/:id/views</td>
+<td>GET</td>
+<td>List all views of an element across diagrams</td>
+</tr>
+<tr>
+<td>/api/elements/:id/relocate</td>
+<td>PUT</td>
+<td>Move element to a different parent</td>
+</tr>
+<tr>
+<td>/api/elements/:id/children</td>
+<td>POST</td>
+<td>Create a child element (attribute, operation, etc.)</td>
+</tr>
+<tr>
+<td>/api/elements/:id/reorder</td>
+<td>PUT</td>
+<td>Reorder element within parent (up/down)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="project">Project</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
 <td>/api/project/save</td>
 <td>POST</td>
 <td>Save project to file</td>
@@ -2582,6 +2623,264 @@ The server automatically URL-decodes path parameters.</p>
 <td>/api/project/open</td>
 <td>POST</td>
 <td>Open project from file</td>
+</tr>
+<tr>
+<td>/api/project/new</td>
+<td>POST</td>
+<td>Create a new empty project</td>
+</tr>
+<tr>
+<td>/api/project/close</td>
+<td>POST</td>
+<td>Close the current project</td>
+</tr>
+<tr>
+<td>/api/project/import</td>
+<td>POST</td>
+<td>Import a .mdj fragment into the project</td>
+</tr>
+<tr>
+<td>/api/project/export</td>
+<td>POST</td>
+<td>Export a model fragment to a .mdj file</td>
+</tr>
+<tr>
+<td>/api/project/export-all</td>
+<td>POST</td>
+<td>Export all diagrams as images (PNG/SVG/JPEG/PDF)</td>
+</tr>
+<tr>
+<td>/api/project/export-doc</td>
+<td>POST</td>
+<td>Export project documentation (HTML/Markdown)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utility">Utility</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/undo</td>
+<td>POST</td>
+<td>Undo the last action</td>
+</tr>
+<tr>
+<td>/api/redo</td>
+<td>POST</td>
+<td>Redo the last undone action</td>
+</tr>
+<tr>
+<td>/api/search</td>
+<td>GET</td>
+<td>Search elements by keyword with optional type filter</td>
+</tr>
+<tr>
+<td>/api/validate</td>
+<td>POST</td>
+<td>Run model validation</td>
+</tr>
+<tr>
+<td>/api/mermaid/import</td>
+<td>POST</td>
+<td>Import a Mermaid diagram definition</td>
+</tr>
+<tr>
+<td>/api/diagrams/generate</td>
+<td>POST</td>
+<td>Generate a diagram from natural language description</td>
+</tr>
+</tbody>
+</table>
+<h3 id="diagrams-generic-crud-export-layout">Diagrams — Generic CRUD, Export, Layout</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/diagrams</td>
+<td>GET</td>
+<td>List all diagrams (optionally filter by type)</td>
+</tr>
+<tr>
+<td>/api/diagrams</td>
+<td>POST</td>
+<td>Create a new diagram of any supported type</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id</td>
+<td>GET</td>
+<td>Get diagram details by ID</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id</td>
+<td>PUT</td>
+<td>Update diagram name</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id</td>
+<td>DELETE</td>
+<td>Delete a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/elements</td>
+<td>GET</td>
+<td>List all elements on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/elements</td>
+<td>POST</td>
+<td>Create a node element on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/relations</td>
+<td>POST</td>
+<td>Create a relation between elements on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/export</td>
+<td>POST</td>
+<td>Export diagram as image (PNG/SVG/JPEG/PDF)</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/layout</td>
+<td>POST</td>
+<td>Auto-layout diagram with configurable direction</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/open</td>
+<td>POST</td>
+<td>Open/activate a diagram in the editor</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/zoom</td>
+<td>PUT</td>
+<td>Set diagram zoom level</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/create-view-of</td>
+<td>POST</td>
+<td>Create a view of an existing model on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/link-object</td>
+<td>POST</td>
+<td>Create a UMLLinkObject on an object diagram</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notes-annotations">Notes &amp; Annotations</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/diagrams/:id/notes</td>
+<td>GET</td>
+<td>List all notes on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/notes</td>
+<td>POST</td>
+<td>Create a note with text and position</td>
+</tr>
+<tr>
+<td>/api/notes/:id</td>
+<td>GET</td>
+<td>Get note details</td>
+</tr>
+<tr>
+<td>/api/notes/:id</td>
+<td>PUT</td>
+<td>Update note text</td>
+</tr>
+<tr>
+<td>/api/notes/:id</td>
+<td>DELETE</td>
+<td>Delete a note</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/note-links</td>
+<td>GET</td>
+<td>List all note links on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/note-links</td>
+<td>POST</td>
+<td>Create a link between a note and an element</td>
+</tr>
+<tr>
+<td>/api/note-links/:id</td>
+<td>DELETE</td>
+<td>Delete a note link</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/free-lines</td>
+<td>GET</td>
+<td>List all free lines on a diagram</td>
+</tr>
+<tr>
+<td>/api/diagrams/:id/free-lines</td>
+<td>POST</td>
+<td>Create a free line on a diagram</td>
+</tr>
+<tr>
+<td>/api/free-lines/:id</td>
+<td>DELETE</td>
+<td>Delete a free line</td>
+</tr>
+</tbody>
+</table>
+<h3 id="views-position-style-alignment">Views — Position, Style, Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/api/diagrams/:id/views</td>
+<td>GET</td>
+<td>List all views on a diagram</td>
+</tr>
+<tr>
+<td>/api/views/:id</td>
+<td>PUT</td>
+<td>Update view position/size</td>
+</tr>
+<tr>
+<td>/api/views/:id/style</td>
+<td>PUT</td>
+<td>Update view style (fillColor, lineColor, suppressAttributes, suppressOperations, autoResize, etc.)</td>
+</tr>
+<tr>
+<td>/api/views/:id/reconnect</td>
+<td>PUT</td>
+<td>Reconnect a relation view&#x27;s source/target</td>
+</tr>
+<tr>
+<td>/api/views/align</td>
+<td>POST</td>
+<td>Align multiple views</td>
 </tr>
 </tbody>
 </table>
@@ -3010,17 +3309,17 @@ The server automatically URL-decodes path parameters.</p>
 <td>Create a shape on a diagram</td>
 </tr>
 <tr>
-<td>/api/diagrams/:id/shapes/:shapeId</td>
+<td>/api/shapes/:id</td>
 <td>GET</td>
 <td>Get shape details</td>
 </tr>
 <tr>
-<td>/api/diagrams/:id/shapes/:shapeId</td>
+<td>/api/shapes/:id</td>
 <td>PUT</td>
 <td>Update a shape</td>
 </tr>
 <tr>
-<td>/api/diagrams/:id/shapes/:shapeId</td>
+<td>/api/shapes/:id</td>
 <td>DELETE</td>
 <td>Delete a shape</td>
 </tr>
@@ -4058,31 +4357,6 @@ The server automatically URL-decodes path parameters.</p>
 <td>Delete a final state</td>
 </tr>
 <tr>
-<td>/api/statemachine/connection-points</td>
-<td>GET</td>
-<td>List all connection points</td>
-</tr>
-<tr>
-<td>/api/statemachine/connection-points</td>
-<td>POST</td>
-<td>Create a connection point</td>
-</tr>
-<tr>
-<td>/api/statemachine/connection-points/:id</td>
-<td>GET</td>
-<td>Get connection point details</td>
-</tr>
-<tr>
-<td>/api/statemachine/connection-points/:id</td>
-<td>PUT</td>
-<td>Update a connection point</td>
-</tr>
-<tr>
-<td>/api/statemachine/connection-points/:id</td>
-<td>DELETE</td>
-<td>Delete a connection point</td>
-</tr>
-<tr>
 <td>/api/statemachine/transitions</td>
 <td>GET</td>
 <td>List all transitions</td>
@@ -4853,31 +5127,6 @@ The server automatically URL-decodes path parameters.</p>
 <td>Delete a collaboration use</td>
 </tr>
 <tr>
-<td>/api/composite/association-classes</td>
-<td>GET</td>
-<td>List all association classes</td>
-</tr>
-<tr>
-<td>/api/composite/association-classes</td>
-<td>POST</td>
-<td>Create an association class</td>
-</tr>
-<tr>
-<td>/api/composite/association-classes/:id</td>
-<td>GET</td>
-<td>Get association class details</td>
-</tr>
-<tr>
-<td>/api/composite/association-classes/:id</td>
-<td>PUT</td>
-<td>Update an association class</td>
-</tr>
-<tr>
-<td>/api/composite/association-classes/:id</td>
-<td>DELETE</td>
-<td>Delete an association class</td>
-</tr>
-<tr>
 <td>/api/composite/role-bindings</td>
 <td>GET</td>
 <td>List all role bindings</td>
@@ -5127,6 +5376,26 @@ The server automatically URL-decodes path parameters.</p>
 <td>Delete a stereotype</td>
 </tr>
 <tr>
+<td>/api/profile/stereotypes/:id/attributes</td>
+<td>GET</td>
+<td>List attributes of a stereotype</td>
+</tr>
+<tr>
+<td>/api/profile/stereotypes/:id/attributes</td>
+<td>POST</td>
+<td>Create an attribute on a stereotype</td>
+</tr>
+<tr>
+<td>/api/profile/stereotypes/:id/operations</td>
+<td>GET</td>
+<td>List operations of a stereotype</td>
+</tr>
+<tr>
+<td>/api/profile/stereotypes/:id/operations</td>
+<td>POST</td>
+<td>Create an operation on a stereotype</td>
+</tr>
+<tr>
 <td>/api/profile/metaclasses</td>
 <td>GET</td>
 <td>List all metaclasses</td>
@@ -5214,6 +5483,31 @@ The server automatically URL-decodes path parameters.</p>
 <td>Delete a diagram</td>
 </tr>
 <tr>
+<td>/api/timing/lifelines</td>
+<td>GET</td>
+<td>List all lifelines</td>
+</tr>
+<tr>
+<td>/api/timing/lifelines</td>
+<td>POST</td>
+<td>Create a lifeline (requires tailViewId)</td>
+</tr>
+<tr>
+<td>/api/timing/lifelines/:id</td>
+<td>GET</td>
+<td>Get lifeline details</td>
+</tr>
+<tr>
+<td>/api/timing/lifelines/:id</td>
+<td>PUT</td>
+<td>Update a lifeline</td>
+</tr>
+<tr>
+<td>/api/timing/lifelines/:id</td>
+<td>DELETE</td>
+<td>Delete a lifeline</td>
+</tr>
+<tr>
 <td>/api/timing/timing-states</td>
 <td>GET</td>
 <td>List all timing states</td>
@@ -5237,81 +5531,6 @@ The server automatically URL-decodes path parameters.</p>
 <td>/api/timing/timing-states/:id</td>
 <td>DELETE</td>
 <td>Delete a timing state</td>
-</tr>
-<tr>
-<td>/api/timing/duration-constraints</td>
-<td>GET</td>
-<td>List all duration constraints</td>
-</tr>
-<tr>
-<td>/api/timing/duration-constraints</td>
-<td>POST</td>
-<td>Create a duration constraint</td>
-</tr>
-<tr>
-<td>/api/timing/duration-constraints/:id</td>
-<td>GET</td>
-<td>Get duration constraint details</td>
-</tr>
-<tr>
-<td>/api/timing/duration-constraints/:id</td>
-<td>PUT</td>
-<td>Update a duration constraint</td>
-</tr>
-<tr>
-<td>/api/timing/duration-constraints/:id</td>
-<td>DELETE</td>
-<td>Delete a duration constraint</td>
-</tr>
-<tr>
-<td>/api/timing/time-ticks</td>
-<td>GET</td>
-<td>List all time ticks</td>
-</tr>
-<tr>
-<td>/api/timing/time-ticks</td>
-<td>POST</td>
-<td>Create a time tick</td>
-</tr>
-<tr>
-<td>/api/timing/time-ticks/:id</td>
-<td>GET</td>
-<td>Get time tick details</td>
-</tr>
-<tr>
-<td>/api/timing/time-ticks/:id</td>
-<td>PUT</td>
-<td>Update a time tick</td>
-</tr>
-<tr>
-<td>/api/timing/time-ticks/:id</td>
-<td>DELETE</td>
-<td>Delete a time tick</td>
-</tr>
-<tr>
-<td>/api/timing/time-constraints</td>
-<td>GET</td>
-<td>List all time constraints</td>
-</tr>
-<tr>
-<td>/api/timing/time-constraints</td>
-<td>POST</td>
-<td>Create a time constraint</td>
-</tr>
-<tr>
-<td>/api/timing/time-constraints/:id</td>
-<td>GET</td>
-<td>Get time constraint details</td>
-</tr>
-<tr>
-<td>/api/timing/time-constraints/:id</td>
-<td>PUT</td>
-<td>Update a time constraint</td>
-</tr>
-<tr>
-<td>/api/timing/time-constraints/:id</td>
-<td>DELETE</td>
-<td>Delete a time constraint</td>
 </tr>
 <tr>
 <td>/api/timing/time-segments</td>
@@ -7073,7 +7292,7 @@ The server automatically URL-decodes path parameters.</p>
 </tbody>
 </table>
 <hr />
-<h2 id="general-2">General</h2>
+<h2 id="general-1">General</h2>
 <h3 id="status">Status</h3>
 <h4 id="get-api-status">GET /api/status</h4>
 <div class="endpoint-action">Return the server health check and a list of available endpoints. <code>GET /</code> returns the same response.</div>
@@ -7435,7 +7654,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Tag with the specified ID not found</li>
 </ul>
 <hr />
-<h3 id="project">Project</h3>
+<h3 id="project-1">Project</h3>
 <h4 id="post-api-project-save">POST /api/project/save</h4>
 <div class="endpoint-action">Save the project to the specified absolute path. No dialog is displayed.</div>
 <p><strong>Request body</strong>:</p>
@@ -7542,6 +7761,391 @@ The server automatically URL-decodes path parameters.</p>
 <li>400: <code>path</code> extension is not <code>.mdj</code></li>
 <li>400: Unknown fields present</li>
 <li>400: Open operation failed (file does not exist, etc.)</li>
+</ul>
+<hr />
+<h3 id="diagram-views">Diagram Views</h3>
+<h4 id="get-api-diagrams-id-views">GET /api/diagrams/:id/views</h4>
+<div class="endpoint-action">List all views (visual representations) on the specified diagram with their position and size info.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 5 view(s) from diagram \&quot;MyDiagram\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/diagrams/AAAAAAGVxxxx/views&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVvvvv&quot;,
+      &quot;_type&quot;: &quot;SysMLBlockView&quot;,
+      &quot;modelId&quot;: &quot;AAAAAAGVmmmm&quot;,
+      &quot;left&quot;: 100,
+      &quot;top&quot;: 100,
+      &quot;width&quot;: 250,
+      &quot;height&quot;: 150
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>View ID (use for <code>PUT /api/views/:id/style</code>)</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>View type (e.g., <code>SysMLBlockView</code>, <code>UMLClassView</code>, <code>ERDEntityView</code>)</td>
+</tr>
+<tr>
+<td>modelId</td>
+<td>string</td>
+<td>ID of the model element this view represents</td>
+</tr>
+<tr>
+<td>left</td>
+<td>number</td>
+<td>Left position in pixels</td>
+</tr>
+<tr>
+<td>top</td>
+<td>number</td>
+<td>Top position in pixels</td>
+</tr>
+<tr>
+<td>width</td>
+<td>number</td>
+<td>Width in pixels</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>Height in pixels</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>404: Diagram not found</li>
+</ul>
+<hr />
+<h4 id="put-api-views-id">PUT /api/views/:id</h4>
+<div class="endpoint-action">Update a view&#x27;s position and size.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>View ID (from <code>GET /api/diagrams/:id/views</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>left</td>
+<td>number</td>
+<td>No</td>
+<td>Left position</td>
+</tr>
+<tr>
+<td>top</td>
+<td>number</td>
+<td>No</td>
+<td>Top position</td>
+</tr>
+<tr>
+<td>width</td>
+<td>number</td>
+<td>No</td>
+<td>Width</td>
+</tr>
+<tr>
+<td>height</td>
+<td>number</td>
+<td>No</td>
+<td>Height</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: The updated view object.</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Empty body, unknown fields, or type mismatch</li>
+<li>404: View not found</li>
+</ul>
+<hr />
+<h4 id="put-api-views-id-style">PUT /api/views/:id/style</h4>
+<div class="endpoint-action">Update a view&#x27;s visual style properties. Only the specified fields are updated; unspecified fields retain their current values.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>View ID (from <code>GET /api/diagrams/:id/views</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fillColor</td>
+<td>string</td>
+<td>No</td>
+<td>Fill/background color (e.g., <code>&quot;#FFFF00&quot;</code>, <code>&quot;#C8E6C9&quot;</code>)</td>
+</tr>
+<tr>
+<td>lineColor</td>
+<td>string</td>
+<td>No</td>
+<td>Border/line color (e.g., <code>&quot;#000000&quot;</code>)</td>
+</tr>
+<tr>
+<td>fontColor</td>
+<td>string</td>
+<td>No</td>
+<td>Text color (e.g., <code>&quot;#333333&quot;</code>)</td>
+</tr>
+<tr>
+<td>fontFace</td>
+<td>string</td>
+<td>No</td>
+<td>Font family name (e.g., <code>&quot;Arial&quot;</code>, <code>&quot;Courier New&quot;</code>)</td>
+</tr>
+<tr>
+<td>fontSize</td>
+<td>number</td>
+<td>No</td>
+<td>Font size in points (e.g., <code>13</code>)</td>
+</tr>
+<tr>
+<td>fontStyle</td>
+<td>number</td>
+<td>No</td>
+<td>Font style: <code>0</code>=normal, <code>1</code>=bold, <code>2</code>=italic, <code>3</code>=bold+italic</td>
+</tr>
+<tr>
+<td>lineStyle</td>
+<td>number</td>
+<td>No</td>
+<td>Line style</td>
+</tr>
+<tr>
+<td>showShadow</td>
+<td>boolean</td>
+<td>No</td>
+<td>Show drop shadow</td>
+</tr>
+<tr>
+<td>autoResize</td>
+<td>boolean</td>
+<td>No</td>
+<td>Auto-resize the view to fit its content</td>
+</tr>
+<tr>
+<td>stereotypeDisplay</td>
+<td>string</td>
+<td>No</td>
+<td>Stereotype display mode (e.g., <code>&quot;label&quot;</code>, <code>&quot;icon&quot;</code>, <code>&quot;decoration&quot;</code>, <code>&quot;none&quot;</code>)</td>
+</tr>
+<tr>
+<td>suppressAttributes</td>
+<td>boolean</td>
+<td>No</td>
+<td>Hide the attributes/properties compartment. Default: <code>false</code></td>
+</tr>
+<tr>
+<td>suppressOperations</td>
+<td>boolean</td>
+<td>No</td>
+<td>Hide the operations compartment. Default: <code>true</code> for SysML blocks; <code>false</code> for UML classes. Set to <code>false</code> to show operations</td>
+</tr>
+<tr>
+<td>suppressReceptions</td>
+<td>boolean</td>
+<td>No</td>
+<td>Hide the receptions compartment. Default: <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;fillColor&quot;: &quot;#C8E6C9&quot;,
+  &quot;fontStyle&quot;: 1,
+  &quot;showShadow&quot;: true,
+  &quot;suppressOperations&quot;: false,
+  &quot;autoResize&quot;: true
+}
+</code></pre>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Updated style (fields: fillColor, fontStyle, showShadow, suppressOperations, autoResize)&quot;,
+  &quot;request&quot;: {
+    &quot;method&quot;: &quot;PUT&quot;,
+    &quot;path&quot;: &quot;/api/views/AAAAAAGVvvvv/style&quot;,
+    &quot;body&quot;: { &quot;fillColor&quot;: &quot;#C8E6C9&quot;, &quot;fontStyle&quot;: 1, &quot;showShadow&quot;: true, &quot;suppressOperations&quot;: false, &quot;autoResize&quot;: true }
+  },
+  &quot;data&quot;: {
+    &quot;_id&quot;: &quot;AAAAAAGVvvvv&quot;,
+    &quot;_type&quot;: &quot;SysMLBlockView&quot;,
+    &quot;modelId&quot;: &quot;AAAAAAGVmmmm&quot;,
+    &quot;left&quot;: 100,
+    &quot;top&quot;: 100,
+    &quot;width&quot;: 250,
+    &quot;height&quot;: 150
+  }
+}
+</code></pre>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Empty body</li>
+<li>400: Unknown fields (allowed: fillColor, lineColor, fontColor, fontFace, fontSize, fontStyle, lineStyle, showShadow, autoResize, stereotypeDisplay, suppressAttributes, suppressOperations, suppressReceptions)</li>
+<li>400: Field type mismatch</li>
+<li>404: View not found</li>
+</ul>
+<hr />
+<h4 id="put-api-views-id-reconnect">PUT /api/views/:id/reconnect</h4>
+<div class="endpoint-action">Reconnect a relation view&#x27;s source or target to a different view.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>View ID of a relation/edge view</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tailViewId</td>
+<td>string</td>
+<td>No</td>
+<td>New source view ID</td>
+</tr>
+<tr>
+<td>headViewId</td>
+<td>string</td>
+<td>No</td>
+<td>New target view ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Empty body or unknown fields</li>
+<li>404: View not found</li>
+</ul>
+<hr />
+<h3 id="view-alignment">View Alignment</h3>
+<h4 id="post-api-views-align">POST /api/views/align</h4>
+<div class="endpoint-action">Align multiple views on a diagram.</div>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>viewIds</td>
+<td>array</td>
+<td>Yes</td>
+<td>Array of view IDs to align</td>
+</tr>
+<tr>
+<td>action</td>
+<td>string</td>
+<td>Yes</td>
+<td>Alignment action (see allowed values below)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Allowed alignment actions</strong>: <code>align-left</code>, <code>align-right</code>, <code>align-center</code>, <code>align-top</code>, <code>align-bottom</code>, <code>align-middle</code>, <code>space-equally-horizontally</code>, <code>space-equally-vertically</code>, <code>set-width-equally</code>, <code>set-height-equally</code>, <code>set-size-equally</code>, <code>send-to-back</code>, <code>bring-to-front</code></p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Missing viewIds or action</li>
+<li>400: Invalid action value</li>
 </ul>
 <hr />
 <h2 id="er-diagram-2">ER Diagram</h2>
@@ -12333,8 +12937,8 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Diagram not found</li>
 </ul>
 <hr />
-<h4 id="get-api-diagrams-id-shapes-shapeid">GET /api/diagrams/:id/shapes/:shapeId</h4>
-<div class="endpoint-action">Get the details of a specific shape on a diagram.</div>
+<h4 id="get-api-shapes-id">GET /api/shapes/:id</h4>
+<div class="endpoint-action">Get the details of a specific shape.</div>
 <p><strong>Path parameters</strong>:</p>
 <table>
 <thead>
@@ -12348,24 +12952,18 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>id</td>
 <td>string</td>
-<td>Diagram ID</td>
-</tr>
-<tr>
-<td>shapeId</td>
-<td>string</td>
-<td>Shape ID</td>
+<td>Shape (view) ID</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Response</strong>: Shape object (same format as list response element).</p>
 <p><strong>Errors</strong>:</p>
 <ul>
-<li>404: Diagram not found</li>
-<li>404: Shape not found on the diagram</li>
+<li>404: Shape not found</li>
 </ul>
 <hr />
-<h4 id="put-api-diagrams-id-shapes-shapeid">PUT /api/diagrams/:id/shapes/:shapeId</h4>
-<div class="endpoint-action">Update a shape on a diagram.</div>
+<h4 id="put-api-shapes-id">PUT /api/shapes/:id</h4>
+<div class="endpoint-action">Update a shape.</div>
 <p><strong>Path parameters</strong>:</p>
 <table>
 <thead>
@@ -12379,12 +12977,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>id</td>
 <td>string</td>
-<td>Diagram ID</td>
-</tr>
-<tr>
-<td>shapeId</td>
-<td>string</td>
-<td>Shape ID</td>
+<td>Shape (view) ID</td>
 </tr>
 </tbody>
 </table>
@@ -12416,11 +13009,10 @@ The server automatically URL-decodes path parameters.</p>
 <p><strong>Errors</strong>:</p>
 <ul>
 <li>400: Empty body or unknown fields</li>
-<li>404: Diagram not found</li>
-<li>404: Shape not found on the diagram</li>
+<li>404: Shape not found</li>
 </ul>
 <hr />
-<h4 id="delete-api-diagrams-id-shapes-shapeid">DELETE /api/diagrams/:id/shapes/:shapeId</h4>
+<h4 id="delete-api-shapes-id">DELETE /api/shapes/:id</h4>
 <div class="endpoint-action">Delete a shape from a diagram.</div>
 <p><strong>Path parameters</strong>:</p>
 <table>
@@ -12435,12 +13027,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>id</td>
 <td>string</td>
-<td>Diagram ID</td>
-</tr>
-<tr>
-<td>shapeId</td>
-<td>string</td>
-<td>Shape ID</td>
+<td>Shape (view) ID</td>
 </tr>
 </tbody>
 </table>
@@ -12895,7 +13482,17 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>isAbstract</td>
 <td>boolean</td>
-<td>Whether the class is abstract</td>
+<td>Whether the class is abstract (present only if true)</td>
+</tr>
+<tr>
+<td>isLeaf</td>
+<td>boolean</td>
+<td>Whether the class is a leaf (present only if true)</td>
+</tr>
+<tr>
+<td>isActive</td>
+<td>boolean</td>
+<td>Whether the class is active (present only if true)</td>
 </tr>
 <tr>
 <td>attributes</td>
@@ -13044,11 +13641,30 @@ The server automatically URL-decodes path parameters.</p>
 <td>No</td>
 <td>Documentation text</td>
 </tr>
+<tr>
+<td>isAbstract</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether the class is abstract</td>
+</tr>
+<tr>
+<td>isLeaf</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether the class is a leaf (cannot be further specialized)</td>
+</tr>
+<tr>
+<td>isActive</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether the class is active (has its own thread of control)</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Request example</strong>:</p>
 <pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedClass&quot;
+  &quot;name&quot;: &quot;UpdatedClass&quot;,
+  &quot;isAbstract&quot;: true
 }
 </code></pre>
 <p><strong>Response</strong>: The updated class object.</p>
@@ -19841,6 +20457,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>body</td>
+<td>string</td>
+<td>Action body (multiline, present only if set)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -19868,6 +20489,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Action name</td>
+</tr>
+<tr>
+<td>body</td>
+<td>string</td>
+<td>No</td>
+<td>Action body (multiline)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -19977,6 +20604,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>body</td>
+<td>string</td>
+<td>No</td>
+<td>Action body (multiline)</td>
 </tr>
 </tbody>
 </table>
@@ -20097,7 +20730,7 @@ The server automatically URL-decodes path parameters.</p>
 <hr />
 <h4 id="post-api-activity-actions-id-pins">POST /api/activity/actions/:id/pins</h4>
 <div class="endpoint-action">Create a pin on the specified action.</div>
-<p class="endpoint-detail">Child type: <code>UMLInputPin</code>. Fields: name.</p>
+<p class="endpoint-detail">Child type: <code>UMLInputPin</code>. Fields: name, diagramId.</p>
 <p><strong>Path parameters</strong>:</p>
 <table>
 <thead>
@@ -20131,6 +20764,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Pin name</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram ID where the pin view should be placed. If omitted, auto-detected from the parent action&#x27;s views.</td>
 </tr>
 </tbody>
 </table>
@@ -20220,7 +20859,7 @@ The server automatically URL-decodes path parameters.</p>
 <hr />
 <h4 id="post-api-activity-actions-id-output-pins">POST /api/activity/actions/:id/output-pins</h4>
 <div class="endpoint-action">Create an output pin on the specified action.</div>
-<p class="endpoint-detail">Child type: <code>UMLOutputPin</code>. Fields: name.</p>
+<p class="endpoint-detail">Child type: <code>UMLOutputPin</code>. Fields: name, diagramId.</p>
 <p><strong>Path parameters</strong>:</p>
 <table>
 <thead>
@@ -20254,6 +20893,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Output Pin name</td>
+</tr>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>Diagram ID where the output pin view should be placed. If omitted, auto-detected from the parent action&#x27;s views.</td>
 </tr>
 </tbody>
 </table>
@@ -23503,262 +24148,6 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Final State not found</li>
 </ul>
 <hr />
-<h3 id="connection-points">Connection Points</h3>
-<p>Types: <code>UMLConnectionPointReference</code></p>
-<h4 id="get-api-statemachine-connection-points">GET /api/statemachine/connection-points</h4>
-<div class="endpoint-action">List all connection points.</div>
-<p><strong>Query parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>No</td>
-<td>Filter by diagram ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Retrieved 1 connection points&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/statemachine/connection-points&quot; },
-  &quot;data&quot;: [
-    {
-      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;UMLConnectionPointReference&quot;,
-      &quot;name&quot;: &quot;ConnectionPoint1&quot;,
-      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
-    }
-  ]
-}
-</code></pre>
-<p><strong>Response fields</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>_id</td>
-<td>string</td>
-<td>Unique identifier</td>
-</tr>
-<tr>
-<td>_type</td>
-<td>string</td>
-<td>Always <code>&quot;UMLConnectionPointReference&quot;</code></td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Connection Point name</td>
-</tr>
-<tr>
-<td>_parentId</td>
-<td>string</td>
-<td>Parent element ID</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>Documentation text (present only if set)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h4 id="post-api-statemachine-connection-points">POST /api/statemachine/connection-points</h4>
-<div class="endpoint-action">Create a connection point on a diagram.</div>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>Yes</td>
-<td>Target diagram ID</td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Connection Point name</td>
-</tr>
-<tr>
-<td>x1</td>
-<td>number</td>
-<td>No</td>
-<td>Left position (default: 100)</td>
-</tr>
-<tr>
-<td>y1</td>
-<td>number</td>
-<td>No</td>
-<td>Top position (default: 100)</td>
-</tr>
-<tr>
-<td>x2</td>
-<td>number</td>
-<td>No</td>
-<td>Right position (default: 200)</td>
-</tr>
-<tr>
-<td>y2</td>
-<td>number</td>
-<td>No</td>
-<td>Bottom position (default: 180)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyConnectionPoint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The created connection point object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: <code>diagramId</code> is required</li>
-<li>400: Unknown fields present</li>
-<li>400: Field type mismatch</li>
-<li>400: Empty name</li>
-<li>404: Diagram not found</li>
-</ul>
-<hr />
-<h4 id="get-api-statemachine-connection-points-id">GET /api/statemachine/connection-points/:id</h4>
-<div class="endpoint-action">Get the details of the specified connection point.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Connection Point ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response</strong>: Connection Point object (same format as list response element).</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Connection Point not found</li>
-</ul>
-<hr />
-<h4 id="put-api-statemachine-connection-points-id">PUT /api/statemachine/connection-points/:id</h4>
-<div class="endpoint-action">Update the specified connection point. Only the specified fields are updated.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Connection Point ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Connection Point name</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>No</td>
-<td>Documentation text</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedConnectionPoint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The updated connection point object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
-<li>404: Connection Point not found</li>
-</ul>
-<hr />
-<h4 id="delete-api-statemachine-connection-points-id">DELETE /api/statemachine/connection-points/:id</h4>
-<div class="endpoint-action">Delete the specified connection point and its views from all diagrams.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Connection Point ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Deleted connection point \&quot;ConnectionPoint1\&quot;&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/statemachine/connection-points/AAAAAAGVxxxx&quot; },
-  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;ConnectionPoint1&quot; }
-}
-</code></pre>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Connection Point not found</li>
-</ul>
-<hr />
 <h3 id="pseudostate-creation">Pseudostate Creation</h3>
 <p>When creating a pseudostate via <code>POST /api/statemachine/pseudostates</code>, include <code>pseudostateKind</code> in the request body.</p>
 <p>Valid values: <code>initial</code>, <code>deepHistory</code>, <code>shallowHistory</code>, <code>join</code>, <code>fork</code>, <code>junction</code>, <code>choice</code>, <code>entryPoint</code>, <code>exitPoint</code></p>
@@ -24033,7 +24422,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Transition not found</li>
 </ul>
 <hr />
-<p><strong>Endpoint count</strong>: 5 (diagrams) + 20 (states, pseudostates, final-states, connection-points) + 2 (children) + 5 (transitions) = 32</p>
+<p><strong>Endpoint count</strong>: 5 (diagrams) + 15 (states, pseudostates, final-states) + 2 (children) + 5 (transitions) = 27</p>
 <hr />
 <h2 id="component-diagram-1">Component Diagram</h2>
 <p><strong>Prefix</strong>: <code>/api/component/</code></p>
@@ -24568,6 +24957,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>fileName</td>
+<td>string</td>
+<td>File name (present only if set)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -24595,6 +24989,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Artifact name</td>
+</tr>
+<tr>
+<td>fileName</td>
+<td>string</td>
+<td>No</td>
+<td>File name</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -24704,6 +25104,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>fileName</td>
+<td>string</td>
+<td>No</td>
+<td>File name</td>
 </tr>
 </tbody>
 </table>
@@ -31481,262 +31887,6 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Collaboration Use not found</li>
 </ul>
 <hr />
-<h3 id="association-classes">Association Classes</h3>
-<p>Types: <code>UMLAssociationClass</code></p>
-<h4 id="get-api-composite-association-classes">GET /api/composite/association-classes</h4>
-<div class="endpoint-action">List all association classes.</div>
-<p><strong>Query parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>No</td>
-<td>Filter by diagram ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Retrieved 1 association classes&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/composite/association-classes&quot; },
-  &quot;data&quot;: [
-    {
-      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;UMLAssociationClass&quot;,
-      &quot;name&quot;: &quot;AssociationClass1&quot;,
-      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
-    }
-  ]
-}
-</code></pre>
-<p><strong>Response fields</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>_id</td>
-<td>string</td>
-<td>Unique identifier</td>
-</tr>
-<tr>
-<td>_type</td>
-<td>string</td>
-<td>Always <code>&quot;UMLAssociationClass&quot;</code></td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Association Class name</td>
-</tr>
-<tr>
-<td>_parentId</td>
-<td>string</td>
-<td>Parent element ID</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>Documentation text (present only if set)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h4 id="post-api-composite-association-classes">POST /api/composite/association-classes</h4>
-<div class="endpoint-action">Create an association class on a diagram.</div>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>Yes</td>
-<td>Target diagram ID</td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Association Class name</td>
-</tr>
-<tr>
-<td>x1</td>
-<td>number</td>
-<td>No</td>
-<td>Left position (default: 100)</td>
-</tr>
-<tr>
-<td>y1</td>
-<td>number</td>
-<td>No</td>
-<td>Top position (default: 100)</td>
-</tr>
-<tr>
-<td>x2</td>
-<td>number</td>
-<td>No</td>
-<td>Right position (default: 200)</td>
-</tr>
-<tr>
-<td>y2</td>
-<td>number</td>
-<td>No</td>
-<td>Bottom position (default: 180)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyAssociationClass&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The created association class object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: <code>diagramId</code> is required</li>
-<li>400: Unknown fields present</li>
-<li>400: Field type mismatch</li>
-<li>400: Empty name</li>
-<li>404: Diagram not found</li>
-</ul>
-<hr />
-<h4 id="get-api-composite-association-classes-id">GET /api/composite/association-classes/:id</h4>
-<div class="endpoint-action">Get the details of the specified association class.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Association Class ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response</strong>: Association Class object (same format as list response element).</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Association Class not found</li>
-</ul>
-<hr />
-<h4 id="put-api-composite-association-classes-id">PUT /api/composite/association-classes/:id</h4>
-<div class="endpoint-action">Update the specified association class. Only the specified fields are updated.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Association Class ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Association Class name</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>No</td>
-<td>Documentation text</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedAssociationClass&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The updated association class object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
-<li>404: Association Class not found</li>
-</ul>
-<hr />
-<h4 id="delete-api-composite-association-classes-id">DELETE /api/composite/association-classes/:id</h4>
-<div class="endpoint-action">Delete the specified association class and its views from all diagrams.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Association Class ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Deleted association class \&quot;AssociationClass1\&quot;&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/composite/association-classes/AAAAAAGVxxxx&quot; },
-  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;AssociationClass1&quot; }
-}
-</code></pre>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Association Class not found</li>
-</ul>
-<hr />
 <h3 id="role-bindings">Role Bindings</h3>
 <p>Type: <code>UMLRoleBinding</code> (hasEnds)</p>
 <p>End fields: name, navigable, aggregation, multiplicity</p>
@@ -32726,7 +32876,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Realization not found</li>
 </ul>
 <hr />
-<p><strong>Endpoint count</strong>: 5 (diagrams) + 25 (ports, parts, collaborations, collaboration-uses, association-classes) + 15 (role-bindings, dependencies, realizations) = 45</p>
+<p><strong>Endpoint count</strong>: 5 (diagrams) + 20 (ports, parts, collaborations, collaboration-uses) + 15 (role-bindings, dependencies, realizations) = 40</p>
 <hr />
 <h2 id="information-flow-diagram-1">Information Flow Diagram</h2>
 <p><strong>Prefix</strong>: <code>/api/infoflow/</code></p>
@@ -34176,6 +34326,213 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Stereotype not found</li>
 </ul>
 <hr />
+<h4 id="get-api-profile-stereotypes-id-attributes">GET /api/profile/stereotypes/:id/attributes</h4>
+<div class="endpoint-action">List attributes (tagged value definitions) of the specified stereotype.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Stereotype ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 2 attributes&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/profile/stereotypes/AAAAAAGVxxxx/attributes&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;_type&quot;: &quot;UMLAttribute&quot;,
+      &quot;name&quot;: &quot;basePath&quot;,
+      &quot;type&quot;: &quot;String&quot;,
+      &quot;visibility&quot;: &quot;public&quot;,
+      &quot;isStatic&quot;: false,
+      &quot;defaultValue&quot;: &quot;&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>404: Stereotype not found</li>
+</ul>
+<hr />
+<h4 id="post-api-profile-stereotypes-id-attributes">POST /api/profile/stereotypes/:id/attributes</h4>
+<div class="endpoint-action">Create an attribute (tagged value definition) on the specified stereotype.</div>
+<p class="endpoint-detail">Child type: <code>UMLAttribute</code>. Fields: name, type.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Stereotype ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Attribute name</td>
+</tr>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>No</td>
+<td>Type annotation (e.g., <code>String</code>, <code>Boolean</code>, <code>Integer</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;basePath&quot;,
+  &quot;type&quot;: &quot;String&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created attribute object.</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Unknown fields present</li>
+<li>404: Stereotype not found</li>
+</ul>
+<hr />
+<h4 id="get-api-profile-stereotypes-id-operations">GET /api/profile/stereotypes/:id/operations</h4>
+<div class="endpoint-action">List operations of the specified stereotype.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Stereotype ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 operations&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/profile/stereotypes/AAAAAAGVxxxx/operations&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVaaaa&quot;,
+      &quot;_type&quot;: &quot;UMLOperation&quot;,
+      &quot;name&quot;: &quot;validate&quot;,
+      &quot;visibility&quot;: &quot;public&quot;,
+      &quot;isStatic&quot;: false,
+      &quot;_parentId&quot;: &quot;AAAAAAGVxxxx&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>404: Stereotype not found</li>
+</ul>
+<hr />
+<h4 id="post-api-profile-stereotypes-id-operations">POST /api/profile/stereotypes/:id/operations</h4>
+<div class="endpoint-action">Create an operation on the specified stereotype.</div>
+<p class="endpoint-detail">Child type: <code>UMLOperation</code>. Fields: name, visibility, isStatic.</p>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Stereotype ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Operation name</td>
+</tr>
+<tr>
+<td>visibility</td>
+<td>string</td>
+<td>No</td>
+<td>Visibility: &quot;public&quot;, &quot;protected&quot;, &quot;private&quot;, &quot;package&quot;</td>
+</tr>
+<tr>
+<td>isStatic</td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether the operation is static</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;validate&quot;,
+  &quot;visibility&quot;: &quot;public&quot;,
+  &quot;isStatic&quot;: false
+}
+</code></pre>
+<p><strong>Response</strong>: The created operation object.</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Unknown fields present</li>
+<li>404: Stereotype not found</li>
+</ul>
+<hr />
 <h3 id="metaclasses">Metaclasses</h3>
 <p>Types: <code>UMLMetaClass</code></p>
 <h4 id="get-api-profile-metaclasses">GET /api/profile/metaclasses</h4>
@@ -34908,6 +35265,270 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Diagram not found</li>
 </ul>
 <hr />
+<h3 id="lifelines-2">Lifelines</h3>
+<p>Types: <code>UMLLifeline</code></p>
+<h4 id="get-api-timing-lifelines">GET /api/timing/lifelines</h4>
+<div class="endpoint-action">List all lifelines.</div>
+<p><strong>Query parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>No</td>
+<td>Filter by diagram ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Retrieved 1 lifelines&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/timing/lifelines&quot; },
+  &quot;data&quot;: [
+    {
+      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
+      &quot;_type&quot;: &quot;UMLLifeline&quot;,
+      &quot;name&quot;: &quot;Lifeline1&quot;,
+      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>Response fields</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_id</td>
+<td>string</td>
+<td>Unique identifier</td>
+</tr>
+<tr>
+<td>_type</td>
+<td>string</td>
+<td>Always <code>&quot;UMLLifeline&quot;</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Lifeline name</td>
+</tr>
+<tr>
+<td>_parentId</td>
+<td>string</td>
+<td>Parent element ID</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>Documentation text (present only if set)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="post-api-timing-lifelines">POST /api/timing/lifelines</h4>
+<div class="endpoint-action">Create a lifeline on a timing diagram. Requires <code>tailViewId</code> pointing to the <code>UMLTimingFrameView</code> on the diagram.</div>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>diagramId</td>
+<td>string</td>
+<td>Yes</td>
+<td>Target diagram ID</td>
+</tr>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline name</td>
+</tr>
+<tr>
+<td>tailViewId</td>
+<td>string</td>
+<td>Yes</td>
+<td>View ID of the UMLTimingFrameView (container)</td>
+</tr>
+<tr>
+<td>x1</td>
+<td>number</td>
+<td>No</td>
+<td>Left position (default: 100)</td>
+</tr>
+<tr>
+<td>y1</td>
+<td>number</td>
+<td>No</td>
+<td>Top position (default: 100)</td>
+</tr>
+<tr>
+<td>x2</td>
+<td>number</td>
+<td>No</td>
+<td>Right position (default: 200)</td>
+</tr>
+<tr>
+<td>y2</td>
+<td>number</td>
+<td>No</td>
+<td>Bottom position (default: 180)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
+  &quot;name&quot;: &quot;MyLifeline&quot;,
+  &quot;tailViewId&quot;: &quot;AAAAAAGVffff&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The created lifeline object.</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: <code>diagramId</code> is required</li>
+<li>400: Unknown fields present</li>
+<li>400: Field type mismatch</li>
+<li>400: Empty name</li>
+<li>400: View not found on diagram (invalid tailViewId)</li>
+<li>404: Diagram not found</li>
+</ul>
+<hr />
+<h4 id="get-api-timing-lifelines-id">GET /api/timing/lifelines/:id</h4>
+<div class="endpoint-action">Get the details of the specified lifeline.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response</strong>: Lifeline object (same format as list response element).</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>404: Lifeline not found</li>
+</ul>
+<hr />
+<h4 id="put-api-timing-lifelines-id">PUT /api/timing/lifelines/:id</h4>
+<div class="endpoint-action">Update the specified lifeline. Only the specified fields are updated.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request body</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>No</td>
+<td>Lifeline name</td>
+</tr>
+<tr>
+<td>documentation</td>
+<td>string</td>
+<td>No</td>
+<td>Documentation text</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;UpdatedLifeline&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: The updated lifeline object.</p>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
+<li>404: Lifeline not found</li>
+</ul>
+<hr />
+<h4 id="delete-api-timing-lifelines-id">DELETE /api/timing/lifelines/:id</h4>
+<div class="endpoint-action">Delete the specified lifeline and its views from all diagrams.</div>
+<p><strong>Path parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Lifeline ID</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Response example</strong>:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Deleted lifeline \&quot;Lifeline1\&quot;&quot;,
+  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/timing/lifelines/AAAAAAGVxxxx&quot; },
+  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;Lifeline1&quot; }
+}
+</code></pre>
+<p><strong>Errors</strong>:</p>
+<ul>
+<li>404: Lifeline not found</li>
+</ul>
+<hr />
 <h3 id="timing-states">Timing States</h3>
 <p>Types: <code>UMLTimingState</code></p>
 <h4 id="get-api-timing-timing-states">GET /api/timing/timing-states</h4>
@@ -34985,7 +35606,7 @@ The server automatically URL-decodes path parameters.</p>
 </table>
 <hr />
 <h4 id="post-api-timing-timing-states">POST /api/timing/timing-states</h4>
-<div class="endpoint-action">Create a timing state on a diagram.</div>
+<div class="endpoint-action">Create a timing state on a diagram. Requires <code>tailViewId</code> pointing to the <code>UMLTimingLifelineView</code> on the diagram.</div>
 <p><strong>Request body</strong>:</p>
 <table>
 <thead>
@@ -35008,6 +35629,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Timing State name</td>
+</tr>
+<tr>
+<td>tailViewId</td>
+<td>string</td>
+<td>Yes</td>
+<td>View ID of the UMLTimingLifelineView (container lifeline)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -35038,7 +35665,8 @@ The server automatically URL-decodes path parameters.</p>
 <p><strong>Request example</strong>:</p>
 <pre><code class="language-json">{
   &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyTimingState&quot;
+  &quot;name&quot;: &quot;MyTimingState&quot;,
+  &quot;tailViewId&quot;: &quot;AAAAAAGVllll&quot;
 }
 </code></pre>
 <p><strong>Response</strong>: The created timing state object.</p>
@@ -35162,774 +35790,6 @@ The server automatically URL-decodes path parameters.</p>
 <p><strong>Errors</strong>:</p>
 <ul>
 <li>404: Timing State not found</li>
-</ul>
-<hr />
-<h3 id="duration-constraints">Duration Constraints</h3>
-<p>Types: <code>UMLDurationConstraint</code></p>
-<h4 id="get-api-timing-duration-constraints">GET /api/timing/duration-constraints</h4>
-<div class="endpoint-action">List all duration constraints.</div>
-<p><strong>Query parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>No</td>
-<td>Filter by diagram ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Retrieved 1 duration constraints&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/timing/duration-constraints&quot; },
-  &quot;data&quot;: [
-    {
-      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;UMLDurationConstraint&quot;,
-      &quot;name&quot;: &quot;DurationConstraint1&quot;,
-      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
-    }
-  ]
-}
-</code></pre>
-<p><strong>Response fields</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>_id</td>
-<td>string</td>
-<td>Unique identifier</td>
-</tr>
-<tr>
-<td>_type</td>
-<td>string</td>
-<td>Always <code>&quot;UMLDurationConstraint&quot;</code></td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Duration Constraint name</td>
-</tr>
-<tr>
-<td>_parentId</td>
-<td>string</td>
-<td>Parent element ID</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>Documentation text (present only if set)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h4 id="post-api-timing-duration-constraints">POST /api/timing/duration-constraints</h4>
-<div class="endpoint-action">Create a duration constraint on a diagram.</div>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>Yes</td>
-<td>Target diagram ID</td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Duration Constraint name</td>
-</tr>
-<tr>
-<td>x1</td>
-<td>number</td>
-<td>No</td>
-<td>Left position (default: 100)</td>
-</tr>
-<tr>
-<td>y1</td>
-<td>number</td>
-<td>No</td>
-<td>Top position (default: 100)</td>
-</tr>
-<tr>
-<td>x2</td>
-<td>number</td>
-<td>No</td>
-<td>Right position (default: 200)</td>
-</tr>
-<tr>
-<td>y2</td>
-<td>number</td>
-<td>No</td>
-<td>Bottom position (default: 180)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyDurationConstraint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The created duration constraint object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: <code>diagramId</code> is required</li>
-<li>400: Unknown fields present</li>
-<li>400: Field type mismatch</li>
-<li>400: Empty name</li>
-<li>404: Diagram not found</li>
-</ul>
-<hr />
-<h4 id="get-api-timing-duration-constraints-id">GET /api/timing/duration-constraints/:id</h4>
-<div class="endpoint-action">Get the details of the specified duration constraint.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Duration Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response</strong>: Duration Constraint object (same format as list response element).</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Duration Constraint not found</li>
-</ul>
-<hr />
-<h4 id="put-api-timing-duration-constraints-id">PUT /api/timing/duration-constraints/:id</h4>
-<div class="endpoint-action">Update the specified duration constraint. Only the specified fields are updated.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Duration Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Duration Constraint name</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>No</td>
-<td>Documentation text</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedDurationConstraint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The updated duration constraint object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
-<li>404: Duration Constraint not found</li>
-</ul>
-<hr />
-<h4 id="delete-api-timing-duration-constraints-id">DELETE /api/timing/duration-constraints/:id</h4>
-<div class="endpoint-action">Delete the specified duration constraint and its views from all diagrams.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Duration Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Deleted duration constraint \&quot;DurationConstraint1\&quot;&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/timing/duration-constraints/AAAAAAGVxxxx&quot; },
-  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;DurationConstraint1&quot; }
-}
-</code></pre>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Duration Constraint not found</li>
-</ul>
-<hr />
-<h3 id="time-ticks">Time Ticks</h3>
-<p>Types: <code>UMLTimeTick</code></p>
-<h4 id="get-api-timing-time-ticks">GET /api/timing/time-ticks</h4>
-<div class="endpoint-action">List all time ticks.</div>
-<p><strong>Query parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>No</td>
-<td>Filter by diagram ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Retrieved 1 time ticks&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/timing/time-ticks&quot; },
-  &quot;data&quot;: [
-    {
-      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;UMLTimeTick&quot;,
-      &quot;name&quot;: &quot;TimeTick1&quot;,
-      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
-    }
-  ]
-}
-</code></pre>
-<p><strong>Response fields</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>_id</td>
-<td>string</td>
-<td>Unique identifier</td>
-</tr>
-<tr>
-<td>_type</td>
-<td>string</td>
-<td>Always <code>&quot;UMLTimeTick&quot;</code></td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Time Tick name</td>
-</tr>
-<tr>
-<td>_parentId</td>
-<td>string</td>
-<td>Parent element ID</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>Documentation text (present only if set)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h4 id="post-api-timing-time-ticks">POST /api/timing/time-ticks</h4>
-<div class="endpoint-action">Create a time tick on a diagram.</div>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>Yes</td>
-<td>Target diagram ID</td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Time Tick name</td>
-</tr>
-<tr>
-<td>x1</td>
-<td>number</td>
-<td>No</td>
-<td>Left position (default: 100)</td>
-</tr>
-<tr>
-<td>y1</td>
-<td>number</td>
-<td>No</td>
-<td>Top position (default: 100)</td>
-</tr>
-<tr>
-<td>x2</td>
-<td>number</td>
-<td>No</td>
-<td>Right position (default: 200)</td>
-</tr>
-<tr>
-<td>y2</td>
-<td>number</td>
-<td>No</td>
-<td>Bottom position (default: 180)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyTimeTick&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The created time tick object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: <code>diagramId</code> is required</li>
-<li>400: Unknown fields present</li>
-<li>400: Field type mismatch</li>
-<li>400: Empty name</li>
-<li>404: Diagram not found</li>
-</ul>
-<hr />
-<h4 id="get-api-timing-time-ticks-id">GET /api/timing/time-ticks/:id</h4>
-<div class="endpoint-action">Get the details of the specified time tick.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Tick ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response</strong>: Time Tick object (same format as list response element).</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Time Tick not found</li>
-</ul>
-<hr />
-<h4 id="put-api-timing-time-ticks-id">PUT /api/timing/time-ticks/:id</h4>
-<div class="endpoint-action">Update the specified time tick. Only the specified fields are updated.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Tick ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Time Tick name</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>No</td>
-<td>Documentation text</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedTimeTick&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The updated time tick object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
-<li>404: Time Tick not found</li>
-</ul>
-<hr />
-<h4 id="delete-api-timing-time-ticks-id">DELETE /api/timing/time-ticks/:id</h4>
-<div class="endpoint-action">Delete the specified time tick and its views from all diagrams.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Tick ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Deleted time tick \&quot;TimeTick1\&quot;&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/timing/time-ticks/AAAAAAGVxxxx&quot; },
-  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;TimeTick1&quot; }
-}
-</code></pre>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Time Tick not found</li>
-</ul>
-<hr />
-<h3 id="time-constraints">Time Constraints</h3>
-<p>Types: <code>UMLTimeConstraint</code></p>
-<h4 id="get-api-timing-time-constraints">GET /api/timing/time-constraints</h4>
-<div class="endpoint-action">List all time constraints.</div>
-<p><strong>Query parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>No</td>
-<td>Filter by diagram ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Retrieved 1 time constraints&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;path&quot;: &quot;/api/timing/time-constraints&quot; },
-  &quot;data&quot;: [
-    {
-      &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;UMLTimeConstraint&quot;,
-      &quot;name&quot;: &quot;TimeConstraint1&quot;,
-      &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
-    }
-  ]
-}
-</code></pre>
-<p><strong>Response fields</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>_id</td>
-<td>string</td>
-<td>Unique identifier</td>
-</tr>
-<tr>
-<td>_type</td>
-<td>string</td>
-<td>Always <code>&quot;UMLTimeConstraint&quot;</code></td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Time Constraint name</td>
-</tr>
-<tr>
-<td>_parentId</td>
-<td>string</td>
-<td>Parent element ID</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>Documentation text (present only if set)</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h4 id="post-api-timing-time-constraints">POST /api/timing/time-constraints</h4>
-<div class="endpoint-action">Create a time constraint on a diagram.</div>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>diagramId</td>
-<td>string</td>
-<td>Yes</td>
-<td>Target diagram ID</td>
-</tr>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Time Constraint name</td>
-</tr>
-<tr>
-<td>x1</td>
-<td>number</td>
-<td>No</td>
-<td>Left position (default: 100)</td>
-</tr>
-<tr>
-<td>y1</td>
-<td>number</td>
-<td>No</td>
-<td>Top position (default: 100)</td>
-</tr>
-<tr>
-<td>x2</td>
-<td>number</td>
-<td>No</td>
-<td>Right position (default: 200)</td>
-</tr>
-<tr>
-<td>y2</td>
-<td>number</td>
-<td>No</td>
-<td>Bottom position (default: 180)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
-  &quot;name&quot;: &quot;MyTimeConstraint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The created time constraint object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: <code>diagramId</code> is required</li>
-<li>400: Unknown fields present</li>
-<li>400: Field type mismatch</li>
-<li>400: Empty name</li>
-<li>404: Diagram not found</li>
-</ul>
-<hr />
-<h4 id="get-api-timing-time-constraints-id">GET /api/timing/time-constraints/:id</h4>
-<div class="endpoint-action">Get the details of the specified time constraint.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response</strong>: Time Constraint object (same format as list response element).</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Time Constraint not found</li>
-</ul>
-<hr />
-<h4 id="put-api-timing-time-constraints-id">PUT /api/timing/time-constraints/:id</h4>
-<div class="endpoint-action">Update the specified time constraint. Only the specified fields are updated.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request body</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>No</td>
-<td>Time Constraint name</td>
-</tr>
-<tr>
-<td>documentation</td>
-<td>string</td>
-<td>No</td>
-<td>Documentation text</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Request example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;UpdatedTimeConstraint&quot;
-}
-</code></pre>
-<p><strong>Response</strong>: The updated time constraint object.</p>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>400: Empty body, unknown fields, type mismatch, or empty name</li>
-<li>404: Time Constraint not found</li>
-</ul>
-<hr />
-<h4 id="delete-api-timing-time-constraints-id">DELETE /api/timing/time-constraints/:id</h4>
-<div class="endpoint-action">Delete the specified time constraint and its views from all diagrams.</div>
-<p><strong>Path parameters</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id</td>
-<td>string</td>
-<td>Time Constraint ID</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Response example</strong>:</p>
-<pre><code class="language-json">{
-  &quot;success&quot;: true,
-  &quot;message&quot;: &quot;Deleted time constraint \&quot;TimeConstraint1\&quot;&quot;,
-  &quot;request&quot;: { &quot;method&quot;: &quot;DELETE&quot;, &quot;path&quot;: &quot;/api/timing/time-constraints/AAAAAAGVxxxx&quot; },
-  &quot;data&quot;: { &quot;deleted&quot;: &quot;AAAAAAGVxxxx&quot;, &quot;name&quot;: &quot;TimeConstraint1&quot; }
-}
-</code></pre>
-<p><strong>Errors</strong>:</p>
-<ul>
-<li>404: Time Constraint not found</li>
 </ul>
 <hr />
 <h3 id="time-segments">Time Segments</h3>
@@ -36202,7 +36062,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>404: Time Segment not found</li>
 </ul>
 <hr />
-<p><strong>Endpoint count</strong>: 5 (diagrams) + 20 (timing-states, duration-constraints, time-ticks, time-constraints) + 5 (time-segments) = 30</p>
+<p><strong>Endpoint count</strong>: 5 (diagrams) + 10 (lifelines, timing-states) + 5 (time-segments) = 20</p>
 <hr />
 <h2 id="interaction-overview-diagram-1">Interaction Overview Diagram</h2>
 <p><strong>Prefix</strong>: <code>/api/overview/</code></p>
@@ -40096,6 +39956,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>script</td>
+<td>string</td>
+<td>Script content (present only for <code>BPMNScriptTask</code>)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -40129,6 +39994,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Element type: <code>BPMNTask</code>, <code>BPMNSendTask</code>, <code>BPMNReceiveTask</code>, <code>BPMNServiceTask</code>, <code>BPMNUserTask</code>, <code>BPMNManualTask</code>, <code>BPMNBusinessRuleTask</code>, <code>BPMNScriptTask</code>, <code>BPMNCallActivity</code> (default: <code>&quot;BPMNTask&quot;</code>)</td>
+</tr>
+<tr>
+<td>script</td>
+<td>string</td>
+<td>No</td>
+<td>Script content (only applicable to <code>BPMNScriptTask</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -40240,6 +40111,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>script</td>
+<td>string</td>
+<td>No</td>
+<td>Script content (only applicable to <code>BPMNScriptTask</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -42080,6 +41957,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>Annotation text content (present only for <code>BPMNTextAnnotation</code>)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -42113,6 +41995,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Element type: <code>BPMNTextAnnotation</code>, <code>BPMNGroup</code> (default: <code>&quot;BPMNTextAnnotation&quot;</code>)</td>
+</tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>No</td>
+<td>Annotation text content (only applicable to <code>BPMNTextAnnotation</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -42224,6 +42112,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>No</td>
+<td>Annotation text content (only applicable to <code>BPMNTextAnnotation</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -42349,6 +42243,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>Documentation text (present only if set)</td>
 </tr>
 <tr>
+<td>condition</td>
+<td>string</td>
+<td>Sequence flow condition (present only if set)</td>
+</tr>
+<tr>
 <td>sourceId</td>
 <td>string</td>
 <td>Source element ID</td>
@@ -42407,6 +42306,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Sequence Flow name</td>
+</tr>
+<tr>
+<td>condition</td>
+<td>string</td>
+<td>No</td>
+<td>Sequence flow condition</td>
 </tr>
 </tbody>
 </table>
@@ -42494,6 +42399,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>condition</td>
+<td>string</td>
+<td>No</td>
+<td>Sequence flow condition</td>
 </tr>
 </tbody>
 </table>
@@ -44099,6 +44010,7 @@ The server automatically URL-decodes path parameters.</p>
 <hr />
 <h3 id="elements-1">Elements</h3>
 <p>Types: <code>C4Person</code>, <code>C4SoftwareSystem</code>, <code>C4Container</code>, <code>C4ContainerDatabase</code>, <code>C4ContainerWebApp</code>, <code>C4ContainerDesktopApp</code>, <code>C4ContainerMobileApp</code>, <code>C4Component</code>, <code>C4Element</code></p>
+<blockquote><p><strong>Note</strong>: <code>C4ContainerDatabase</code>, <code>C4ContainerWebApp</code>, <code>C4ContainerDesktopApp</code>, <code>C4ContainerMobileApp</code> are creation aliases for <code>C4Container</code> with different <code>kind</code> values (<code>database</code>, <code>client-webapp</code>, <code>desktop-app</code>, <code>mobile-app</code>). The created model type is always <code>C4Container</code>, so the <code>_type</code> field in responses will be <code>&quot;C4Container&quot;</code>.</p></blockquote>
 <h4 id="get-api-c4-elements">GET /api/c4/elements</h4>
 <div class="endpoint-action">List all elements.</div>
 <p><strong>Query parameters</strong>:</p>
@@ -44153,7 +44065,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>_type</td>
 <td>string</td>
-<td>Element type (<code>C4Person</code>, <code>C4SoftwareSystem</code>, <code>C4Container</code>, <code>C4ContainerDatabase</code>, <code>C4ContainerWebApp</code>, <code>C4ContainerDesktopApp</code>, <code>C4ContainerMobileApp</code>, <code>C4Component</code>, <code>C4Element</code>)</td>
+<td>Element model type (<code>C4Person</code>, <code>C4SoftwareSystem</code>, <code>C4Container</code>, <code>C4Component</code>, <code>C4Element</code>). Container subtypes (Database, WebApp, etc.) are returned as <code>C4Container</code>.</td>
 </tr>
 <tr>
 <td>name</td>
@@ -44169,6 +44081,16 @@ The server automatically URL-decodes path parameters.</p>
 <td>documentation</td>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
+</tr>
+<tr>
+<td>technology</td>
+<td>string</td>
+<td>Technology description (present only if set)</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Element description (present only if set)</td>
 </tr>
 </tbody>
 </table>
@@ -44203,6 +44125,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Element type: <code>C4Person</code>, <code>C4SoftwareSystem</code>, <code>C4Container</code>, <code>C4ContainerDatabase</code>, <code>C4ContainerWebApp</code>, <code>C4ContainerDesktopApp</code>, <code>C4ContainerMobileApp</code>, <code>C4Component</code>, <code>C4Element</code> (default: <code>&quot;C4Person&quot;</code>)</td>
+</tr>
+<tr>
+<td>technology</td>
+<td>string</td>
+<td>No</td>
+<td>Technology description</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>No</td>
+<td>Element description</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -44314,6 +44248,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>technology</td>
+<td>string</td>
+<td>No</td>
+<td>Technology description</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>No</td>
+<td>Element description</td>
 </tr>
 </tbody>
 </table>
@@ -44439,6 +44385,16 @@ The server automatically URL-decodes path parameters.</p>
 <td>Documentation text (present only if set)</td>
 </tr>
 <tr>
+<td>technology</td>
+<td>string</td>
+<td>Technology description (present only if set)</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Relationship description (present only if set)</td>
+</tr>
+<tr>
 <td>sourceId</td>
 <td>string</td>
 <td>Source element ID</td>
@@ -44497,6 +44453,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Relationship name</td>
+</tr>
+<tr>
+<td>technology</td>
+<td>string</td>
+<td>No</td>
+<td>Technology description</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>No</td>
+<td>Relationship description</td>
 </tr>
 </tbody>
 </table>
@@ -44584,6 +44552,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>technology</td>
+<td>string</td>
+<td>No</td>
+<td>Technology description</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>No</td>
+<td>Relationship description</td>
 </tr>
 </tbody>
 </table>
@@ -44918,6 +44898,16 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>Requirement text (present only if set)</td>
+</tr>
+<tr>
+<td>requirementId</td>
+<td>string</td>
+<td>Requirement ID (maps to SysML <code>id</code> field, present only if set)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -44945,6 +44935,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Requirement name</td>
+</tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>No</td>
+<td>Requirement text</td>
+</tr>
+<tr>
+<td>requirementId</td>
+<td>string</td>
+<td>No</td>
+<td>Requirement ID (maps to SysML <code>id</code> field)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -45054,6 +45056,18 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>No</td>
+<td>Requirement text</td>
+</tr>
+<tr>
+<td>requirementId</td>
+<td>string</td>
+<td>No</td>
+<td>Requirement ID (maps to SysML <code>id</code> field)</td>
 </tr>
 </tbody>
 </table>
@@ -45820,6 +45834,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>concern</td>
+<td>string</td>
+<td>Stakeholder concern (multiline, present only if set)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -45847,6 +45866,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Stakeholder name</td>
+</tr>
+<tr>
+<td>concern</td>
+<td>string</td>
+<td>No</td>
+<td>Stakeholder concern (multiline)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -45956,6 +45981,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>concern</td>
+<td>string</td>
+<td>No</td>
+<td>Stakeholder concern (multiline)</td>
 </tr>
 </tbody>
 </table>
@@ -46076,6 +46107,21 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>purpose</td>
+<td>string</td>
+<td>Viewpoint purpose (present only if set)</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>Viewpoint language (present only if set)</td>
+</tr>
+<tr>
+<td>presentation</td>
+<td>string</td>
+<td>Viewpoint presentation (present only if set)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -46103,6 +46149,24 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Viewpoint name</td>
+</tr>
+<tr>
+<td>purpose</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint purpose</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint language</td>
+</tr>
+<tr>
+<td>presentation</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint presentation</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -46212,6 +46276,24 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>purpose</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint purpose</td>
+</tr>
+<tr>
+<td>language</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint language</td>
+</tr>
+<tr>
+<td>presentation</td>
+<td>string</td>
+<td>No</td>
+<td>Viewpoint presentation</td>
 </tr>
 </tbody>
 </table>
@@ -46646,6 +46728,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>No</td>
 <td>Bottom position (default: 180)</td>
 </tr>
+<tr>
+<td>tailViewId</td>
+<td>string</td>
+<td>No</td>
+<td>Container view ID. Most part types require this pointing to a Block view on the diagram. For <code>SysMLConstraintParameter</code>, use a ConstraintProperty view or omit when placing directly on a PAR/IBD diagram whose parent is a SysMLBlock.</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Request example</strong>:</p>
@@ -46655,6 +46743,12 @@ The server automatically URL-decodes path parameters.</p>
   &quot;type&quot;: &quot;SysMLPart&quot;
 }
 </code></pre>
+<p><strong>Notes on <code>SysMLConstraintParameter</code></strong>:</p>
+<ul>
+<li>When placed directly on a <code>SysMLParametricDiagram</code> or <code>SysMLInternalBlockDiagram</code>, the diagram&#x27;s parent must be a <code>SysMLBlock</code>. The parameter is created on the block&#x27;s <code>parameters</code> field.</li>
+<li>When placed inside a <code>SysMLConstraintProperty</code> (via <code>tailViewId</code>), the ConstraintProperty must be typed with a <code>SysMLConstraintBlock</code>.</li>
+<li>The actual model type created is <code>SysMLProperty</code> (stored in the block&#x27;s <code>parameters</code> field).</li>
+</ul>
 <p><strong>Response</strong>: The created part object.</p>
 <p><strong>Errors</strong>:</p>
 <ul>
@@ -49482,6 +49576,11 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>Documentation text (present only if set)</td>
 </tr>
+<tr>
+<td>checked</td>
+<td>boolean</td>
+<td>Checked state (present only for <code>WFRadio</code>, <code>WFCheckbox</code>, <code>WFSwitch</code>)</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -49515,6 +49614,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Element type: <code>WFButton</code>, <code>WFText</code>, <code>WFRadio</code>, <code>WFCheckbox</code>, <code>WFSwitch</code>, <code>WFLink</code>, <code>WFTabList</code>, <code>WFTab</code>, <code>WFInput</code>, <code>WFDropdown</code>, <code>WFPanel</code>, <code>WFImage</code>, <code>WFSeparator</code>, <code>WFAvatar</code>, <code>WFSlider</code> (default: <code>&quot;WFButton&quot;</code>)</td>
+</tr>
+<tr>
+<td>checked</td>
+<td>boolean</td>
+<td>No</td>
+<td>Checked state (only applicable to <code>WFRadio</code>, <code>WFCheckbox</code>, <code>WFSwitch</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -49626,6 +49731,12 @@ The server automatically URL-decodes path parameters.</p>
 <td>string</td>
 <td>No</td>
 <td>Documentation text</td>
+</tr>
+<tr>
+<td>checked</td>
+<td>boolean</td>
+<td>No</td>
+<td>Checked state (only applicable to <code>WFRadio</code>, <code>WFCheckbox</code>, <code>WFSwitch</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -50612,7 +50723,7 @@ The server automatically URL-decodes path parameters.</p>
 </ul>
 <hr />
 <h3 id="elements-2">Elements</h3>
-<p>Types: <code>AWSElement</code>, <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code></p>
+<p>Types: <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code></p>
 <h4 id="get-api-aws-elements">GET /api/aws/elements</h4>
 <div class="endpoint-action">List all elements.</div>
 <p><strong>Query parameters</strong>:</p>
@@ -50642,7 +50753,7 @@ The server automatically URL-decodes path parameters.</p>
   &quot;data&quot;: [
     {
       &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;AWSElement&quot;,
+      &quot;_type&quot;: &quot;AWSService&quot;,
       &quot;name&quot;: &quot;Element1&quot;,
       &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
     }
@@ -50667,7 +50778,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>_type</td>
 <td>string</td>
-<td>Element type (<code>AWSElement</code>, <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code>)</td>
+<td>Element type (<code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code>)</td>
 </tr>
 <tr>
 <td>name</td>
@@ -50716,7 +50827,7 @@ The server automatically URL-decodes path parameters.</p>
 <td>type</td>
 <td>string</td>
 <td>No</td>
-<td>Element type: <code>AWSElement</code>, <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code> (default: <code>&quot;AWSElement&quot;</code>)</td>
+<td>Element type: <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code> (default: <code>&quot;AWSGroup&quot;</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -50748,7 +50859,7 @@ The server automatically URL-decodes path parameters.</p>
 <pre><code class="language-json">{
   &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
   &quot;name&quot;: &quot;MyElement&quot;,
-  &quot;type&quot;: &quot;AWSElement&quot;
+  &quot;type&quot;: &quot;AWSService&quot;
 }
 </code></pre>
 <p><strong>Response</strong>: The created element object.</p>
@@ -50758,7 +50869,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>400: Unknown fields present</li>
 <li>400: Field type mismatch</li>
 <li>400: Empty name</li>
-<li>400: Invalid type (must be one of <code>AWSElement</code>, <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code>)</li>
+<li>400: Invalid type (must be one of <code>AWSGroup</code>, <code>AWSGenericGroup</code>, <code>AWSAvailabilityZone</code>, <code>AWSSecurityGroup</code>, <code>AWSService</code>, <code>AWSResource</code>, <code>AWSGeneralResource</code>, <code>AWSCallout</code>)</li>
 <li>404: Diagram not found</li>
 </ul>
 <hr />
@@ -51352,7 +51463,7 @@ The server automatically URL-decodes path parameters.</p>
 </ul>
 <hr />
 <h3 id="elements-3">Elements</h3>
-<p>Types: <code>AzureElement</code>, <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code></p>
+<p>Types: <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code></p>
 <h4 id="get-api-azure-elements">GET /api/azure/elements</h4>
 <div class="endpoint-action">List all elements.</div>
 <p><strong>Query parameters</strong>:</p>
@@ -51382,7 +51493,7 @@ The server automatically URL-decodes path parameters.</p>
   &quot;data&quot;: [
     {
       &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;AzureElement&quot;,
+      &quot;_type&quot;: &quot;AzureService&quot;,
       &quot;name&quot;: &quot;Element1&quot;,
       &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
     }
@@ -51407,7 +51518,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>_type</td>
 <td>string</td>
-<td>Element type (<code>AzureElement</code>, <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code>)</td>
+<td>Element type (<code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code>)</td>
 </tr>
 <tr>
 <td>name</td>
@@ -51456,7 +51567,7 @@ The server automatically URL-decodes path parameters.</p>
 <td>type</td>
 <td>string</td>
 <td>No</td>
-<td>Element type: <code>AzureElement</code>, <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code> (default: <code>&quot;AzureElement&quot;</code>)</td>
+<td>Element type: <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code> (default: <code>&quot;AzureGroup&quot;</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -51488,7 +51599,7 @@ The server automatically URL-decodes path parameters.</p>
 <pre><code class="language-json">{
   &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
   &quot;name&quot;: &quot;MyElement&quot;,
-  &quot;type&quot;: &quot;AzureElement&quot;
+  &quot;type&quot;: &quot;AzureService&quot;
 }
 </code></pre>
 <p><strong>Response</strong>: The created element object.</p>
@@ -51498,7 +51609,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>400: Unknown fields present</li>
 <li>400: Field type mismatch</li>
 <li>400: Empty name</li>
-<li>400: Invalid type (must be one of <code>AzureElement</code>, <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code>)</li>
+<li>400: Invalid type (must be one of <code>AzureGroup</code>, <code>AzureService</code>, <code>AzureCallout</code>)</li>
 <li>404: Diagram not found</li>
 </ul>
 <hr />
@@ -52092,7 +52203,7 @@ The server automatically URL-decodes path parameters.</p>
 </ul>
 <hr />
 <h3 id="elements-4">Elements</h3>
-<p>Types: <code>GCPElement</code>, <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code></p>
+<p>Types: <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code></p>
 <h4 id="get-api-gcp-elements">GET /api/gcp/elements</h4>
 <div class="endpoint-action">List all elements.</div>
 <p><strong>Query parameters</strong>:</p>
@@ -52122,7 +52233,7 @@ The server automatically URL-decodes path parameters.</p>
   &quot;data&quot;: [
     {
       &quot;_id&quot;: &quot;AAAAAAGVxxxx&quot;,
-      &quot;_type&quot;: &quot;GCPElement&quot;,
+      &quot;_type&quot;: &quot;GCPProduct&quot;,
       &quot;name&quot;: &quot;Element1&quot;,
       &quot;_parentId&quot;: &quot;AAAAAAGVwwww&quot;
     }
@@ -52147,7 +52258,7 @@ The server automatically URL-decodes path parameters.</p>
 <tr>
 <td>_type</td>
 <td>string</td>
-<td>Element type (<code>GCPElement</code>, <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code>)</td>
+<td>Element type (<code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code>)</td>
 </tr>
 <tr>
 <td>name</td>
@@ -52196,7 +52307,7 @@ The server automatically URL-decodes path parameters.</p>
 <td>type</td>
 <td>string</td>
 <td>No</td>
-<td>Element type: <code>GCPElement</code>, <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code> (default: <code>&quot;GCPElement&quot;</code>)</td>
+<td>Element type: <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code> (default: <code>&quot;GCPUser&quot;</code>)</td>
 </tr>
 <tr>
 <td>x1</td>
@@ -52228,7 +52339,7 @@ The server automatically URL-decodes path parameters.</p>
 <pre><code class="language-json">{
   &quot;diagramId&quot;: &quot;AAAAAAGVwwww&quot;,
   &quot;name&quot;: &quot;MyElement&quot;,
-  &quot;type&quot;: &quot;GCPElement&quot;
+  &quot;type&quot;: &quot;GCPProduct&quot;
 }
 </code></pre>
 <p><strong>Response</strong>: The created element object.</p>
@@ -52238,7 +52349,7 @@ The server automatically URL-decodes path parameters.</p>
 <li>400: Unknown fields present</li>
 <li>400: Field type mismatch</li>
 <li>400: Empty name</li>
-<li>400: Invalid type (must be one of <code>GCPElement</code>, <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code>)</li>
+<li>400: Invalid type (must be one of <code>GCPUser</code>, <code>GCPZone</code>, <code>GCPProduct</code>, <code>GCPService</code>)</li>
 <li>404: Diagram not found</li>
 </ul>
 <hr />
