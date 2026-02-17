@@ -1210,6 +1210,7 @@ function createEntity(body, reqInfo) {
         options.x2 = body.x2 !== undefined ? body.x2 : 300
         options.y2 = body.y2 !== undefined ? body.y2 : 200
         const view = app.factory.createModelAndView(options)
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created entity "' + view.model.name + '" with view on diagram "' + diagram.name + '"',
@@ -2119,6 +2120,7 @@ function createRelationship(body, reqInfo) {
         }
     }
 
+    autoExpandFrame(diagram)
     return {
         success: true,
         message: 'Created relationship "' + (rel.name || rel._id) + '" with view on diagram "' + diagram.name + '"',
@@ -3092,6 +3094,7 @@ function createLifeline(interactionId, body, reqInfo) {
         if (!view || !view.model) {
             return { success: false, error: 'Failed to create lifeline view on diagram. Ensure the interaction has a valid parent hierarchy (UMLCollaboration).', request: Object.assign({}, reqInfo, { body: body }) }
         }
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created lifeline "' + view.model.name + '" with view on diagram "' + diagram.name + '"',
@@ -3390,6 +3393,7 @@ function createMessage(interactionId, body, reqInfo) {
         app.engine.setProperty(view.activation, 'height', body.activationHeight)
     }
 
+    autoExpandFrame(diagram)
     return {
         success: true,
         message: 'Created ' + msgType + ' "' + (msg.name || msg._id) + '" with view on diagram "' + diagram.name + '"',
@@ -3551,6 +3555,7 @@ function createCombinedFragment(interactionId, body, reqInfo) {
         if (!view || !view.model) {
             return { success: false, error: 'Failed to create combined fragment view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
         }
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created combined fragment "' + (view.model.name || view.model.interactionOperator) + '" with view on diagram "' + diagram.name + '"',
@@ -3879,6 +3884,7 @@ function createStateInvariant(interactionId, body, reqInfo) {
         if (!view || !view.model) {
             return { success: false, error: 'Failed to create state invariant view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
         }
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created state invariant "' + (view.model.name || view.model._id) + '" with view on diagram',
@@ -4090,6 +4096,7 @@ function createInteractionUse(interactionId, body, reqInfo) {
         if (!view || !view.model) {
             return { success: false, error: 'Failed to create interaction use view on diagram. StarUML factory returned null.', request: Object.assign({}, reqInfo, { body: body }) }
         }
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created interaction use "' + (view.model.name || view.model._id) + '" with view on diagram',
@@ -5854,12 +5861,14 @@ function layoutDiagram(diagramId, body, reqInfo) {
     const edgeLineStyle = body.edgeLineStyle !== undefined ? body.edgeLineStyle : 1
 
     try {
-        // Timing diagrams have a fixed structure (lifelines → states → waveform
-        // segments) that the generic dagre hierarchical layout cannot handle.
-        // For these diagrams, skip the layout engine and only fit the frame.
-        const isTimingDiagram = diagram.constructor.name === 'UMLTimingDiagram'
+        // Certain diagram types have spatial containment semantics (groups
+        // containing services, lifelines containing waveforms) that the generic
+        // dagre hierarchical layout cannot handle — it treats all nodes as
+        // independent and destroys the containment. Skip dagre for these types.
+        const skipDagreTypes = ['UMLTimingDiagram', 'UMLUseCaseDiagram', 'AWSDiagram', 'AzureDiagram', 'GCPDiagram']
+        const skipDagre = skipDagreTypes.indexOf(diagram.constructor.name) !== -1
 
-        if (!isTimingDiagram) {
+        if (!skipDagre) {
             const editor = app.diagrams.getEditor()
             app.engine.layoutDiagram(editor, diagram, direction, separations, edgeLineStyle)
         }
@@ -6771,6 +6780,7 @@ function createLinkObject(diagramId, body, reqInfo) {
             app.engine.setProperty(model, 'name', body.name)
         }
 
+        autoExpandFrame(diagram)
         return {
             success: true,
             message: 'Created UMLLinkObject on diagram "' + (diagram.name || diagramId) + '"',
