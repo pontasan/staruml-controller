@@ -156,20 +156,10 @@ function isIndexTag(tag) {
 }
 
 /**
- * Quote a SQL identifier with double quotes.
- * This ensures reserved words (user, order, group, etc.) and
- * special characters are handled correctly.
- */
-function quoteIdentifier(name) {
-    return '"' + name.replace(/"/g, '""') + '"'
-}
-
-/**
  * Build a schema-qualified name (always includes schema prefix).
- * Both schema and name are quoted to handle reserved words.
  */
 function qualifiedName(schema, name) {
-    return quoteIdentifier(schema) + '.' + quoteIdentifier(name)
+    return schema + '.' + name
 }
 
 // ============================================================
@@ -228,7 +218,7 @@ function generate(outputPath, dataModelId) {
 
         // Schema creation
         if (schema !== 'public') {
-            allSchemas.push('CREATE SCHEMA IF NOT EXISTS ' + quoteIdentifier(schema) + ';')
+            allSchemas.push('CREATE SCHEMA IF NOT EXISTS ' + schema + ';')
         }
 
         // Collect sequences from entity tags
@@ -279,7 +269,7 @@ function generate(outputPath, dataModelId) {
                 const col = columns[c]
                 const colName = getColumnName(col)
                 const pgType = mapColumnType(col)
-                let colDef = '    ' + quoteIdentifier(colName) + ' ' + pgType
+                let colDef = '    ' + colName + ' ' + pgType
 
                 // NOT NULL for primary keys or non-nullable columns
                 if (col.primaryKey || !col.nullable) {
@@ -295,14 +285,14 @@ function generate(outputPath, dataModelId) {
                 }
 
                 if (col.primaryKey) {
-                    pkColumns.push(quoteIdentifier(colName))
+                    pkColumns.push(colName)
                 }
 
                 // Collect UNIQUE constraints
                 if (col.unique) {
                     allUniques.push({
                         table: fullTableName,
-                        column: quoteIdentifier(colName)
+                        column: colName
                     })
                 }
 
@@ -319,14 +309,14 @@ function generate(outputPath, dataModelId) {
                     const refFullTableName = qualifiedName(refSchema, refTableName)
                     allForeignKeys.push({
                         table: fullTableName,
-                        column: quoteIdentifier(colName),
+                        column: colName,
                         refTable: refFullTableName,
-                        refColumn: quoteIdentifier(refColName),
-                        constraintName: quoteIdentifier('FK_' + tableName + '_' + colName)
+                        refColumn: refColName,
+                        constraintName: 'FK_' + tableName + '_' + colName
                     })
 
                     // Auto-index on FK column (anonymous, like staruml-postgresql)
-                    allFkIndexes.push('CREATE INDEX ON ' + fullTableName + '\n    (' + quoteIdentifier(colName) + ');')
+                    allFkIndexes.push('CREATE INDEX ON ' + fullTableName + '\n    (' + colName + ');')
                 }
 
                 colDefs.push(colDef)
@@ -350,7 +340,7 @@ function generate(outputPath, dataModelId) {
             // Collect COMMENT ON COLUMN
             for (let c = 0; c < columns.length; c++) {
                 if (columns[c].documentation) {
-                    allComments.push('COMMENT ON COLUMN ' + fullTableName + '.' + quoteIdentifier(getColumnName(columns[c])) + " IS '" + escapeComment(columns[c].documentation) + "';")
+                    allComments.push('COMMENT ON COLUMN ' + fullTableName + '.' + getColumnName(columns[c]) + " IS '" + escapeComment(columns[c].documentation) + "';")
                 }
             }
 
